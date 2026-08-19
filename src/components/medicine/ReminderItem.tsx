@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { FiCheck, FiClock, FiX, FiBell } from 'react-icons/fi';
+﻿import { motion } from 'framer-motion';
+import { Check, Clock, X, Bell } from 'lucide-react';
 import type { Medicine } from '@/types';
 import { formatTime } from '@/utils/format';
 
@@ -29,8 +29,8 @@ export function ReminderItem({
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-[14px] bg-primary-soft flex items-center justify-center shrink-0">
-            <FiBell className="w-5 h-5 text-primary" />
+          <div className="w-11 h-11 rounded-[14px] bg-blue-soft flex items-center justify-center shrink-0">
+            <Bell className="w-5 h-5 text-blue-deep" strokeWidth={2} />
           </div>
           <div>
             <h4 className="font-semibold text-text text-[15px] leading-tight">
@@ -41,32 +41,32 @@ export function ReminderItem({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-primary shrink-0 bg-primary-soft rounded-full px-3 py-1.5">
-          <FiClock className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-1.5 text-primary bg-primary-soft rounded-full px-3 py-1.5 shrink-0">
+          <Clock className="w-3.5 h-3.5" strokeWidth={2} />
           <span className="text-[13px] font-semibold leading-none">
             {formatTime(time)}
           </span>
         </div>
       </div>
 
-      <div className="flex gap-2 mt-4">
+      <div className="flex gap-2.5 mt-4">
         <button
           onClick={onTaken}
-           className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[18px] bg-primary text-white text-sm font-medium hover:bg-primary-hover active:bg-primary-hover active:scale-[0.98] transition-all duration-200 shadow-card"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-pill bg-primary text-white text-sm font-semibold hover:bg-primary-light active:bg-primary-dark active:scale-[0.98] transition-all duration-200 shadow-button"
         >
-          <FiCheck className="w-4 h-4" /> Taken
+          <Check className="w-4 h-4" strokeWidth={2.2} /> Taken
         </button>
         <button
           onClick={onSnooze}
-          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-primary-soft text-primary text-sm font-medium hover:bg-primary/15 active:scale-[0.98] transition-all duration-200"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-pill bg-yellow-soft text-yellow-deep text-sm font-semibold hover:bg-yellow-soft/70 active:scale-[0.98] transition-all duration-200"
         >
-          <FiClock className="w-4 h-4" /> Snooze
+          <Clock className="w-4 h-4" strokeWidth={2} /> Snooze
         </button>
         <button
           onClick={onSkip}
-          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-surface-muted text-secondary text-sm font-medium hover:bg-border/60 active:scale-[0.98] transition-all duration-200"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-pill bg-surface-muted text-secondary text-sm font-medium hover:bg-border/60 active:scale-[0.98] transition-all duration-200"
         >
-          <FiX className="w-4 h-4" /> Skip
+          <X className="w-4 h-4" strokeWidth={2} /> Skip
         </button>
       </div>
     </motion.div>

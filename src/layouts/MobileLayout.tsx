@@ -1,26 +1,20 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+﻿import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  FiHome,
-  FiThermometer,
-  FiCamera,
-  FiClock,
-  FiSettings,
-} from 'react-icons/fi';
-import type { IconType } from 'react-icons';
+import { Home, Pill, ScanLine, Clock, Settings } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface NavItem {
   path: string;
   label: string;
-  icon: IconType;
+  icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'Home', icon: FiHome },
-  { path: '/medicines', label: 'Medicines', icon: FiThermometer },
-  { path: '/scan', label: 'Scan', icon: FiCamera },
-  { path: '/history', label: 'History', icon: FiClock },
-  { path: '/settings', label: 'Settings', icon: FiSettings },
+  { path: '/', label: 'Today', icon: Home },
+  { path: '/medicines', label: 'Medicines', icon: Pill },
+  { path: '/scan', label: 'Scan', icon: ScanLine },
+  { path: '/history', label: 'Schedule', icon: Clock },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function MobileLayout() {
@@ -47,50 +41,32 @@ export function MobileLayout() {
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 safe-bottom">
           <div className="max-w-md mx-auto px-4 pb-3">
-            <div className="relative bg-surface/95 backdrop-blur-xl border border-border rounded-[28px] shadow-nav">
-              {/* Thin divider at top */}
-              <div className="absolute inset-x-8 top-0 h-px bg-border/60" />
-
-              <div className="flex items-stretch px-1 py-1.5">
+            <div className="bg-ink/95 backdrop-blur-xl rounded-pill shadow-float ring-1 ring-white/10">
+              <div className="flex items-stretch px-1.5 py-1.5">
                 {navItems.map((item) => {
+                  const Icon = item.icon;
                   return (
                     <NavLink
                       key={item.path}
                       to={item.path}
                       className={({ isActive }) => `
                         relative flex-1 flex flex-col items-center gap-1
-                        py-2.5 rounded-2xl transition-colors duration-200
-                        ${isActive ? 'text-tab-active' : 'text-tab-default hover:text-secondary'}
+                        py-2.5 rounded-pill transition-all duration-200
+                        ${isActive ? 'bg-white/15' : 'hover:bg-white/5'}
                       `}
                     >
                       {({ isActive }) => (
                         <>
-                          <div
-                            className={`relative w-10 h-7 flex items-center justify-center rounded-xl transition-colors duration-200 ${
-                              isActive ? 'bg-primary-soft' : ''
-                            }`}
-                          >
-                            <item.icon
-                              className="w-[22px] h-[22px]"
-                              strokeWidth={isActive ? 2.2 : 1.7}
-                              fill={isActive ? 'currentColor' : 'none'}
-                            />
-                            {/* Green indicator */}
-                            {isActive && (
-                              <motion.div
-                                layoutId="nav-dot"
-                                className="absolute -bottom-[3px] w-1 h-1 rounded-full bg-primary"
-                                transition={{
-                                  type: 'spring',
-                                  stiffness: 400,
-                                  damping: 30,
-                                }}
-                              />
-                            )}
-                          </div>
+                          <Icon
+                            className="w-[22px] h-[22px]"
+                            strokeWidth={isActive ? 2.2 : 1.8}
+                            color={isActive ? '#FFFFFF' : '#8A9099'}
+                          />
                           <span
                             className={`text-[10px] leading-none ${
-                              isActive ? 'font-semibold' : 'font-medium'
+                              isActive
+                                ? 'font-semibold text-white'
+                                : 'font-medium text-[#8A9099]'
                             }`}
                           >
                             {item.label}

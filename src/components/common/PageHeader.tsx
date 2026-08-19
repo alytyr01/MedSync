@@ -12,14 +12,14 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
     <motion.header
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-end justify-between px-1 pt-8 pb-5"
+      className="flex items-end justify-between px-1 pt-8 pb-6"
     >
       <div>
-        <h1 className="text-[28px] font-bold text-text tracking-tight leading-tight">
+        <h1 className="text-[32px] font-bold text-text tracking-tight leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-sm text-secondary mt-1">{subtitle}</p>
+          <p className="text-[15px] text-secondary mt-1.5">{subtitle}</p>
         )}
       </div>
       {action && <div className="ml-4 shrink-0 mb-0.5">{action}</div>}
@@ -40,11 +40,11 @@ export function BackHeader({
     <motion.header
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-2 pt-7 pb-4"
+      className="flex items-center gap-2 pt-7 pb-5"
     >
       <button
         onClick={onBack}
-        className="w-9 h-9 -ml-2 rounded-full flex items-center justify-center text-secondary hover:bg-surface-muted transition-colors"
+        className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-secondary hover:bg-surface-muted transition-colors"
         aria-label="Go back"
       >
         <svg
@@ -61,7 +61,7 @@ export function BackHeader({
           />
         </svg>
       </button>
-      <h1 className="text-lg font-semibold text-text tracking-tight flex-1">
+      <h1 className="text-[20px] font-semibold text-text tracking-tight flex-1">
         {title}
       </h1>
       {action}

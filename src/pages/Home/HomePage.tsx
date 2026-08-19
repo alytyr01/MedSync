@@ -1,14 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  FiClock,
-  FiActivity,
-  FiPackage,
-  FiUsers,
-  FiBarChart,
-  FiPhone,
-  FiPlus,
-} from 'react-icons/fi';
+  Bell,
+  Clock,
+  Package,
+  Users,
+  User,
+  Phone,
+  Check,
+  Pill,
+  ChevronRight,
+  CalendarDays,
+} from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
   useTodayLogs,
@@ -17,15 +20,8 @@ import {
 } from '@/hooks/useMedicationLogs';
 import { useLowStockInventory } from '@/hooks/useInventory';
 import { useEmergencyContacts } from '@/hooks/useContacts';
-import {
-  Card,
-  LoadingState,
-  ErrorState,
-  Badge,
-  Button,
-} from '@/components/common';
+import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
-import { MedicineCard } from '@/components/medicine/MedicineCard';
 import {
   formatFullDate,
   formatTime,
@@ -37,15 +33,15 @@ import {
 
 const container = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 10 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] as const },
+    transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
 
@@ -62,9 +58,9 @@ interface InventoryWithMedicine {
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
 }
 
 function formatPhone(phone: string): string {
@@ -109,10 +105,6 @@ export function HomePage() {
   ).length;
   const totalCount = todayReminders.length;
   const progress = getProgressPercentage(takenCount, totalCount);
-
-  const CIRCLE_R = 33;
-  const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_R;
-  const circleOffset = CIRCUMFERENCE * (1 - progress / 100);
 
   const uniqueMedicines = Array.from(
     new Map(
@@ -163,10 +155,10 @@ export function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="px-5 pt-8">
+      <div className="px-6 pt-8">
         <div className="space-y-2 mb-6">
           <div className="skeleton h-3 w-32" />
-          <div className="skeleton h-7 w-48" />
+          <div className="skeleton h-8 w-48" />
         </div>
         <LoadingState variant="cards" label="Loading your dashboard..." />
       </div>
@@ -175,7 +167,7 @@ export function HomePage() {
 
   if (error) {
     return (
-      <div className="px-5 pt-8">
+      <div className="px-6 pt-8">
         <ErrorState
           message="Failed to load your dashboard"
           onRetry={() => refetch()}
@@ -191,208 +183,158 @@ export function HomePage() {
       initial="hidden"
       animate="show"
     >
-      {/* ===== Clean Header ===== */}
-      <motion.header variants={item} className="pt-8 pb-6">
-        <p className="text-[13px] text-secondary">
-          {formatFullDate(new Date())}
-        </p>
-        <div className="mt-1">
-          <h1 className="text-[28px] font-bold text-text tracking-tight leading-tight">
-            {getGreeting()}
-          </h1>
-          <p className="text-sm text-secondary mt-0.5">
-            {totalCount > 0
-              ? `${totalCount - takenCount} doses remaining today`
-              : 'No medications scheduled today'}
-          </p>
+      {/* ===== Compact Header — Premium ===== */}
+      <motion.header variants={item} className="pt-7 pb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-caption text-text-secondary mb-1">
+              {formatFullDate(new Date())}
+            </p>
+            <h1 className="text-3xl font-bold text-text tracking-tight leading-snug">
+              {getGreeting()}, Anessa
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 ml-auto shrink-0">
+            <button
+              type="button"
+              className="w-10 h-10 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5" strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              className="w-10 h-10 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"
+              aria-label="Profile"
+            >
+              <User className="w-5 h-5" strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </motion.header>
 
-      {/* ===== Hero Card — Today's Progress ===== */}
-      <motion.div variants={item} className="mb-7">
-        <Card className="border-primary/10" padding="lg">
-          <div className="flex items-center gap-5">
-            <div className="relative w-[84px] h-[84px] shrink-0">
-              <svg width="84" height="84" viewBox="0 0 84 84">
-                <circle
-                  cx="42"
-                  cy="42"
-                  r={CIRCLE_R}
-                  fill="none"
-                  stroke="rgba(15, 118, 110, 0.08)"
-                  strokeWidth="5"
-                />
-                <motion.circle
-                  cx="42"
-                  cy="42"
-                  r={CIRCLE_R}
-                  fill="none"
-                  stroke="url(#gradient-primary)"
-                  strokeWidth="5"
-                  strokeLinecap="round"
-                  strokeDasharray={CIRCUMFERENCE}
-                  initial={{ strokeDashoffset: CIRCUMFERENCE }}
-                  animate={{ strokeDashoffset: circleOffset }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
-                />
-                <defs>
-                  <linearGradient id="gradient-primary" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#0F766E" />
-                    <stop offset="100%" stopColor="#14B8A6" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[22px] font-bold text-text leading-none">
-                  {progress}%
-                </span>
-                <span className="text-[10px] text-secondary mt-0.5">taken</span>
-              </div>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] font-medium text-secondary">
-                Today's adherence
-              </p>
-              <h2 className="text-[22px] font-bold text-text tracking-tight mt-0.5">
-                {takenCount}{' '}
-                <span className="text-secondary font-medium text-base">
-                  of {totalCount} doses
-                </span>
-              </h2>
-              {nextReminder ? (
-                <div className="mt-3 flex items-center gap-2 bg-surface-muted rounded-full px-3 py-1.5">
-                  <FiClock className="w-3.5 h-3.5 text-text-secondary" />
-                  <span className="text-[13px] font-medium text-text">
+      {/* ===== Today's Medication — Hero (refined & compact) ===== */}
+      {nextReminder ? (
+        <motion.div variants={item} className="mb-4">
+          <div className="premium-card overflow-hidden">
+            <div className="flex items-stretch">
+              {/* Left content */}
+              <div className="flex-1 p-5 min-w-0">
+                <p className="eyebrow mb-1.5">Today's Medication</p>
+                <h2 className="text-xl font-semibold text-text tracking-tight leading-snug">
+                  {nextReminder.medicine.name}
+                </h2>
+                <p className="text-[13px] text-text-secondary mt-0.5">
+                  {nextReminder.medicine.dosage}
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-primary">
+                  <Clock className="w-4 h-4" strokeWidth={2} />
+                  <span className="text-sm font-semibold">
                     {formatTime(nextReminder.time)}
                   </span>
-                  <span className="text-text-tertiary text-[13px]">
-                    {nextReminder.medicine.name}
+                  <span className="text-xs text-text-secondary font-normal ml-1">
+                    · {upcomingReminders.length} remaining today
                   </span>
                 </div>
-              ) : (
-                <div className="mt-3 flex items-center gap-2 bg-surface-muted rounded-full px-3 py-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-success animate-soft-pulse" />
-                  <span className="text-[13px] font-medium text-text">
-                    All caught up
-                  </span>
-                </div>
-              )}
+                <Button
+                  onClick={() =>
+                    handleTaken(nextReminder.medicine.id, nextReminder.time)
+                  }
+                  fullWidth
+                  className="mt-3 min-h-[48px]"
+                >
+                  <Check className="w-5 h-5" strokeWidth={2.2} />
+                  Take Now
+                </Button>
+              </div>
+
+              {/* Right accent — refined mint */}
+              <div className="w-20 shrink-0 bg-pastel-mint/60 flex items-center justify-center">
+                <Pill className="w-8 h-8 text-mint-deep" strokeWidth={1.8} />
+              </div>
             </div>
           </div>
-        </Card>
-      </motion.div>
-
-      {/* ===== Quick Actions ===== */}
-      <motion.section variants={item} className="mb-7">
-        <h2 className="section-title mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-4 gap-3">
-          <button
-            onClick={() => navigate('/medicines')}
-            className="premium-card-hover p-4 flex flex-col items-center gap-2 text-center pressable"
-          >
-            <div className="w-11 h-11 rounded-[14px] bg-primary-soft flex items-center justify-center">
-              <FiPlus className="w-5 h-5 text-primary" />
+        </motion.div>
+      ) : (
+        <motion.div variants={item} className="mb-5">
+          <div className="premium-card p-5">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 bg-mint-soft flex items-center justify-center shrink-0">
+                <Check className="w-5 h-5 text-mint-deep" strokeWidth={2} />
+              </div>
+              <div>
+                <h2 className="text-[17px] font-semibold text-text tracking-tight">
+                  All caught up
+                </h2>
+                <p className="text-[13px] text-text-secondary mt-0.5">
+                  No medications scheduled right now
+                </p>
+              </div>
             </div>
-            <span className="text-[12px] font-medium text-text">Add Medicine</span>
-          </button>
-          <button
-            onClick={() => navigate('/scan')}
-            className="premium-card-hover p-4 flex flex-col items-center gap-2 text-center pressable"
-          >
-            <div className="w-11 h-11 rounded-[14px] bg-primary-soft flex items-center justify-center">
-              <FiActivity className="w-5 h-5 text-primary" />
-            </div>
-            <span className="text-[12px] font-medium text-text">Scan</span>
-          </button>
-          <button
-            onClick={() => navigate('/inventory')}
-            className="premium-card-hover p-4 flex flex-col items-center gap-2 text-center pressable"
-          >
-            <div className="w-11 h-11 rounded-[14px] bg-primary-soft flex items-center justify-center">
-              <FiPackage className="w-5 h-5 text-primary" />
-            </div>
-            <span className="text-[12px] font-medium text-text">Inventory</span>
-          </button>
-          <button
-            onClick={() => navigate('/history')}
-            className="premium-card-hover p-4 flex flex-col items-center gap-2 text-center pressable"
-          >
-            <div className="w-11 h-11 rounded-[14px] bg-primary-soft flex items-center justify-center">
-              <FiBarChart className="w-5 h-5 text-primary" />
-            </div>
-            <span className="text-[12px] font-medium text-text">History</span>
-          </button>
-        </div>
-      </motion.section>
-
-      {/* ===== Statistic Cards (2-up) ===== */}
-      <motion.div variants={item} className="grid grid-cols-2 gap-3 mb-7">
-        <Card interactive padding="md" className="px-5 py-4"
-          onClick={() => navigate('/medicines')}>
-          <div className="w-9 h-9 rounded-[12px] bg-primary-soft flex items-center justify-center mb-3">
-            <FiActivity className="w-[18px] h-[18px] text-primary" />
-          </div>
-          <p className="text-2xl font-bold text-text tracking-tight leading-none">
-            {uniqueMedicines.length}
-          </p>
-          <p className="text-[13px] text-secondary mt-1">Medications</p>
-        </Card>
-
-        <Card interactive padding="md" className="px-5 py-4"
-          onClick={() => navigate('/inventory')}>
-          <div className="w-9 h-9 rounded-[12px] bg-primary-soft flex items-center justify-center mb-3">
-            <FiPackage className="w-[18px] h-[18px] text-primary" />
-          </div>
-          <p className="text-2xl font-bold text-text tracking-tight leading-none">
-            {lowStockItems.length}
-          </p>
-          <p className="text-[13px] text-secondary mt-1">Need refill</p>
-        </Card>
-      </motion.div>
-
-      {/* ===== Inventory Alerts ===== */}
-      {lowStockItems.length > 0 && (
-        <motion.div variants={item} className="mb-7">
-          <h2 className="section-title mb-3">Inventory Alerts</h2>
-          <div className="space-y-3">
-            {lowStockItems.map((item) => (
-              <Card
-                key={item.id}
-                className="px-4 py-3.5 border-warning/20"
-                padding="none"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-[10px] bg-warning/10 flex items-center justify-center shrink-0">
-                      <FiPackage className="w-4 h-4 text-warning" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-text text-[15px]">
-                        {item.medicines?.name ?? 'Unknown'}
-                      </p>
-                      <p className="text-[13px] text-secondary mt-0.5">
-                        {item.remaining_quantity} remaining
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant="warning" dot>
-                    Low stock
-                  </Badge>
-                </div>
-              </Card>
-            ))}
           </div>
         </motion.div>
       )}
 
-      {/* ===== Upcoming Reminders ===== */}
-      <motion.section variants={item} className="mb-7">
+      {/* ===== Compact Progress ===== */}
+      <motion.div variants={item} className="mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-caption font-medium text-text-secondary">
+            Daily progress
+          </span>
+          <span className="text-[12px] font-semibold text-text">
+            {takenCount}/{totalCount}
+          </span>
+        </div>
+        <div className="progress-track">
+          <div
+            className="progress-fill bg-primary"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </motion.div>
+
+      {/* ===== Quick stats — 2-up but more compact ===== */}
+      <motion.div variants={item} className="grid grid-cols-2 gap-4 mb-6">
+        <div
+          className="premium-card p-4 cursor-pointer"
+          onClick={() => navigate('/medicines')}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-8 h-8 bg-pastel-mint/70 flex items-center justify-center">
+              <Pill className="w-4 h-4 text-mint-deep" strokeWidth={2} />
+            </div>
+            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
+          </div>
+          <p className="text-[24px] font-semibold text-text tracking-tight leading-none">
+            {uniqueMedicines.length}
+          </p>
+          <p className="text-[12px] text-text-secondary mt-1">Medications</p>
+        </div>
+
+        <div
+          className="premium-card p-4 cursor-pointer"
+          onClick={() => navigate('/inventory')}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-7 h-7 bg-pastel-blue/70 flex items-center justify-center">
+              <Package className="w-4 h-4 text-blue-deep" strokeWidth={2} />
+            </div>
+            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
+          </div>
+          <p className="text-[24px] font-semibold text-text tracking-tight leading-none">
+            {lowStockItems.length}
+          </p>
+          <p className="text-[12px] text-text-secondary mt-1">Need refill</p>
+        </div>
+      </motion.div>
+
+      {/* ===== Upcoming ===== */}
+      <motion.section variants={item} className="mb-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="section-title">Upcoming Doses</h2>
+          <h2 className="section-title">Upcoming</h2>
           {upcomingReminders.length > 0 && (
             <button
-              onClick={() => navigate('/medicines')}
+              onClick={() => navigate('/history')}
               className="text-[13px] text-primary font-medium"
             >
               View all
@@ -401,16 +343,16 @@ export function HomePage() {
         </div>
 
         {upcomingReminders.length === 0 ? (
-          <Card className="p-6 text-center" padding="none">
-            <div className="w-12 h-12 rounded-[14px] bg-success/10 flex items-center justify-center mx-auto mb-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-success animate-soft-pulse" />
+          <div className="premium-card p-5 text-center">
+            <div className="w-9 h-9 bg-mint-soft flex items-center justify-center mx-auto mb-2">
+              <Check className="w-4 h-4 text-mint-deep" strokeWidth={2} />
             </div>
-            <p className="text-sm text-secondary">
-              No upcoming reminders for today. All caught up!
+            <p className="text-sm text-text-secondary">
+              No upcoming reminders today.
             </p>
-          </Card>
+          </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {upcomingReminders.slice(0, 4).map((reminder, index) => (
               <ReminderItem
                 key={reminder.key}
@@ -426,52 +368,56 @@ export function HomePage() {
         )}
       </motion.section>
 
-      {/* ===== Today's Medicines ===== */}
-      {totalCount > 0 && (
-        <motion.section variants={item} className="mb-7">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="section-title">Today's Medicines</h2>
-            <button
-              onClick={() => navigate('/medicines')}
-              className="text-[13px] text-primary font-medium"
-            >
-              View all
-            </button>
+      {/* ===== This Week ===== */}
+      <motion.section variants={item} className="mb-6">
+        <h2 className="section-title mb-3">This Week</h2>
+        <div className="premium-card p-5">
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <p className="text-[24px] font-semibold text-text tracking-tight">
+                {takenLogs.length}
+              </p>
+              <p className="text-[11px] text-text-secondary mt-0.5">Doses taken</p>
+            </div>
+            <div>
+              <p className="text-[24px] font-semibold text-text tracking-tight">
+                {progress}%
+              </p>
+              <p className="text-[11px] text-text-secondary mt-0.5">Adherence</p>
+            </div>
+            <div>
+              <p className="text-[24px] font-semibold text-text tracking-tight">
+                {lastTakenTime ? getRelativeTime(lastTakenTime) : '—'}
+              </p>
+              <p className="text-[11px] text-text-secondary mt-0.5">Last dose</p>
+            </div>
           </div>
-          <div className="space-y-3">
-            {uniqueMedicines.slice(0, 3).map((medicine, index) => (
-              <MedicineCard
-                key={medicine.id}
-                medicine={medicine}
-                index={index}
-              />
-            ))}
-          </div>
-        </motion.section>
-      )}
+        </div>
+      </motion.section>
 
-      {/* ===== Caregiver Status ===== */}
-      <motion.section variants={item} className="mb-7">
+      {/* ===== Caregiver ===== */}
+      <motion.section variants={item} className="mb-6">
         <h2 className="section-title mb-3">Caregiver</h2>
         {primaryContact ? (
-          <Card className="p-5" padding="none">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-[14px] bg-primary-soft flex items-center justify-center shrink-0">
-                <span className="text-primary font-semibold text-[19px]">
+          <div className="premium-card p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-pastel-blue/60 flex items-center justify-center shrink-0">
+                <span className="text-blue-deep font-semibold text-[16px]">
                   {primaryContact.name.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-text text-[15px]">
+                  <h3 className="font-medium text-text text-[15px]">
                     {primaryContact.name}
                   </h3>
                   <Badge variant="success" dot>
                     Available
                   </Badge>
                 </div>
-                <p className="text-[13px] text-secondary mt-0.5">
-                  {primaryContact.relationship} · {formatPhone(primaryContact.phone)}
+                <p className="text-[13px] text-text-secondary mt-0.5">
+                  {primaryContact.relationship} ·{' '}
+                  {formatPhone(primaryContact.phone)}
                 </p>
               </div>
               <button
@@ -481,101 +427,55 @@ export function HomePage() {
                     ''
                   )}`)
                 }
-                className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover transition-colors shrink-0 ml-2"
+                className="w-10 h-10 bg-primary text-white flex items-center justify-center hover:bg-primary-light transition-colors shrink-0 ml-2"
                 aria-label={`Call ${primaryContact.name}`}
               >
-                <FiPhone className="w-[18px] h-[18px]" />
+                <Phone className="w-[17px] h-[17px]" strokeWidth={2} />
               </button>
             </div>
-          </Card>
+          </div>
         ) : (
-          <Card className="p-6 text-center" padding="none">
-            <div className="w-14 h-14 rounded-[14px] bg-surface-muted flex items-center justify-center mx-auto mb-3">
-              <FiUsers className="w-6 h-6 text-text-tertiary" />
+          <div className="premium-card p-6 text-center">
+            <div className="w-9 h-9 bg-surface-muted flex items-center justify-center mx-auto mb-3">
+              <Users className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
             </div>
-            <h3 className="text-[15px] font-semibold text-text tracking-tight mb-1">
+            <h3 className="text-[14px] font-medium text-text tracking-tight mb-1">
               No caregiver assigned
             </h3>
-            <p className="text-[13px] text-secondary mb-4 max-w-xs mx-auto leading-relaxed">
-              Add an emergency contact to have a caregiver status on your dashboard.
+            <p className="text-[13px] text-text-secondary mb-4 max-w-xs mx-auto leading-relaxed">
+              Add an emergency contact to have a caregiver status on your
+              dashboard.
             </p>
             <Button
               size="sm"
               onClick={() => navigate('/contacts')}
-              className="min-h-[44px] px-6"
+              className="min-h-[40px] px-6"
             >
               Add Emergency Contact
             </Button>
-          </Card>
+          </div>
         )}
       </motion.section>
 
-      {/* ===== Emergency Quick ===== */}
-      {primaryContact && (
-        <motion.section variants={item} className="mb-7">
-          <h2 className="section-title mb-3">Emergency</h2>
-          <div className="flex gap-3">
-            <button
-              onClick={() =>
-                (window.location.href = `tel:${primaryContact.phone.replace(
-                  /[^+\d]/g,
-                  ''
-                )}`)
-              }
-              className="flex-1 premium-card p-4 flex items-center justify-center gap-2 text-primary font-medium pressable"
-            >
-              <FiPhone className="w-5 h-5" /> Call {primaryContact.name}
-            </button>
-            <button
-              onClick={() => navigate('/contacts')}
-              className="flex-1 premium-card p-4 flex items-center justify-center gap-2 text-secondary pressable"
-            >
-              <FiUsers className="w-5 h-5" /> All Contacts
-            </button>
-          </div>
-        </motion.section>
-      )}
-
-      {/* ===== Health Insights ===== */}
-      <motion.section variants={item} className="mb-7">
-        <h2 className="section-title mb-3">This Week</h2>
-        <Card className="p-5" padding="none">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-success tracking-tight">
-                {takenLogs.length}
-              </p>
-              <p className="text-[11px] text-secondary mt-0.5 uppercase tracking-wider">
-                Taken
+      {/* ===== Calendar teaser ===== */}
+      <motion.section variants={item} className="mb-6">
+        <div className="premium-card-hover p-5 cursor-pointer" onClick={() => navigate('/history')}>
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-primary-soft flex items-center justify-center shrink-0">
+              <CalendarDays className="w-5 h-5 text-primary" strokeWidth={2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-[15px] text-text">
+                Reminder Timeline
+              </h3>
+              <p className="text-[13px] text-text-secondary mt-0.5">
+                Review your full schedule
               </p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-primary tracking-tight">
-                {progress}%
-              </p>
-              <p className="text-[11px] text-secondary mt-0.5 uppercase tracking-wider">
-                Adherence
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-text tracking-tight">
-                {lastTakenTime ? getRelativeTime(lastTakenTime) : '—'}
-              </p>
-              <p className="text-[11px] text-secondary mt-0.5 uppercase tracking-wider">
-                Last dose
-              </p>
-            </div>
+            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
           </div>
-          <div className="mt-4 h-1.5 bg-surface-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </Card>
+        </div>
       </motion.section>
     </motion.div>
   );
 }
-
-

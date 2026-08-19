@@ -16,27 +16,28 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-white hover:bg-primary-hover active:bg-primary-hover shadow-card',
+    'bg-primary text-white hover:bg-primary-light active:bg-primary-dark shadow-button',
   secondary:
     'bg-primary-soft text-primary hover:bg-primary/15 active:bg-primary/20',
   outline:
-    'border border-border bg-transparent text-text hover:bg-surface-muted active:bg-surface-muted',
-  ghost: 'bg-transparent text-secondary hover:bg-surface-muted active:bg-surface-muted',
-  danger: 'bg-danger text-white hover:bg-red-700 active:bg-red-700',
+    'bg-transparent text-text border border-border-subtle hover:bg-surface-muted active:bg-surface-muted shadow-card',
+  ghost:
+    'bg-transparent text-secondary hover:bg-surface-muted active:bg-surface-muted',
+  danger: 'bg-danger text-white hover:bg-rose-600 active:bg-rose-700 shadow-card',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'px-4 py-2 text-sm rounded-button',
-  md: 'px-5 py-3 text-[15px] rounded-button',
-  lg: 'px-6 py-4 text-base rounded-button min-h-[56px]',
-  icon: 'p-3 rounded-button',
+  sm: 'px-5 py-2.5 text-sm rounded-pill',
+  md: 'px-6 py-3.5 text-[15px] rounded-pill min-h-[52px]',
+  lg: 'px-6 py-4 text-base rounded-pill min-h-[56px]',
+  icon: 'p-3.5 rounded-full',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = 'primary',
-      size = 'md',
+      size = 'lg',
       loading = false,
       fullWidth = false,
       className = '',
@@ -53,7 +54,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         transition={{ duration: 0.15 }}
         className={`
           inline-flex items-center justify-center gap-2
-          font-medium transition-colors duration-200
+          font-semibold transition-all duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30
           disabled:opacity-45 disabled:cursor-not-allowed
           ${variantClasses[variant]}

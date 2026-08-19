@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { medicineSchema, type MedicineFormData } from '@/utils/validation';
 import { Button, Input, Select, Textarea } from '@/components/common';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { Plus, Trash2 } from 'lucide-react';
 import { getTodayISO } from '@/utils/format';
 import { TIME_OPTIONS } from '@/constants';
 import type { Medicine } from '@/types';
@@ -150,7 +150,7 @@ export function MedicineForm({
             onClick={handleAddTime}
             className="text-sm text-primary font-medium flex items-center gap-1 hover:text-primary-dark"
           >
-            <FiPlus className="w-4 h-4" /> Add Time
+            <Plus className="w-4 h-4" strokeWidth={2} /> Add Time
           </button>
         </div>
         <div className="space-y-2">
@@ -167,7 +167,7 @@ export function MedicineForm({
                 className="p-2.5 rounded-xl text-danger hover:bg-danger/10 transition-colors"
                 aria-label="Remove time"
               >
-                <FiTrash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" strokeWidth={2} />
               </button>
             </div>
           ))}

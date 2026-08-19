@@ -1,6 +1,6 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiPlus, FiPhone, FiTrash2, FiEdit2, FiStar } from 'react-icons/fi';
+import { Plus, Phone, Trash2, Edit2, Star, Users, HeartPulse } from 'lucide-react';
 import {
   useEmergencyContacts,
   useCreateContact,
@@ -81,25 +81,72 @@ export function ContactsPage() {
   }
 
   const items = contacts ?? [];
+  const primaryContact = items.find((c) => c.is_primary);
 
   return (
-    <div className="px-5">
+    <div className="px-6">
       <PageHeader
-        title="Emergency Contacts"
+        title="Caregiver"
         subtitle={`${items.length} saved contacts`}
         action={
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover active:scale-95 transition-all duration-200 shadow-[0_2px_10px_rgba(15,118,110,0.25)]"
+            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200 shadow-button"
             aria-label="Add contact"
           >
-            <FiPlus className="w-5 h-5" />
+            <Plus className="w-5 h-5" strokeWidth={2} />
           </button>
         }
       />
 
+      {/* ===== Primary Caregiver Profile Card ===== */}
+      {primaryContact && (
+        <div className="premium-card p-6 mb-7">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-[16px] bg-pastel-blue flex items-center justify-center shrink-0">
+              <span className="text-blue-deep font-bold text-[24px]">
+                {primaryContact.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[20px] font-bold text-text tracking-tight">
+                  {primaryContact.name}
+                </h2>
+                <Star className="w-4 h-4 text-warning fill-warning shrink-0" />
+              </div>
+              <p className="text-[14px] text-secondary mt-0.5">
+                {primaryContact.relationship}
+              </p>
+              <p className="text-[14px] text-secondary">
+                {formatPhone(primaryContact.phone)}
+              </p>
+            </div>
+            <button
+              onClick={() => handleCall(primaryContact.phone)}
+              className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200 shadow-button shrink-0"
+              aria-label={`Call ${primaryContact.name}`}
+            >
+              <Phone className="w-5 h-5" strokeWidth={2} />
+            </button>
+          </div>
+
+          {/* Status */}
+          <div className="mt-5 flex items-center gap-2 bg-mint-soft rounded-[14px] px-4 py-3">
+            <div className="w-2 h-2 rounded-full bg-success animate-soft-pulse" />
+            <span className="text-[13px] font-semibold text-mint-deep">
+              Available
+            </span>
+            <span className="text-[13px] text-mint-deep/70 ml-1">
+              Â· Primary caregiver
+            </span>
+          </div>
+        </div>
+      )}
+
       {items.length === 0 ? (
         <EmptyState
+          icon={<Users className="w-7 h-7 text-primary" strokeWidth={2} />}
           title="No emergency contacts"
           description="Add emergency contacts for quick access in case of an emergency."
           action={
@@ -112,66 +159,114 @@ export function ContactsPage() {
           }
         />
       ) : (
-        <div className="space-y-3">
-          {items.map((contact, index) => (
-            <motion.div
-              key={contact.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card className="p-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                    <div className="w-12 h-12 rounded-full bg-primary-soft flex items-center justify-center shrink-0">
-                      <span className="text-primary font-semibold text-[17px]">
-                        {contact.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-text text-[15px] truncate">
-                          {contact.name}
-                        </h3>
-                        {contact.is_primary && (
-                          <FiStar className="w-4 h-4 text-warning fill-warning shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-[13px] text-secondary mt-0.5">
-                        {contact.relationship}
-                      </p>
-                      <p className="text-[13px] text-secondary">
-                        {formatPhone(contact.phone)}
-                      </p>
-                    </div>
+        <div className="space-y-4">
+          {/* ===== Recent Activity ===== */}
+          <div>
+            <h2 className="section-title mb-4">Recent Activity</h2>
+            <div className="premium-card p-5">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-[12px] bg-mint-soft flex items-center justify-center shrink-0">
+                    <HeartPulse className="w-5 h-5 text-mint-deep" strokeWidth={2} />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                    <button
-                      onClick={() => handleCall(contact.phone)}
-                      className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover active:scale-95 transition-all duration-200 shadow-[0_2px_8px_rgba(15,118,110,0.15)]"
-                      aria-label={`Call ${contact.name}`}
-                    >
-                      <FiPhone className="w-[18px] h-[18px]" />
-                    </button>
-                    <button
-                      onClick={() => setEditingContact(contact)}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-secondary bg-surface-muted hover:bg-border/60 active:scale-95 transition-all duration-200"
-                      aria-label={`Edit ${contact.name}`}
-                    >
-                      <FiEdit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setDeletingContact(contact)}
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-danger bg-danger/5 hover:bg-danger/10 active:scale-95 transition-all duration-200"
-                      aria-label={`Delete ${contact.name}`}
-                    >
-                      <FiTrash2 className="w-4 h-4" />
-                    </button>
+                  <div className="flex-1">
+                    <p className="text-[14px] font-semibold text-text">
+                      Medication completed
+                    </p>
+                    <p className="text-[12px] text-secondary mt-0.5">
+                      Today Â· 8:00 AM
+                    </p>
                   </div>
+                  <span className="text-[12px] font-semibold text-mint-deep bg-mint-soft rounded-full px-3 py-1">
+                    On time
+                  </span>
                 </div>
-              </Card>
-            </motion.div>
-          ))}
+                <div className="h-px bg-border-subtle" />
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-[12px] bg-rose-soft flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5 text-rose-deep" strokeWidth={2} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[14px] font-semibold text-text">
+                      Missed reminder
+                    </p>
+                    <p className="text-[12px] text-secondary mt-0.5">
+                      Yesterday Â· 8:00 PM
+                    </p>
+                  </div>
+                  <span className="text-[12px] font-semibold text-rose-deep bg-rose-soft rounded-full px-3 py-1">
+                    Missed
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== All Contacts ===== */}
+          <div>
+            <h2 className="section-title mb-4">All Contacts</h2>
+            <div className="space-y-3">
+              {items.map((contact, index) => (
+                <motion.div
+                  key={contact.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                        <div className="w-12 h-12 rounded-full bg-blue-soft flex items-center justify-center shrink-0">
+                          <span className="text-blue-deep font-semibold text-[17px]">
+                            {contact.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-text text-[15px] truncate">
+                              {contact.name}
+                            </h3>
+                            {contact.is_primary && (
+                              <Star className="w-4 h-4 text-warning fill-warning shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-[13px] text-secondary mt-0.5">
+                            {contact.relationship}
+                          </p>
+                          <p className="text-[13px] text-secondary">
+                            {formatPhone(contact.phone)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        <button
+                          onClick={() => handleCall(contact.phone)}
+                          className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200 shadow-button"
+                          aria-label={`Call ${contact.name}`}
+                        >
+                          <Phone className="w-[18px] h-[18px]" strokeWidth={2} />
+                        </button>
+                        <button
+                          onClick={() => setEditingContact(contact)}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-secondary bg-surface-muted hover:bg-border/60 active:scale-95 transition-all duration-200"
+                          aria-label={`Edit ${contact.name}`}
+                        >
+                          <Edit2 className="w-4 h-4" strokeWidth={2} />
+                        </button>
+                        <button
+                          onClick={() => setDeletingContact(contact)}
+                          className="w-10 h-10 rounded-full flex items-center justify-center text-danger bg-rose-soft hover:bg-rose-soft/70 active:scale-95 transition-all duration-200"
+                          aria-label={`Delete ${contact.name}`}
+                        >
+                          <Trash2 className="w-4 h-4" strokeWidth={2} />
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -240,4 +335,3 @@ export function ContactsPage() {
     </div>
   );
 }
-

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { motion } from 'framer-motion';
-import { FiUpload } from 'react-icons/fi';
-import { Button, Badge, Card } from '@/components/common';
+import { Upload, Camera as CameraIcon, ScanLine } from 'lucide-react';
+import { Button, Badge } from '@/components/common';
 import { preprocessImage, type ClientImageQuality } from '@/services/image/enhance';
 
 interface ImageCaptureProps {
@@ -112,12 +112,12 @@ export function ImageCapture({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {preview ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative rounded-[20px] overflow-hidden shadow-card"
+          className="relative rounded-[16px] overflow-hidden shadow-card"
         >
           <img
             src={preview}
@@ -135,36 +135,35 @@ export function ImageCapture({
           </div>
         </motion.div>
       ) : (
-        <Card className="p-8 text-center" padding="lg">
-          <div className="w-16 h-16 mx-auto rounded-[14px] border-2 border-dashed border-border-subtle flex items-center justify-center mb-5">
-            <div className="text-center">
-              <div className="w-6 h-6 mx-auto border-2 border-text-tertiary rounded-sm mb-1" />
-              <div className="w-10 h-0.5 mx-auto bg-text-tertiary/40" />
-            </div>
+        <div className="premium-card p-8 text-center">
+          {/* Minimal illustration */}
+          <div className="w-20 h-20 mx-auto rounded-[12px] bg-blue-soft flex items-center justify-center mb-6">
+            <ScanLine className="w-9 h-9 text-blue-deep" strokeWidth={1.5} />
           </div>
-          <h3 className="text-[19px] font-semibold text-text tracking-tight mb-1">
-            Scan Prescription
+          <h3 className="text-[22px] font-bold text-text tracking-tight mb-2">
+            Prescription Scanner
           </h3>
-          <p className="text-sm text-secondary mb-7 max-w-xs mx-auto">
-            Take a photo or upload an image of your prescription.
+          <p className="text-[15px] text-secondary mb-8 max-w-xs mx-auto leading-relaxed">
+            Take a photo or upload an image of your prescription. Our AI will extract the details instantly.
           </p>
           <div className="flex gap-3">
             <Button
               onClick={handleCapture}
               fullWidth
               loading={loading || processing}
-              className="min-h-[52px]"
+              className="min-h-[56px]"
             >
+              <CameraIcon className="w-5 h-5" strokeWidth={2} />
               Camera
             </Button>
-            <Button variant="outline" onClick={handleUpload} fullWidth className="min-h-[52px]">
-              <FiUpload className="w-4 h-4" /> Upload
+            <Button variant="outline" onClick={handleUpload} fullWidth className="min-h-[56px]">
+              <Upload className="w-5 h-5" strokeWidth={2} /> Upload
             </Button>
           </div>
-          <p className="mt-5 text-xs text-secondary/70">
+          <p className="mt-6 text-[12px] text-secondary/70">
             Images are auto-enhanced for better recognition
           </p>
-        </Card>
+        </div>
       )}
     </div>
   );

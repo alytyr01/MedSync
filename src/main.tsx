@@ -25,7 +25,7 @@ useAuthStore.getState().initialize();
 // Setup capacitor native features
 if (Capacitor.isNativePlatform()) {
   StatusBar.setStyle({ style: Style.Dark });
-  StatusBar.setBackgroundColor({ color: '#2D6A4F' });
+  StatusBar.setBackgroundColor({ color: '#F4F5F7' });
   SplashScreen.hide();
   setupNotificationChannel();
 }

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX } from 'react-icons/fi';
+import { X } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -42,7 +42,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
                   className="w-8 h-8 -mr-1 rounded-full bg-surface-muted flex items-center justify-center hover:bg-border/70 transition-colors"
                   aria-label="Close"
                 >
-                  <FiX className="w-4 h-4 text-secondary" />
+                  <X className="w-4 h-4 text-secondary" strokeWidth={2} />
                 </button>
               </div>
               {children}

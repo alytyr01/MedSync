@@ -1,7 +1,7 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft } from 'react-icons/fi';
+import { ArrowLeft } from 'lucide-react';
 import { processPrescriptionImage } from '@/services/ocr';
 import { useCreateMedicine } from '@/hooks/useMedicines';
 import { ImageCapture } from '@/components/scanner/ImageCapture';
@@ -134,7 +134,7 @@ export function ScanPage() {
           className="w-9 h-9 -ml-2 rounded-full flex items-center justify-center text-secondary hover:bg-surface-muted transition-colors"
           aria-label="Go back"
         >
-          <FiArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5" strokeWidth={2} />
         </button>
         <h1 className="text-[26px] font-bold text-text tracking-tight">
           Scan Prescription

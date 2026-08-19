@@ -1,7 +1,7 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiMail, FiLock } from 'react-icons/fi';
+import { Mail, Lock, ShieldCheck } from 'lucide-react';
 import { signIn, signUp } from '@/services/supabase/database';
 import { useAuthStore } from '@/store/authStore';
 import { Button, Input, Card } from '@/components/common';
@@ -58,13 +58,13 @@ export function AuthPage() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
-            className="w-[72px] h-[72px] mx-auto rounded-[20px] bg-primary flex items-center justify-center mb-5 shadow-[0_8px_24px_rgba(15,118,110,0.3)]"
+            className="w-[72px] h-[72px] mx-auto rounded-[12px] bg-primary flex items-center justify-center mb-5 shadow-button"
           >
             <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </motion.div>
-          <h1 className="text-[30px] font-bold text-text tracking-tight">
+          <h1 className="text-[32px] font-bold text-text tracking-tight">
             {APP_NAME}
           </h1>
           <p className="text-secondary mt-2 text-[15px]">
@@ -73,14 +73,14 @@ export function AuthPage() {
         </div>
 
         <Card className="p-6">
-          {/* Mode Toggle */}
-          <div className="flex gap-2 mb-6 bg-surface-muted rounded-[14px] p-1">
+          {/* Mode Toggle — pill-shaped */}
+          <div className="flex gap-2 mb-6 bg-surface-muted rounded-pill p-1">
             <button
               onClick={() => setMode('signin')}
               className={`
-                flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-all duration-200
+                flex-1 py-2.5 rounded-pill text-sm font-semibold transition-all duration-200
                 ${mode === 'signin'
-                  ? 'bg-surface text-text shadow-sm'
+                  ? 'bg-primary text-white shadow-button'
                   : 'text-secondary hover:text-text'}
               `}
             >
@@ -89,9 +89,9 @@ export function AuthPage() {
             <button
               onClick={() => setMode('signup')}
               className={`
-                flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-all duration-200
+                flex-1 py-2.5 rounded-pill text-sm font-semibold transition-all duration-200
                 ${mode === 'signup'
-                  ? 'bg-surface text-text shadow-sm'
+                  ? 'bg-primary text-white shadow-button'
                   : 'text-secondary hover:text-text'}
               `}
             >
@@ -105,7 +105,7 @@ export function AuthPage() {
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              leftIcon={<FiMail className="w-[18px] h-[18px]" />}
+              leftIcon={<Mail className="w-[18px] h-[18px]" strokeWidth={2} />}
               required
             />
             <Input
@@ -113,7 +113,7 @@ export function AuthPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              leftIcon={<FiLock className="w-[18px] h-[18px]" />}
+              leftIcon={<Lock className="w-[18px] h-[18px]" strokeWidth={2} />}
               required
               minLength={6}
             />
@@ -124,8 +124,8 @@ export function AuthPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className={`text-[13px] rounded-[14px] p-3 ${
                   error.startsWith('Account created')
-                    ? 'text-success bg-success/10'
-                    : 'text-danger bg-danger/10'
+                    ? 'text-mint-deep bg-mint-soft'
+                    : 'text-rose-deep bg-rose-soft'
                 }`}
               >
                 {error}
@@ -144,11 +144,11 @@ export function AuthPage() {
           </form>
         </Card>
 
-        <p className="text-center text-xs text-secondary mt-6">
+        <p className="text-center text-xs text-secondary mt-6 flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5" strokeWidth={2} />
           Your medication data is securely stored
         </p>
       </motion.div>
     </div>
   );
 }
-

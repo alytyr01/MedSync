@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+﻿import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { FiAlertCircle, FiInbox, FiRefreshCw } from 'react-icons/fi';
+import { AlertCircle, Inbox, RefreshCw } from 'lucide-react';
 import { Button } from './Button';
 
 // ===== Loading State (Skeleton) =====
@@ -16,7 +16,7 @@ export function LoadingState({
 }: LoadingStateProps) {
   if (variant === 'cards') {
     return (
-      <div className="space-y-3 mt-2" aria-label={label}>
+      <div className="space-y-4 mt-2" aria-label={label}>
         {[0, 1, 2].map((i) => (
           <div key={i} className="premium-card p-5">
             <div className="flex items-center justify-between">
@@ -61,13 +61,13 @@ export function ErrorState({
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16 px-6 text-center gap-4"
     >
-      <div className="w-14 h-14 rounded-full bg-danger/10 flex items-center justify-center">
-        <FiAlertCircle className="w-6 h-6 text-danger" />
+      <div className="w-14 h-14 rounded-full bg-rose-soft flex items-center justify-center">
+        <AlertCircle className="w-6 h-6 text-danger" strokeWidth={2} />
       </div>
       <p className="text-text font-medium text-[15px]">{message}</p>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
-          <FiRefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-4 h-4" strokeWidth={2} />
           Retry
         </Button>
       )}
@@ -96,8 +96,8 @@ export function EmptyState({
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16 px-6 text-center gap-3"
     >
-      <div className="w-16 h-16 rounded-[20px] bg-primary-soft flex items-center justify-center mb-1">
-        {icon || <FiInbox className="w-7 h-7 text-primary" />}
+      <div className="w-16 h-16 rounded-[16px] bg-blue-soft flex items-center justify-center mb-1">
+        {icon || <Inbox className="w-7 h-7 text-primary" strokeWidth={2} />}
       </div>
       <h3 className="text-text font-semibold text-[17px] tracking-tight">
         {title}

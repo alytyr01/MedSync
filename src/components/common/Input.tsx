@@ -40,12 +40,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             className={`
-              w-full bg-surface border text-text placeholder:text-text-tertiary/80
+              w-full bg-surface text-text placeholder:text-text-tertiary/80
               transition-all duration-200
               focus:outline-none focus:ring-[3px]
               ${search
-                ? 'h-[52px] pl-11 pr-4 rounded-[28px] border-border focus:ring-primary/10'
-                : `h-[52px] px-4 rounded-[16px] text-[15px]
+                ? 'h-[52px] pl-11 pr-4 rounded-control shadow-card focus:ring-primary/10'
+                : `h-[52px] px-4 rounded-control text-[15px] shadow-card
                    ${error
                      ? 'border-danger/60 focus:ring-danger/10 focus:border-danger'
                      : 'border-border focus:ring-primary/10 focus:border-primary/50'}`}

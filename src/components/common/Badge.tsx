@@ -10,10 +10,10 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  success: 'bg-success/10 text-success',
-  warning: 'bg-warning/10 text-warning',
-  danger: 'bg-danger/10 text-danger',
-  info: 'bg-primary-soft text-primary',
+  success: 'bg-mint-soft text-mint-deep',
+  warning: 'bg-yellow-soft text-yellow-deep',
+  danger: 'bg-rose-soft text-rose-deep',
+  info: 'bg-blue-soft text-blue-deep',
   neutral: 'bg-surface-muted text-secondary',
 };
 
@@ -34,8 +34,8 @@ export function Badge({
   return (
     <span
       className={`
-        inline-flex items-center gap-1.5 px-2.5 py-1
-        rounded-full text-xs font-medium
+        inline-flex items-center gap-1.5 px-3 py-1
+        rounded-full text-xs font-semibold
         ${variantClasses[variant]}
         ${className}
       `}

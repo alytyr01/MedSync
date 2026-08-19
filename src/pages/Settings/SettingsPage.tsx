@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  FiArrowLeft,
-  FiUsers,
-  FiInfo,
-  FiLogOut,
-  FiShield,
-  FiChevronRight,
-} from 'react-icons/fi';
+  ArrowLeft,
+  Users,
+  Info,
+  LogOut,
+  Shield,
+  ChevronRight,
+} from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useAuthStore } from '@/store/authStore';
 import { Card, Toggle, Button } from '@/components/common';
@@ -59,7 +59,7 @@ export function SettingsPage() {
 
   return (
     <motion.div
-      className="px-5"
+      className="px-6"
       variants={container}
       initial="hidden"
       animate="show"
@@ -73,7 +73,7 @@ export function SettingsPage() {
           className="p-2 -ml-2 rounded-full hover:bg-surface-muted transition-colors"
           aria-label="Go back"
         >
-          <FiArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5" strokeWidth={2} />
         </button>
         <h1 className="text-[26px] font-bold text-text tracking-tight">
           Settings
@@ -125,8 +125,8 @@ export function SettingsPage() {
             className="w-full flex items-center justify-between py-3.5"
           >
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-[14px] bg-primary-soft flex items-center justify-center">
-                <FiUsers className="w-[18px] h-[18px] text-primary" />
+              <div className="w-10 h-10 rounded-[14px] bg-blue-soft flex items-center justify-center">
+                <Users className="w-[18px] h-[18px] text-blue-deep" strokeWidth={2} />
               </div>
               <div className="text-left">
                 <p className="text-[15px] font-medium text-text">
@@ -137,14 +137,14 @@ export function SettingsPage() {
                 </p>
               </div>
             </div>
-            <FiChevronRight className="w-4 h-4 text-text-tertiary" />
+            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
           </button>
         </SettingsSection>
 
         <SettingsSection title="About">
           <div className="flex items-center gap-3.5 py-3.5">
-            <div className="w-10 h-10 rounded-[14px] bg-primary-soft flex items-center justify-center">
-              <FiInfo className="w-[18px] h-[18px] text-primary" />
+            <div className="w-10 h-10 rounded-[14px] bg-mint-soft flex items-center justify-center">
+              <Info className="w-[18px] h-[18px] text-mint-deep" strokeWidth={2} />
             </div>
             <div>
               <p className="text-[15px] font-medium text-text">{APP_NAME}</p>
@@ -154,8 +154,8 @@ export function SettingsPage() {
             </div>
           </div>
           <div className="flex items-center gap-3.5 py-3.5">
-            <div className="w-10 h-10 rounded-[14px] bg-primary-soft flex items-center justify-center">
-              <FiShield className="w-[18px] h-[18px] text-primary" />
+            <div className="w-10 h-10 rounded-[14px] bg-violet-soft flex items-center justify-center">
+              <Shield className="w-[18px] h-[18px] text-violet-deep" strokeWidth={2} />
             </div>
             <div>
               <p className="text-[15px] font-medium text-text">Privacy</p>
@@ -183,7 +183,7 @@ export function SettingsPage() {
             </div>
             <div className="pt-3 pb-2">
               <Button variant="outline" fullWidth onClick={handleSignOut}>
-                <FiLogOut className="w-4 h-4" /> Sign Out
+                <LogOut className="w-4 h-4" strokeWidth={2} /> Sign Out
               </Button>
             </div>
           </SettingsSection>
@@ -192,4 +192,3 @@ export function SettingsPage() {
     </motion.div>
   );
 }
-

@@ -1,12 +1,11 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiTrash2, FiEdit2, FiClock, FiCalendar, FiPackage, FiAlertTriangle } from 'react-icons/fi';
+import { Trash2, Edit2, Clock, CalendarDays, Package, AlertTriangle, Pill, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useMedicine, useUpdateMedicine, useDeleteMedicine } from '@/hooks/useMedicines';
-import { useInventory } from '@/hooks/useInventory';
+import { useInventory, useRefillInventory } from '@/hooks/useInventory';
 import {
   BackHeader,
-  Card,
   Badge,
   LoadingState,
   ErrorState,
@@ -26,15 +25,24 @@ export function MedicineDetailPage() {
   const { data: inventoryItems } = useInventory();
   const updateMedicine = useUpdateMedicine();
   const deleteMedicine = useDeleteMedicine();
+  const refill = useRefillInventory();
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRefillModal, setShowRefillModal] = useState(false);
 
   const inventory = inventoryItems?.find(
     (item) => item.medicine_id === medicine?.id
   );
 
   const daysRemaining = medicine ? getDaysRemaining(medicine.end_date) : null;
+  const stockPercent = inventory
+    ? Math.min(
+        100,
+        (inventory.remaining_quantity / Math.max(1, inventory.total_quantity)) *
+          100
+      )
+    : 0;
 
   const handleUpdate = async (data: MedicineFormData) => {
     if (!medicine) return;
@@ -59,6 +67,19 @@ export function MedicineDetailPage() {
     }
   };
 
+  const handleRefill = async () => {
+    if (!inventory || !medicine) return;
+    try {
+      await refill.mutateAsync({
+        id: inventory.id,
+        quantity: inventory.total_quantity,
+      });
+      setShowRefillModal(false);
+    } catch (err) {
+      console.error('Failed to refill:', err);
+    }
+  };
+
   if (isLoading) return <LoadingState label="Loading medicine..." />;
 
   if (error || !medicine) {
@@ -74,7 +95,7 @@ export function MedicineDetailPage() {
   }
 
   return (
-    <div className="px-5">
+    <div className="px-6">
       <BackHeader
         title="Medicine Details"
         onBack={() => navigate('/medicines')}
@@ -84,7 +105,7 @@ export function MedicineDetailPage() {
             className="w-9 h-9 rounded-full flex items-center justify-center text-danger hover:bg-danger/10 transition-colors"
             aria-label="Delete medicine"
           >
-            <FiTrash2 className="w-[18px] h-[18px]" />
+            <Trash2 className="w-[18px] h-[18px]" strokeWidth={2} />
           </button>
         }
       />
@@ -95,15 +116,24 @@ export function MedicineDetailPage() {
         className="space-y-4"
       >
         {/* Medicine Info Card */}
-        <Card className="p-6">
+        <div className="premium-card p-6">
           <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-[26px] font-bold text-text tracking-tight">
-                {medicine.name}
-              </h1>
-              <div className="flex items-center gap-2 mt-2.5">
-                <Badge variant="info">{medicine.dosage}</Badge>
-                <Badge variant="neutral">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-14 h-14 rounded-[12px] bg-pastel-mint flex items-center justify-center shrink-0">
+                  <Pill className="w-6 h-6 text-mint-deep" strokeWidth={2} />
+                </div>
+                <div>
+                  <h1 className="text-[26px] font-bold text-text tracking-tight leading-tight">
+                    {medicine.name}
+                  </h1>
+                  <p className="text-[15px] text-secondary mt-1">
+                    {medicine.dosage}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                <Badge variant="info">
                   {FREQUENCY_LABELS[medicine.frequency]}
                 </Badge>
                 {daysRemaining !== null && daysRemaining <= 7 && (
@@ -115,32 +145,32 @@ export function MedicineDetailPage() {
             </div>
           </div>
 
-          <div className="mt-5 pt-5 border-t border-border-subtle space-y-3.5 text-sm">
+          <div className="mt-6 pt-5 border-t border-border-subtle space-y-4 text-sm">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-secondary">
-                <FiClock className="w-[15px] h-[15px]" />
+                <Clock className="w-[15px] h-[15px]" strokeWidth={2} />
                 Schedule
               </span>
-              <span className="font-medium text-text">
+              <span className="font-semibold text-text">
                 {medicine.schedule_times.map(formatTime).join(', ')}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-secondary">
-                <FiCalendar className="w-[15px] h-[15px]" />
+                <CalendarDays className="w-[15px] h-[15px]" strokeWidth={2} />
                 Start Date
               </span>
-              <span className="font-medium text-text">
+              <span className="font-semibold text-text">
                 {formatDate(medicine.start_date)}
               </span>
             </div>
             {medicine.end_date && (
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-secondary">
-                  <FiCalendar className="w-[15px] h-[15px]" />
+                  <CalendarDays className="w-[15px] h-[15px]" strokeWidth={2} />
                   End Date
                 </span>
-                <span className="font-medium text-text">
+                <span className="font-semibold text-text">
                   {formatDate(medicine.end_date)}
                 </span>
               </div>
@@ -148,7 +178,7 @@ export function MedicineDetailPage() {
             {daysRemaining !== null && (
               <div className="flex items-center justify-between">
                 <span className="text-secondary">Remaining</span>
-                <span className="font-medium text-text">
+                <span className="font-semibold text-text">
                   {daysRemaining} days
                 </span>
               </div>
@@ -156,8 +186,8 @@ export function MedicineDetailPage() {
           </div>
 
           {medicine.instructions && (
-            <div className="mt-5 p-3.5 rounded-[14px] bg-primary-soft">
-              <p className="text-[13px] text-primary-dark">
+            <div className="mt-5 p-4 rounded-[14px] bg-blue-soft">
+              <p className="text-[13px] text-blue-deep">
                 <span className="font-semibold">Instructions: </span>
                 {medicine.instructions}
               </p>
@@ -165,66 +195,65 @@ export function MedicineDetailPage() {
           )}
 
           {medicine.notes && (
-            <div className="mt-3 p-3.5 rounded-[14px] bg-surface-muted">
+            <div className="mt-3 p-4 rounded-[14px] bg-surface-muted">
               <p className="text-[13px] text-secondary">
                 <span className="font-semibold text-text">Notes: </span>
                 {medicine.notes}
               </p>
             </div>
           )}
-        </Card>
+        </div>
 
         {/* Inventory Card */}
         {inventory && (
-          <Card className="p-5">
+          <div className="premium-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="flex items-center gap-2 text-[17px] font-semibold text-text tracking-tight">
-                <FiPackage className="w-[18px] h-[18px] text-primary" />
+              <h2 className="flex items-center gap-2 text-[18px] font-semibold text-text tracking-tight">
+                <Package className="w-[18px] h-[18px] text-primary" strokeWidth={2} />
                 Inventory
               </h2>
               {inventory.remaining_quantity <=
                 inventory.low_stock_threshold && (
                 <Badge variant="warning" dot>
-                  <FiAlertTriangle className="w-3 h-3" /> Low Stock
+                  <AlertTriangle className="w-3 h-3" strokeWidth={2} /> Low Stock
                 </Badge>
               )}
             </div>
             <div>
-              <div className="text-3xl font-bold text-text tracking-tight">
+              <div className="text-[36px] font-bold text-text tracking-tight">
                 {inventory.remaining_quantity}
                 <span className="text-sm font-normal text-secondary ml-1.5">
                   / {inventory.total_quantity} tablets
                 </span>
               </div>
-              <div className="w-full mt-3 bg-surface-muted rounded-full h-2 overflow-hidden">
+              <div className="w-full mt-4 progress-track">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    inventory.remaining_quantity <=
-                    inventory.low_stock_threshold
-                      ? 'bg-warning'
-                      : 'bg-primary'
+                  className={`progress-fill ${
+                    stockPercent <= 20 ? 'bg-warning' : 'bg-primary'
                   }`}
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      (inventory.remaining_quantity /
-                        Math.max(1, inventory.total_quantity)) *
-                        100
-                    )}%`,
-                  }}
+                  style={{ width: `${stockPercent}%` }}
                 />
               </div>
             </div>
-          </Card>
+
+            <Button
+              onClick={() => setShowRefillModal(true)}
+              fullWidth
+              className="mt-6 min-h-[56px]"
+            >
+              <RefreshCw className="w-5 h-5" strokeWidth={2} />
+              Refill
+            </Button>
+          </div>
         )}
 
         <Button
           variant="outline"
           fullWidth
           onClick={() => setShowEditModal(true)}
-          className="min-h-[52px]"
+          className="min-h-[56px]"
         >
-          <FiEdit2 className="w-4 h-4" /> Edit Medicine
+          <Edit2 className="w-4 h-4" strokeWidth={2} /> Edit Medicine
         </Button>
       </motion.div>
 
@@ -240,6 +269,40 @@ export function MedicineDetailPage() {
           submitLabel="Save Changes"
           loading={updateMedicine.isPending}
         />
+      </Modal>
+
+      {/* Refill Modal */}
+      <Modal
+        isOpen={showRefillModal}
+        onClose={() => setShowRefillModal(false)}
+        title="Refill Medicine"
+      >
+        <div className="space-y-5">
+          <div className="p-4 rounded-[12px] bg-mint-soft">
+            <p className="text-[15px] font-semibold text-mint-deep">
+              {medicine.name}
+            </p>
+            <p className="text-[13px] text-mint-deep/70 mt-0.5">
+              Stock will be restored to {inventory?.total_quantity} tablets
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              fullWidth
+              onClick={() => setShowRefillModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              fullWidth
+              onClick={handleRefill}
+              loading={refill.isPending}
+            >
+              <RefreshCw className="w-4 h-4" strokeWidth={2} /> Refill
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       {/* Delete Confirmation Modal */}
@@ -276,4 +339,3 @@ export function MedicineDetailPage() {
     </div>
   );
 }
-

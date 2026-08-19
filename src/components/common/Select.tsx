@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import type { SelectHTMLAttributes } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
+import { ChevronDown } from 'lucide-react';
 
 interface SelectOption {
   value: string | number;
@@ -26,7 +26,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           <select
             ref={ref}
             className={`
-              w-full appearance-none h-[52px] px-4 pr-10 bg-surface border rounded-[16px]
+              w-full appearance-none h-[52px] px-4 pr-10 bg-surface border rounded-control shadow-card
               text-[15px] text-text transition-all duration-200
               focus:outline-none focus:ring-[3px]
               ${
@@ -44,7 +44,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             ))}
           </select>
-          <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none" />
+          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none w-[18px] h-[18px]" strokeWidth={2} />
         </div>
         {error && <p className="mt-1.5 text-[13px] text-danger">{error}</p>}
       </div>
