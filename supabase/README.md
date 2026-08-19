@@ -32,14 +32,14 @@ Set these secrets in the Supabase Dashboard:
 **Project Settings → Edge Functions → Secrets**
 
 ```
-CLOUD_VISION_API_KEY=AIzaSyAYAItgau_QfMJKbOFLnlMYHZgkQvuC2f8
-GEMINI_API_KEY=AIzaSyBAHnTgCUtGRyOmHd__NufSQ_SEjz4ngSo
+CLOUD_VISION_API_KEY=your_cloud_vision_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 Or via CLI:
 ```bash
-supabase secrets set CLOUD_VISION_API_KEY=AIzaSyAYAItgau_QfMJKbOFLnlMYHZgkQvuC2f8
-supabase secrets set GEMINI_API_KEY=AIzaSyBAHnTgCUtGRyOmHd__NufSQ_SEjz4ngSo
+supabase secrets set CLOUD_VISION_API_KEY=your_cloud_vision_api_key_here
+supabase secrets set GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ## 3. Architecture
