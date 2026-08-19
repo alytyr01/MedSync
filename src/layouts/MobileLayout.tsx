@@ -31,7 +31,7 @@ function NavLinkButton({ item, className = '' }: { item: NavItem; className?: st
       className={({ isActive }) => `
         relative flex flex-col items-center justify-center gap-1
         px-2 py-2.5 rounded-[16px] transition-all duration-200
-        ${isActive ? 'bg-ink/10' : 'hover:bg-ink/5'}
+        ${isActive ? 'bg-white/15' : 'hover:bg-white/5'}
         ${className}
       `}
     >
@@ -40,11 +40,11 @@ function NavLinkButton({ item, className = '' }: { item: NavItem; className?: st
           <Icon
             className="w-[22px] h-[22px]"
             strokeWidth={isActive ? 2.2 : 1.8}
-            color={isActive ? '#1A1D1F' : '#6E7480'}
+            color={isActive ? '#FFFFFF' : '#8A9099'}
           />
           <span
             className={`text-[10px] leading-none ${
-              isActive ? 'font-semibold text-ink' : 'font-medium text-muted'
+              isActive ? 'font-semibold text-white' : 'font-medium text-[#8A9099]'
             }`}
           >
             {item.label}
@@ -81,7 +81,7 @@ export function MobileLayout() {
           <div className="max-w-md mx-auto px-4 pb-3">
             <div className="flex items-stretch justify-between gap-2">
               {/* ===== Main nav container (4 items, moderate radius) ===== */}
-              <div className="flex-1 bg-white/60 backdrop-blur-2xl rounded-[22px] shadow-float ring-1 ring-white/60 border border-white/40">
+              <div className="flex-1 bg-ink/95 backdrop-blur-xl rounded-[22px] shadow-float ring-1 ring-white/10">
                 <div className="grid grid-cols-4 gap-1.5 p-1.5">
                   {mainNavItems.map((item) => (
                     <NavLinkButton key={item.path} item={item} className="w-full" />
@@ -90,7 +90,7 @@ export function MobileLayout() {
               </div>
 
               {/* ===== Scan — separate square container (moderate radius) ===== */}
-              <div className="w-16 h-16 shrink-0 bg-white/60 backdrop-blur-2xl rounded-[18px] shadow-float ring-1 ring-white/60 border border-white/40">
+              <div className="w-16 h-16 shrink-0 bg-ink/95 backdrop-blur-xl rounded-[18px] shadow-float ring-1 ring-white/10">
                 <div className="h-full w-full p-1.5">
                   <NavLinkButton item={scanNavItem} className="w-full h-full" />
                 </div>
