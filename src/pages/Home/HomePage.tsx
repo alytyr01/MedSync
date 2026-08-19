@@ -12,9 +12,6 @@ import {
   ChevronRight,
   CalendarDays,
 } from 'lucide-react';
-import { Lottie } from 'lottie-react';
-import heroImg from '@/assets/hero.png';
-import companionAvatar from '@/assets/companion-avatar.json';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
   useTodayLogs,
@@ -216,51 +213,64 @@ export function HomePage() {
         </div>
       </motion.header>
 
-      {/* ===== Reminder Companion Card — avatar + chat bubble ===== */}
-      {nextReminder ? (
-        <motion.div variants={item} className="mb-4">
-          <div className="premium-card overflow-hidden">
-            <div className="px-5 pt-5 pb-5">
-              {/* Avatar + Chat bubble */}
-              <div className="flex items-start gap-3">
-                {/* Lottie companion avatar */}
-                <div className="w-20 h-20 shrink-0 bg-pastel-mint/60 rounded-full flex items-center justify-center overflow-hidden">
-                  <Lottie
-                    src={companionAvatar}
-                    loop
-                    autoplay
-                    className="w-full h-full"
-                  />
-                </div>
+      {/* ===== Reminder Companion Card — always shown ===== */}
+      <motion.div variants={item} className="mb-4">
+        <div className="premium-card overflow-hidden">
+          <div className="px-5 pt-5 pb-5">
+            {/* Avatar + Chat bubble */}
+            <div className="flex items-start gap-3">
+              {/* Companion avatar image */}
+              <div className="w-20 h-20 shrink-0 bg-pastel-mint/60 rounded-full flex items-center justify-center overflow-hidden">
+                <img
+                  src="/images/hero-image.png"
+                  alt="Reminder companion"
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
-                {/* Chat bubble */}
-                <div className="flex-1 min-w-0">
-                  <div className="bg-primary-soft rounded-[18px] rounded-tl-[6px] px-4 py-3">
-                    <p className="eyebrow mb-1">Good Morning!</p>
+              {/* Chat bubble */}
+              <div className="flex-1 min-w-0">
+                <div className="bg-primary-soft rounded-[18px] rounded-tl-[6px] px-4 py-3">
+                  <p className="eyebrow mb-1">Good Morning!</p>
+                  {nextReminder ? (
                     <p className="text-[15px] font-semibold text-text leading-snug">
                       Time to take your{' '}
                       <span className="text-primary">{nextReminder.medicine.name}</span>{' '}
                       {nextReminder.medicine.dosage}
                     </p>
-                  </div>
+                  ) : (
+                    <p className="text-[15px] font-semibold text-text leading-snug">
+                      You're all caught up for now!
+                    </p>
+                  )}
                 </div>
               </div>
+            </div>
 
-              {/* Scheduled info */}
-              <div className="mt-4 flex items-center gap-2 text-text-secondary">
-                <Clock className="w-4 h-4" strokeWidth={2} />
-                <span className="text-[13px] font-medium">
-                  Scheduled ·{' '}
-                  <span className="font-semibold text-text">
-                    {formatTime(nextReminder.time)}
+            {/* Scheduled info */}
+            <div className="mt-4 flex items-center gap-2 text-text-secondary">
+              <Clock className="w-4 h-4" strokeWidth={2} />
+              {nextReminder ? (
+                <>
+                  <span className="text-[13px] font-medium">
+                    Scheduled ·{' '}
+                    <span className="font-semibold text-text">
+                      {formatTime(nextReminder.time)}
+                    </span>
                   </span>
+                  <span className="text-xs text-text-tertiary ml-auto">
+                    {upcomingReminders.length} remaining today
+                  </span>
+                </>
+              ) : (
+                <span className="text-[13px] font-medium">
+                  No medications scheduled right now
                 </span>
-                <span className="text-xs text-text-tertiary ml-auto">
-                  {upcomingReminders.length} remaining today
-                </span>
-              </div>
+              )}
+            </div>
 
-              {/* Mark as Taken */}
+            {/* Mark as Taken */}
+            {nextReminder && (
               <Button
                 onClick={() =>
                   handleTaken(nextReminder.medicine.id, nextReminder.time)
@@ -272,28 +282,10 @@ export function HomePage() {
                 <Check className="w-5 h-5" strokeWidth={2.2} />
                 Mark as Taken
               </Button>
-            </div>
+            )}
           </div>
-        </motion.div>
-      ) : (
-        <motion.div variants={item} className="mb-5">
-          <div className="premium-card p-5">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 bg-mint-soft flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5 text-mint-deep" strokeWidth={2} />
-              </div>
-              <div>
-                <h2 className="text-[17px] font-semibold text-text tracking-tight">
-                  All caught up
-                </h2>
-                <p className="text-[13px] text-text-secondary mt-0.5">
-                  No medications scheduled right now
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
+        </div>
+      </motion.div>
 
       {/* ===== Compact Progress ===== */}
       <motion.div variants={item} className="mb-4">
