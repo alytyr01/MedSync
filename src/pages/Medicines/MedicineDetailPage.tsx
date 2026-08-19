@@ -156,7 +156,7 @@ export function MedicineDetailPage() {
           </div>
 
           {medicine.instructions && (
-            <div className="mt-5 p-3.5 rounded-[14px] bg-primary-faint">
+            <div className="mt-5 p-3.5 rounded-[14px] bg-primary-soft">
               <p className="text-[13px] text-primary-dark">
                 <span className="font-semibold">Instructions: </span>
                 {medicine.instructions}
@@ -276,3 +276,4 @@ export function MedicineDetailPage() {
     </div>
   );
 }
+

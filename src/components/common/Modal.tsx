@@ -30,7 +30,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 34, stiffness: 340 }}
           >
-            <div className="bg-surface rounded-t-[26px] shadow-modal px-6 pt-3 pb-10 max-h-[85vh] overflow-y-auto">
+            <div className="bg-surface rounded-t-[28px] shadow-modal px-6 pt-3 pb-10 max-h-[85vh] overflow-y-auto">
               {/* Grab handle */}
               <div className="w-10 h-1.5 bg-border rounded-full mx-auto mb-4" />
               <div className="flex items-center justify-between mb-5">

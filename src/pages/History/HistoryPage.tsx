@@ -128,7 +128,7 @@ export function HistoryPage() {
               flex-1 py-2.5 rounded-[14px] text-sm font-medium transition-all duration-200
               ${
                 range === r
-                  ? 'bg-primary text-white shadow-[0_2px_8px_rgba(46,122,88,0.2)]'
+                  ? 'bg-primary text-white shadow-[0_2px_8px_rgba(15,118,110,0.2)]'
                   : 'bg-surface text-secondary border border-border hover:border-primary/30'
               }
             `}
@@ -224,3 +224,4 @@ export function HistoryPage() {
     </div>
   );
 }
+

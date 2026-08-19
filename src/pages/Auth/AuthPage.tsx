@@ -58,7 +58,7 @@ export function AuthPage() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
-            className="w-[72px] h-[72px] mx-auto rounded-[22px] bg-primary flex items-center justify-center mb-5 shadow-[0_8px_24px_rgba(46,122,88,0.3)]"
+            className="w-[72px] h-[72px] mx-auto rounded-[20px] bg-primary flex items-center justify-center mb-5 shadow-[0_8px_24px_rgba(15,118,110,0.3)]"
           >
             <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -151,3 +151,4 @@ export function AuthPage() {
     </div>
   );
 }
+

@@ -2,18 +2,21 @@ export const APP_NAME = 'MedSync';
 export const APP_VERSION = '1.0.0';
 
 export const COLORS = {
-  primary: '#2D6A4F',
-  primaryLight: '#40916C',
-  primaryDark: '#1B4332',
-  primarySoft: '#D8F3DC',
-  background: '#FAFAF8',
+  primary: '#0F766E',
+  primaryLight: '#1D9281',
+  accent: '#14B8A6',
+  background: '#FAFAFA',
   surface: '#FFFFFF',
-  text: '#111111',
-  secondary: '#6B7280',
+  surfaceSoft: '#F5F7FA',
+  surfaceMuted: '#F0F2F5',
+  text: '#111827',
+  textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
   border: '#E5E7EB',
-  danger: '#DC2626',
-  warning: '#D97706',
+  borderSubtle: '#F1F3F5',
   success: '#16A34A',
+  warning: '#F59E0B',
+  danger: '#DC2626',
 } as const;
 
 export const FREQUENCIES = [

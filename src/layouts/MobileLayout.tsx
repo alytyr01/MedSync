@@ -47,7 +47,7 @@ export function MobileLayout() {
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 safe-bottom">
           <div className="max-w-md mx-auto px-4 pb-3">
-            <div className="relative bg-surface/95 backdrop-blur-xl border border-border rounded-[26px] shadow-nav">
+            <div className="relative bg-surface/95 backdrop-blur-xl border border-border rounded-[28px] shadow-nav">
               {/* Thin divider at top */}
               <div className="absolute inset-x-8 top-0 h-px bg-border/60" />
 

@@ -2,73 +2,72 @@
 
 @theme {
   /* ============================================================
-     MedSync Premium Design System
-     Spacing: 8-point grid · Radii: 18–22px cards · Top: mobile-first
+     MedSync Premium Healthcare Design System
+     8-point grid · Swiss typography · Calm medical aesthetic
      ============================================================ */
 
-  /* ===== Colors ===== */
-  --color-primary: #2e7a58;
-  --color-primary-light: #3f9a70;
-  --color-primary-dark: #1e5c40;
-  --color-primary-deep: #14452f;
-  --color-primary-soft: #e5f2ea;
-  --color-primary-faint: #f2f8f5;
+  /* ===== Color Palette (Premium Healthcare) ===== */
+  --color-primary: #0F766E;
+  --color-primary-light: #1D9281;
+  --color-accent: #14B8A6;
+  --color-background: #FAFAFA;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F5F7FA;
+  --color-surface-muted: #F0F2F5;
 
-  --color-background: #f7f7f5;
-  --color-surface: #ffffff;
-  --color-surface-muted: #f3f4f2;
+  --color-text: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
 
-  --color-text: #1a1d1f;
-  --color-secondary: #6f767e;
-  --color-text-tertiary: #a3acb3;
+  --color-border: #E5E7EB;
+  --color-border-subtle: #F1F3F5;
 
-  --color-border: #e7e7e7;
-  --color-border-subtle: #f0f0ee;
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger: #DC2626;
 
-  --color-danger: #dc3d43;
-  --color-warning: #d98a2b;
-  --color-success: #2ea870;
-  --color-info: #3b82f6;
-
-  /* ===== Typography ===== */
+  /* ===== Typography (Inter / SF Pro) ===== */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    "SF Pro Display", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --text-2xs: 0.6875rem;
-  --text-2xs--line-height: 0.875rem;
-  --text-xs: 0.75rem;
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+
+  /* 8-point grid typography */
+  --text-xs: 0.6875rem;       /* 11px */
+  --text-sm: 0.8125rem;       /* 13px */
+  --text-base: 0.9375rem;     /* 15px */
+  --text-lg: 1.0625rem;       /* 17px */
+  --text-xl: 1.25rem;         /* 20px */
+  --text-2xl: 1.5rem;         /* 24px */
+  --text-3xl: 1.875rem;       /* 30px */
+  --text-4xl: 2.25rem;        /* 36px */
+
   --text-xs--line-height: 1rem;
-  --text-sm: 0.8125rem;
-  --text-sm--line-height: 1.1875rem;
-  --text-base: 0.9375rem;
-  --text-base--line-height: 1.375rem;
-  --text-lg: 1.0625rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.4375rem;
   --text-lg--line-height: 1.5rem;
-  --text-xl: 1.25rem;
   --text-xl--line-height: 1.625rem;
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: 1.875rem;
-  --text-3xl: 1.875rem;
+  --text-2xl--line-height: 2rem;
   --text-3xl--line-height: 2.25rem;
-  --text-4xl: 2.25rem;
-  --text-4xl--line-height: 2.625rem;
+  --text-4xl--line-height: 2.5rem;
 
-  /* ===== Border Radius ===== */
-  --radius-card: 1.25rem;      /* 20px  */
-  --radius-card-sm: 1.125rem;  /* 18px  */
-  --radius-button: 1.125rem;   /* 18px  */
-  --radius-control: 0.875rem;  /* 14px  */
-  --radius-pill: 9999px;
+  /* ===== BorderRadius (consistent) ===== */
+  --radius-card: 1.25rem;     /* 20px */
+  --radius-button: 1.125rem;  /* 18px */
+  --radius-input: 1rem;       /* 16px */
+  --radius-modal: 1.5rem;     /* 24px */
+  --radius-bottom-sheet: 1.75rem; /* 28px */
+  --radius-full: 9999px;
 
-  /* ===== Shadows (very soft, low opacity) ===== */
-  --shadow-card: 0 1px 2px rgba(23, 27, 30, 0.03),
-    0 2px 8px rgba(23, 27, 30, 0.02);
-  --shadow-card-hover: 0 2px 4px rgba(23, 27, 30, 0.04),
-    0 6px 16px rgba(23, 27, 30, 0.04);
-  --shadow-modal: 0 -12px 40px rgba(23, 27, 30, 0.08);
-  --shadow-float: 0 4px 16px rgba(23, 27, 30, 0.05),
-    0 12px 32px rgba(23, 27, 30, 0.04);
-  --shadow-nav: 0 -4px 24px rgba(23, 27, 30, 0.05);
+  /* ===== Shadows (very soft, 6% opacity) ===== */
+  --shadow-card: 0 1px 3px rgba(16, 24, 48, 0.04),
+    0 6px 18px rgba(16, 24, 48, 0.03);
+  --shadow-card-hover: 0 2px 8px rgba(16, 24, 48, 0.05),
+    0 6px 20px rgba(16, 24, 48, 0.04);
+  --shadow-floating: 0 4px 16px rgba(16, 24, 48, 0.05),
+    0 12px 32px rgba(16, 24, 48, 0.04);
+  --shadow-nav: 0 -2px 8px rgba(16, 24, 48, 0.03);
+  --shadow-modal: 0 -16px 48px rgba(16, 24, 48, 0.12);
 
   /* ===== Motion ===== */
   --duration-fast: 0.15s;
@@ -76,31 +75,39 @@
   --duration-slow: 0.38s;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* ===== Spacing helpers ===== */
-  --space-screen: 1.5rem;   /* 24px outer padding  */
-  --space-section: 1.75rem; /* 28px between sections */
-  --space-card: 1rem;       /* 16px between cards */
-  --space-card-pad: 1.25rem; /* 20px inside cards */
+  /* ===== Spacing (8-point grid) ===== */
+  --space-screen: 1.5rem;    /* 24px */
+  --space-section: 1.75rem;  /* 28px */
+  --space-card: 1rem;        /* 16px */
+  --space-card-pad: 1.25rem; /* 20px */
+  --space-icon: 0.75rem;     /* 12px */
+  --space-text: 0.5rem;      /* 8px (between text) */
+
+  --height-button: 3.5rem;   /* 56px */
+  --height-input: 3.25rem;   /* 52px */
+  --height-nav: 5.5rem;      /* 88px */
 }
 
 @layer base {
   * {
     @apply border-border;
+    border-color: var(--color-border);
   }
 
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv11", "ss01";
+    font-feature-settings: "calt", "ss01";
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    @apply bg-background text-text font-sans;
-    overscroll-behavior-y: none;
+    @apply bg-background text-text font-sans text-base;
     letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
   }
 
   ::-webkit-scrollbar {
@@ -111,20 +118,17 @@
   input, textarea, select, button {
     font: inherit;
     letter-spacing: inherit;
+    -webkit-font-smoothing: inherit;
+    -moz-osx-font-smoothing: inherit;
   }
 
-  .safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  /* Safe area insets */
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
-  strong {
-    font-weight: 600;
-  }
+  strong { font-weight: 600; }
 
-  /* Remove number input spinners for cleaner mobile feel */
+  /* Remove number input spinners */
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -139,66 +143,68 @@
 @layer components {
   /* ============================================================
      Premium Card
-     White · 1px #E7E7E7 border · 20px radius · ultra-soft shadow
      ============================================================ */
   .premium-card {
     @apply bg-surface border border-border rounded-[--radius-card] shadow-card;
   }
 
-  /* ============================================================
-     Premium Section Title (uppercase eyebrow + title row)
-     ============================================================ */
-  .card-title {
-    @apply text-[17px] font-semibold text-text tracking-tight;
+  .premium-card-hover {
+    @apply bg-surface border border-border rounded-[--radius-card] shadow-card;
+    transition: box-shadow var(--duration-base) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .premium-card-hover:hover {
+    @apply shadow-card-hover;
+    transform: translateY(-1px);
+  }
+
+  /* Section titles */
+  .section-title {
+    @apply text-xl font-semibold text-text tracking-tight;
   }
 
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-text-tertiary;
+    @apply text-xs font-semibold uppercase tracking-[0.08em] text-text-secondary;
   }
 
-  /* ============================================================
-     Dividers inside grouped cards
-     ============================================================ */
+  /* Dividers */
   .card-divider {
-    @apply bg-border-subtle;
+    @apply bg-border;
   }
 }
 
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+  /* ===== Color utilities ===== */
+  .text-primary { color: var(--color-primary); }
+  .text-primary-light { color: var(--color-primary-light); }
+  .text-accent { color: var(--color-accent); }
+  .text-success { color: var(--color-success); }
+  .text-warning { color: var(--color-warning); }
+  .text-danger { color: var(--color-danger); }
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-primary-light { background-color: var(--color-primary-light); }
+  .bg-primary-dark { background-color: #0B4D44; }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-primary-soft { background-color: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+  .bg-primary-faint { background-color: color-mix(in srgb, var(--color-primary) 4%, transparent); }
+  .bg-primary-hover { background-color: color-mix(in srgb, var(--color-primary) 90%, #000 10%); }
 
-  .text-balance {
-    text-wrap: balance;
-  }
+  /* ===== Text utilities ===== */
+  .tracking-tight { letter-spacing: -0.025em; }
+  .text-balance { text-wrap: balance; }
 
-  /* ===== Press / Tap States ===== */
-  .tap-scale {
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
+  /* ===== Touch / press states ===== */
   .tap-scale:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
-  /* Subtle press for cards — scale to 0.98 */
-  .pressable {
-    @apply transition-[transform,box-shadow] duration-[var(--duration-fast)] ease-[var(--ease-out)];
-  }
-  .pressable:active {
-    transform: scale(0.98);
-  }
-
-  /* ===== Skeleton Loader ===== */
+  /* ===== Skeleton loader ===== */
   .skeleton {
     @apply bg-surface-muted;
     position: relative;
     overflow: hidden;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-card);
   }
   .skeleton::after {
     content: "";
@@ -215,80 +221,55 @@
   }
 
   @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
+    100% { transform: translateX(100%); }
   }
 
-  /* ===== Page Enter ===== */
+  /* ===== Page enter animation ===== */
   .animate-fade-up {
     animation: fadeUp 0.5s var(--ease-out) both;
   }
 
   @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ===== Stagger helpers ===== */
-  .animate-stagger {
-    animation: fadeUp 0.5s var(--ease-out) both;
+  @keyframes fadeUpStagger {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ===== Success pulse (check pop) ===== */
+  /* ===== Success pop ===== */
   .animate-success-pop {
-    animation: successPop 0.45s var(--ease-out) both;
+    animation: successPop 0.45s var(--ease-spring) both;
   }
   @keyframes successPop {
-    0% {
-      transform: scale(0.6);
-      opacity: 0;
-    }
-    60% {
-      transform: scale(1.06);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
+  /* ===== Soft pulse ===== */
   .animate-soft-pulse {
     animation: softPulse 2.2s ease-in-out infinite;
   }
   @keyframes softPulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.45;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
   }
 
-  /* ===== Tab Nav Colors ===== */
-  .text-tab-default {
-    color: var(--color-text-tertiary);
-  }
-  .text-tab-active {
-    color: var(--color-primary);
-  }
-
-  /* Subtle divider */
-  .divider {
-    @apply bg-border-subtle;
+  /* ===== Hide scrollbar ===== */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
-  /* Hide scrollbar for horizontal chip rows */
+  /* ===== Horizontal scroll ===== */
   .horizontal-scroll {
-    @apply flex gap-2.5 overflow-x-auto;
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
@@ -296,8 +277,63 @@
     display: none;
   }
 
-  /* Center content vertically */
-  .vertical-center {
-    @apply flex flex-col items-center justify-center;
+  /* ===== Gradient text (for accents only) ===== */
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@utility horizontal-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@utility text-gradient {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+@utility shadow-card-hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+@utility shadow-floating {
+  box-shadow: var(--shadow-floating);
+}
+
+@utility shadow-nav {
+  box-shadow: var(--shadow-nav);
+}
+
+@utility shadow-modal {
+  box-shadow: var(--shadow-modal);
+}
+
+@utility shadow-primary {
+  box-shadow: 0 1px 3px rgba(15, 118, 110, 0.08), 0 6px 18px rgba(15, 118, 110, 0.05);
+}
+
+/* ===== Framer Motion preset classes ===== */
+[data-motion="nav-item"] {
+  transition: color var(--duration-base) var(--ease-out),
+    background-color var(--duration-base) var(--ease-out);
 }

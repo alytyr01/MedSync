@@ -16,7 +16,7 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-white hover:bg-primary-dark active:bg-primary-dark shadow-[0_2px_8px_rgba(46,122,88,0.18)]',
+    'bg-primary text-white hover:bg-primary-hover active:bg-primary-hover shadow-card',
   secondary:
     'bg-primary-soft text-primary hover:bg-primary/15 active:bg-primary/20',
   outline:

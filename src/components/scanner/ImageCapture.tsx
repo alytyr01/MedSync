@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { motion } from 'framer-motion';
-import { FiCamera, FiUpload, FiImage, FiAlertTriangle } from 'react-icons/fi';
-import { Button, Badge } from '@/components/common';
+import { FiUpload } from 'react-icons/fi';
+import { Button, Badge, Card } from '@/components/common';
 import { preprocessImage, type ClientImageQuality } from '@/services/image/enhance';
 
 interface ImageCaptureProps {
@@ -23,17 +23,13 @@ export function ImageCapture({
   const handleImageData = async (imageData: string) => {
     setProcessing(true);
     try {
-      // Step 1: Client-side image quality check & enhancement
       const result = await preprocessImage(imageData);
       setQuality(result.quality);
       setEnhanced(result.enhancedApplied);
       setPreview(result.enhanced);
-
-      // Step 2: Pass the enhanced image to the scan pipeline
       onImageCaptured(result.enhanced);
     } catch (error) {
       console.error('Failed to preprocess image:', error);
-      // Fall back to original image
       setPreview(imageData);
       onImageCaptured(imageData);
     } finally {
@@ -50,10 +46,8 @@ export function ImageCapture({
           resultType: CameraResultType.DataUrl,
           source: CameraSource.Camera,
         });
-        const imageData = photo.dataUrl ?? '';
-        await handleImageData(imageData);
+        await handleImageData(photo.dataUrl ?? '');
       } else {
-        // Web fallback - use file input
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -62,8 +56,7 @@ export function ImageCapture({
           if (file) {
             const reader = new FileReader();
             reader.onload = async () => {
-              const dataUrl = reader.result as string;
-              await handleImageData(dataUrl);
+              await handleImageData(reader.result as string);
             };
             reader.readAsDataURL(file);
           }
@@ -84,8 +77,7 @@ export function ImageCapture({
           resultType: CameraResultType.DataUrl,
           source: CameraSource.Photos,
         });
-        const imageData = photo.dataUrl ?? '';
-        await handleImageData(imageData);
+        await handleImageData(photo.dataUrl ?? '');
       } else {
         const input = document.createElement('input');
         input.type = 'file';
@@ -95,8 +87,7 @@ export function ImageCapture({
           if (file) {
             const reader = new FileReader();
             reader.onload = async () => {
-              const dataUrl = reader.result as string;
-              await handleImageData(dataUrl);
+              await handleImageData(reader.result as string);
             };
             reader.readAsDataURL(file);
           }
@@ -115,7 +106,7 @@ export function ImageCapture({
     }
     return (
       <Badge variant="warning">
-        <FiAlertTriangle className="w-3 h-3" /> Enhanced
+        Enhanced
       </Badge>
     );
   };
@@ -144,28 +135,36 @@ export function ImageCapture({
           </div>
         </motion.div>
       ) : (
-        <div className="premium-card p-8 text-center">
-          <div className="w-[72px] h-[72px] mx-auto rounded-[22px] bg-primary-soft flex items-center justify-center mb-5">
-            <FiImage className="w-8 h-8 text-primary" />
+        <Card className="p-8 text-center" padding="lg">
+          <div className="w-16 h-16 mx-auto rounded-[14px] border-2 border-dashed border-border-subtle flex items-center justify-center mb-5">
+            <div className="text-center">
+              <div className="w-6 h-6 mx-auto border-2 border-text-tertiary rounded-sm mb-1" />
+              <div className="w-10 h-0.5 mx-auto bg-text-tertiary/40" />
+            </div>
           </div>
           <h3 className="text-[19px] font-semibold text-text tracking-tight mb-1">
             Scan Prescription
           </h3>
-          <p className="text-sm text-secondary mb-7">
-            Take a photo or upload an image of your prescription
+          <p className="text-sm text-secondary mb-7 max-w-xs mx-auto">
+            Take a photo or upload an image of your prescription.
           </p>
           <div className="flex gap-3">
-            <Button onClick={handleCapture} fullWidth loading={loading || processing}>
-              <FiCamera className="w-4 h-4" /> Camera
+            <Button
+              onClick={handleCapture}
+              fullWidth
+              loading={loading || processing}
+              className="min-h-[52px]"
+            >
+              Camera
             </Button>
-            <Button variant="outline" onClick={handleUpload} fullWidth>
+            <Button variant="outline" onClick={handleUpload} fullWidth className="min-h-[52px]">
               <FiUpload className="w-4 h-4" /> Upload
             </Button>
           </div>
           <p className="mt-5 text-xs text-secondary/70">
-            Images are auto-enhanced for better AI recognition
+            Images are auto-enhanced for better recognition
           </p>
-        </div>
+        </Card>
       )}
     </div>
   );

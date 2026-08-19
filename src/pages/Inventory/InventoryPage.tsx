@@ -148,7 +148,7 @@ export function InventoryPage() {
                               String(item.total_quantity || 30)
                             );
                           }}
-                          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-[14px] bg-primary text-white text-[13px] font-medium hover:bg-primary-dark active:scale-[0.98] transition-all duration-200 shadow-[0_2px_8px_rgba(46,122,88,0.15)] shrink-0 ml-3"
+                          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-button bg-primary text-white text-[13px] font-medium hover:bg-primary-hover active:scale-[0.98] transition-all duration-200 shadow-[0_2px_8px_rgba(15,118,110,0.15)] shrink-0 ml-3"
                         >
                           <FiRefreshCw className="w-4 h-4" /> Refill
                         </button>
@@ -266,3 +266,4 @@ export function InventoryPage() {
     </div>
   );
 }
+

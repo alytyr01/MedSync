@@ -48,7 +48,7 @@ export function MedicinesPage() {
         action={
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all duration-200 shadow-[0_2px_10px_rgba(46,122,88,0.25)]"
+            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover active:scale-95 transition-all duration-200 shadow-[0_2px_10px_rgba(15,118,110,0.25)]"
             aria-label="Add medicine"
           >
             <FiPlus className="w-5 h-5" />
@@ -75,7 +75,7 @@ export function MedicinesPage() {
             onClick={() => setFilter(f)}
             className={`px-4 py-2 rounded-full text-[13px] font-medium transition-all duration-200 shrink-0 ${
               filter === f
-                ? 'bg-primary text-white shadow-[0_2px_8px_rgba(46,122,88,0.2)]'
+                ? 'bg-primary text-white shadow-[0_2px_8px_rgba(15,118,110,0.2)]'
                 : 'bg-surface text-secondary border border-border hover:border-primary/30'
             }`}
           >
@@ -144,3 +144,4 @@ export function MedicinesPage() {
     </div>
   );
 }
+

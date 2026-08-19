@@ -52,7 +52,7 @@ export function ReminderItem({
       <div className="flex gap-2 mt-4">
         <button
           onClick={onTaken}
-          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[14px] bg-primary text-white text-sm font-medium hover:bg-primary-dark active:scale-[0.98] transition-all duration-200 shadow-[0_2px_8px_rgba(46,122,88,0.15)]"
+           className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-[18px] bg-primary text-white text-sm font-medium hover:bg-primary-hover active:bg-primary-hover active:scale-[0.98] transition-all duration-200 shadow-card"
         >
           <FiCheck className="w-4 h-4" /> Taken
         </button>

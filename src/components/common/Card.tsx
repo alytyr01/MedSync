@@ -20,7 +20,7 @@ const paddingClasses = {
 const variantClasses = {
   default: 'bg-surface',
   muted: 'bg-surface-muted',
-  primary: 'bg-primary-faint',
+  primary: 'bg-primary-soft',
   warning: 'bg-warning/5',
 };
 

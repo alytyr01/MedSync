@@ -96,7 +96,7 @@ export function EmptyState({
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16 px-6 text-center gap-3"
     >
-      <div className="w-16 h-16 rounded-[20px] bg-primary-faint flex items-center justify-center mb-1">
+      <div className="w-16 h-16 rounded-[20px] bg-primary-soft flex items-center justify-center mb-1">
         {icon || <FiInbox className="w-7 h-7 text-primary" />}
       </div>
       <h3 className="text-text font-semibold text-[17px] tracking-tight">

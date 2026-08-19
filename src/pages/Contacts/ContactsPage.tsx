@@ -90,7 +90,7 @@ export function ContactsPage() {
         action={
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all duration-200 shadow-[0_2px_10px_rgba(46,122,88,0.25)]"
+            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover active:scale-95 transition-all duration-200 shadow-[0_2px_10px_rgba(15,118,110,0.25)]"
             aria-label="Add contact"
           >
             <FiPlus className="w-5 h-5" />
@@ -148,7 +148,7 @@ export function ContactsPage() {
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     <button
                       onClick={() => handleCall(contact.phone)}
-                      className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark active:scale-95 transition-all duration-200 shadow-[0_2px_8px_rgba(46,122,88,0.15)]"
+                      className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-hover active:scale-95 transition-all duration-200 shadow-[0_2px_8px_rgba(15,118,110,0.15)]"
                       aria-label={`Call ${contact.name}`}
                     >
                       <FiPhone className="w-[18px] h-[18px]" />
@@ -240,3 +240,4 @@ export function ContactsPage() {
     </div>
   );
 }
+
