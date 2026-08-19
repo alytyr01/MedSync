@@ -6,6 +6,7 @@
 // and returns structured medicine data.
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -16,6 +17,8 @@ const CORS_HEADERS = {
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-flash';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,14 +30,31 @@ serve(async (req) => {
       return json({ error: 'Method not allowed' }, 405);
     }
 
+    // Verify JWT token
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return json({ error: 'Unauthorized' }, 401);
+      return json({ error: 'Unauthorized: Missing Authorization header' }, 401);
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+
+    if (authError || !user) {
+      return json({ error: 'Unauthorized: Invalid or expired session' }, 401);
     }
 
     if (!GEMINI_API_KEY) {
       return json(
-        { error: 'GEMINI_API_KEY not configured. Run: supabase secrets set GEMINI_API_KEY=your-key' },
+        {
+          error:
+            'GEMINI_API_KEY not configured. Run: supabase secrets set GEMINI_API_KEY=your-key',
+        },
         500
       );
     }
@@ -65,10 +85,13 @@ serve(async (req) => {
       return json({ error: result.error }, 422);
     }
 
-    return json({
-      medicines: result.medicines,
-      confidence: result.confidence,
-    }, 200);
+    return json(
+      {
+        medicines: result.medicines,
+        confidence: result.confidence,
+      },
+      200
+    );
   } catch (error) {
     console.error('scan-prescription error:', error);
     return json({ error: 'Internal server error' }, 500);
@@ -92,7 +115,12 @@ interface Medicine {
 async function callGemini(
   base64: string,
   mimeType: string
-): Promise<{ success: boolean; medicines: Medicine[]; confidence: number; error?: string }> {
+): Promise<{
+  success: boolean;
+  medicines: Medicine[];
+  confidence: number;
+  error?: string;
+}> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
   const prompt = `You are a pharmacist.
@@ -155,14 +183,24 @@ Field mapping:
     if (!response.ok) {
       const errText = await response.text();
       console.error('Gemini API error:', response.status, errText);
-      return { success: false, medicines: [], confidence: 0, error: `Gemini API error: ${response.status}` };
+      return {
+        success: false,
+        medicines: [],
+        confidence: 0,
+        error: `Gemini API error: ${response.status} - ${errText.slice(0, 200)}`,
+      };
     }
 
     const data = await response.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) {
-      return { success: false, medicines: [], confidence: 0, error: 'No text extracted' };
+      return {
+        success: false,
+        medicines: [],
+        confidence: 0,
+        error: 'No text extracted',
+      };
     }
 
     // Parse JSON (handle wrapped responses)
@@ -171,7 +209,13 @@ Field mapping:
       parsed = JSON.parse(text);
     } catch {
       const match = text.match(/\{[\s\S]*\}/);
-      if (!match) return { success: false, medicines: [], confidence: 0, error: 'Failed to parse response' };
+      if (!match)
+        return {
+          success: false,
+          medicines: [],
+          confidence: 0,
+          error: 'Failed to parse response',
+        };
       parsed = JSON.parse(match[0]);
     }
 
@@ -188,14 +232,19 @@ Field mapping:
       // Frequency
       const freq = String(m.frequency ?? '').toLowerCase();
       const frequency: Medicine['frequency'] =
-        freq === 'weekly' ? 'weekly'
-        : freq === 'monthly' ? 'monthly'
-        : freq === 'as_needed' || freq === 'as needed' || freq === 'prn' ? 'as_needed'
-        : 'daily';
+        freq === 'weekly'
+          ? 'weekly'
+          : freq === 'monthly'
+            ? 'monthly'
+            : freq === 'as_needed' || freq === 'as needed' || freq === 'prn'
+              ? 'as_needed'
+              : 'daily';
 
       // Duration → days
       let duration_days: number | null = null;
-      const dm = duration.match(/(\d+)\s*(day|days|d|week|weeks|w|month|months|m)/i);
+      const dm = duration.match(
+        /(\d+)\s*(day|days|d|week|weeks|w|month|months|m)/i
+      );
       if (dm) {
         const n = parseInt(dm[1], 10);
         const u = dm[2].toLowerCase();
@@ -216,28 +265,40 @@ Field mapping:
       // Confidence
       const confidence = clamp(
         typeof m.confidence === 'number' ? m.confidence : estimateConfidence(m),
-        0, 100
+        0,
+        100
       );
 
       return {
-        name, strength, dosage, frequency,
-        times_per_day, schedule_times, duration_days,
+        name,
+        strength,
+        dosage,
+        frequency,
+        times_per_day,
+        schedule_times,
+        duration_days,
         instructions: instructions || null,
         confidence,
       };
     });
 
     // Overall confidence (average, penalized for missing fields)
-    const avg = medicines.length > 0
-      ? medicines.reduce((s, m) => s + m.confidence, 0) / medicines.length
-      : 0;
+    const avg =
+      medicines.length > 0
+        ? medicines.reduce((s, m) => s + m.confidence, 0) / medicines.length
+        : 0;
     const missing = medicines.filter((m) => !m.name || !m.strength).length;
     const confidence = clamp(Math.round(avg - missing * 5), 0, 100);
 
     return { success: true, medicines, confidence };
   } catch (error) {
     console.error('Gemini call error:', error);
-    return { success: false, medicines: [], confidence: 0, error: String(error) };
+    return {
+      success: false,
+      medicines: [],
+      confidence: 0,
+      error: String(error),
+    };
   }
 }
 
