@@ -12,7 +12,9 @@ import {
   ChevronRight,
   CalendarDays,
 } from 'lucide-react';
+import { Lottie } from 'lottie-react';
 import heroImg from '@/assets/hero.png';
+import companionAvatar from '@/assets/companion-avatar.json';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
   useTodayLogs,
@@ -214,49 +216,62 @@ export function HomePage() {
         </div>
       </motion.header>
 
-      {/* ===== Today's Medication — Hero (refined & compact) ===== */}
+      {/* ===== Reminder Companion Card — avatar + chat bubble ===== */}
       {nextReminder ? (
         <motion.div variants={item} className="mb-4">
           <div className="premium-card overflow-hidden">
-            <div className="flex items-stretch">
-              {/* Left content */}
-              <div className="flex-1 p-5 min-w-0">
-                <p className="eyebrow mb-1.5">Today's Medication</p>
-                <h2 className="text-xl font-semibold text-text tracking-tight leading-snug">
-                  {nextReminder.medicine.name}
-                </h2>
-                <p className="text-[13px] text-text-secondary mt-0.5">
-                  {nextReminder.medicine.dosage}
-                </p>
-                <div className="mt-4 flex items-center gap-2 text-primary">
-                  <Clock className="w-4 h-4" strokeWidth={2} />
-                  <span className="text-sm font-semibold">
-                    {formatTime(nextReminder.time)}
-                  </span>
-                  <span className="text-xs text-text-secondary font-normal ml-1">
-                    · {upcomingReminders.length} remaining today
-                  </span>
+            <div className="px-5 pt-5 pb-5">
+              {/* Avatar + Chat bubble */}
+              <div className="flex items-start gap-3">
+                {/* Lottie companion avatar */}
+                <div className="w-20 h-20 shrink-0 bg-pastel-mint/60 rounded-full flex items-center justify-center overflow-hidden">
+                  <Lottie
+                    src={companionAvatar}
+                    loop
+                    autoplay
+                    className="w-full h-full"
+                  />
                 </div>
-                <Button
-                  onClick={() =>
-                    handleTaken(nextReminder.medicine.id, nextReminder.time)
-                  }
-                  size="md"
-                  className="mt-4 w-44"
-                >
-                  <Check className="w-5 h-5" strokeWidth={2.2} />
-                  Take Now
-                </Button>
+
+                {/* Chat bubble */}
+                <div className="flex-1 min-w-0">
+                  <div className="bg-primary-soft rounded-[18px] rounded-tl-[6px] px-4 py-3">
+                    <p className="eyebrow mb-1">Good Morning!</p>
+                    <p className="text-[15px] font-semibold text-text leading-snug">
+                      Time to take your{' '}
+                      <span className="text-primary">{nextReminder.medicine.name}</span>{' '}
+                      {nextReminder.medicine.dosage}
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Right accent — medicine image */}
-              <div className="w-24 shrink-0 bg-pastel-mint/60 flex items-center justify-center overflow-hidden">
-                <img
-                  src={nextReminder.medicine.image_url ?? heroImg}
-                  alt={nextReminder.medicine.name}
-                  className="w-full h-full object-cover"
-                />
+              {/* Scheduled info */}
+              <div className="mt-4 flex items-center gap-2 text-text-secondary">
+                <Clock className="w-4 h-4" strokeWidth={2} />
+                <span className="text-[13px] font-medium">
+                  Scheduled ·{' '}
+                  <span className="font-semibold text-text">
+                    {formatTime(nextReminder.time)}
+                  </span>
+                </span>
+                <span className="text-xs text-text-tertiary ml-auto">
+                  {upcomingReminders.length} remaining today
+                </span>
               </div>
+
+              {/* Mark as Taken */}
+              <Button
+                onClick={() =>
+                  handleTaken(nextReminder.medicine.id, nextReminder.time)
+                }
+                size="md"
+                fullWidth
+                className="mt-4"
+              >
+                <Check className="w-5 h-5" strokeWidth={2.2} />
+                Mark as Taken
+              </Button>
             </div>
           </div>
         </motion.div>
