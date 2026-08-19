@@ -9,13 +9,51 @@ interface NavItem {
   icon: LucideIcon;
 }
 
-const navItems: NavItem[] = [
+// Main nav items (without Scan — it gets its own dedicated container)
+const mainNavItems: NavItem[] = [
   { path: '/', label: 'Today', icon: Home },
   { path: '/medicines', label: 'Medicines', icon: Pill },
-  { path: '/scan', label: 'Scan', icon: ScanLine },
   { path: '/history', label: 'Schedule', icon: Clock },
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
+
+const scanNavItem: NavItem = {
+  path: '/scan',
+  label: 'Scan',
+  icon: ScanLine,
+};
+
+function NavLinkButton({ item, className = '' }: { item: NavItem; className?: string }) {
+  const Icon = item.icon;
+  return (
+    <NavLink
+      to={item.path}
+      className={({ isActive }) => `
+        relative flex flex-col items-center justify-center gap-1
+        px-2 py-2.5 rounded-[16px] transition-all duration-200
+        ${isActive ? 'bg-white/15' : 'hover:bg-white/5'}
+        ${className}
+      `}
+    >
+      {({ isActive }) => (
+        <>
+          <Icon
+            className="w-[22px] h-[22px]"
+            strokeWidth={isActive ? 2.2 : 1.8}
+            color={isActive ? '#FFFFFF' : '#8A9099'}
+          />
+          <span
+            className={`text-[10px] leading-none ${
+              isActive ? 'font-semibold text-white' : 'font-medium text-[#8A9099]'
+            }`}
+          >
+            {item.label}
+          </span>
+        </>
+      )}
+    </NavLink>
+  );
+}
 
 export function MobileLayout() {
   const location = useLocation();
@@ -41,41 +79,21 @@ export function MobileLayout() {
       {!hideNav && (
         <nav className="fixed bottom-0 inset-x-0 z-40 safe-bottom">
           <div className="max-w-md mx-auto px-4 pb-3">
-            <div className="bg-ink/95 backdrop-blur-xl rounded-pill shadow-float ring-1 ring-white/10">
-              <div className="flex items-stretch px-1.5 py-1.5">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      className={({ isActive }) => `
-                        relative flex-1 flex flex-col items-center gap-1
-                        py-2.5 rounded-pill transition-all duration-200
-                        ${isActive ? 'bg-white/15' : 'hover:bg-white/5'}
-                      `}
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Icon
-                            className="w-[22px] h-[22px]"
-                            strokeWidth={isActive ? 2.2 : 1.8}
-                            color={isActive ? '#FFFFFF' : '#8A9099'}
-                          />
-                          <span
-                            className={`text-[10px] leading-none ${
-                              isActive
-                                ? 'font-semibold text-white'
-                                : 'font-medium text-[#8A9099]'
-                            }`}
-                          >
-                            {item.label}
-                          </span>
-                        </>
-                      )}
-                    </NavLink>
-                  );
-                })}
+            <div className="flex items-stretch justify-between gap-2">
+              {/* ===== Main nav container (4 items, moderate radius) ===== */}
+              <div className="flex-1 bg-ink/95 backdrop-blur-xl rounded-[22px] shadow-float ring-1 ring-white/10">
+                <div className="grid grid-cols-4 gap-1.5 p-1.5">
+                  {mainNavItems.map((item) => (
+                    <NavLinkButton key={item.path} item={item} className="w-full" />
+                  ))}
+                </div>
+              </div>
+
+              {/* ===== Scan — separate square container (moderate radius) ===== */}
+              <div className="w-16 h-16 shrink-0 bg-ink/95 backdrop-blur-xl rounded-[18px] shadow-float ring-1 ring-white/10">
+                <div className="h-full w-full p-1.5">
+                  <NavLinkButton item={scanNavItem} className="w-full h-full" />
+                </div>
               </div>
             </div>
           </div>
