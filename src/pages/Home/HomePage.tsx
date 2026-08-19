@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CalendarDays,
 } from 'lucide-react';
+import heroImg from '@/assets/hero.png';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
   useTodayLogs,
@@ -240,17 +241,21 @@ export function HomePage() {
                   onClick={() =>
                     handleTaken(nextReminder.medicine.id, nextReminder.time)
                   }
-                  fullWidth
-                  className="mt-3 min-h-[48px]"
+                  size="md"
+                  className="mt-4 w-44"
                 >
                   <Check className="w-5 h-5" strokeWidth={2.2} />
                   Take Now
                 </Button>
               </div>
 
-              {/* Right accent — refined mint */}
-              <div className="w-20 shrink-0 bg-pastel-mint/60 flex items-center justify-center">
-                <Pill className="w-8 h-8 text-mint-deep" strokeWidth={1.8} />
+              {/* Right accent — medicine image */}
+              <div className="w-24 shrink-0 bg-pastel-mint/60 flex items-center justify-center overflow-hidden">
+                <img
+                  src={nextReminder.medicine.image_url ?? heroImg}
+                  alt={nextReminder.medicine.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

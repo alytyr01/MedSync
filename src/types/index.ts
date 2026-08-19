@@ -5,6 +5,7 @@ export interface Medicine {
   user_id: string;
   name: string;
   dosage: string;
+  image_url?: string | null;
   frequency: Frequency;
   times_per_day: number;
   schedule_times: string[]; // e.g. ["08:00", "14:00", "20:00"]
