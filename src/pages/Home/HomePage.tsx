@@ -305,38 +305,56 @@ export function HomePage() {
         </div>
       </motion.div>
 
-      {/* ===== Quick stats — 2-up but more compact ===== */}
-      <motion.div variants={item} className="grid grid-cols-2 gap-4 mb-6">
-        <div
-          className="premium-card p-4 cursor-pointer"
-          onClick={() => navigate('/medicines')}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-8 h-8 bg-pastel-mint/70 flex items-center justify-center">
-              <Pill className="w-4 h-4 text-mint-deep" strokeWidth={2} />
-            </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
-          </div>
-          <p className="text-[24px] font-semibold text-text tracking-tight leading-none">
-            {uniqueMedicines.length}
-          </p>
-          <p className="text-[12px] text-text-secondary mt-1">Medications</p>
-        </div>
+      {/* ===== Quick stats — premium single card ===== */}
+      <motion.div variants={item} className="mb-6">
+        <div className="premium-card overflow-hidden">
+          <div className="grid grid-cols-2 divide-x divide-border">
+            {/* Medications */}
+            <button
+              type="button"
+              onClick={() => navigate('/medicines')}
+              className="group relative p-5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-[14px] bg-pastel-mint flex items-center justify-center shadow-sm">
+                  <Pill className="w-[18px] h-[18px] text-mint-deep" strokeWidth={2.2} />
+                </div>
+                <ChevronRight
+                  className="w-4 h-4 text-text-tertiary transition-transform duration-200 group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                />
+              </div>
+              <p className="text-[28px] font-bold text-text tracking-tight leading-none">
+                {uniqueMedicines.length}
+              </p>
+              <p className="text-[12px] font-medium text-text-secondary mt-1.5">
+                Medications
+              </p>
+            </button>
 
-        <div
-          className="premium-card p-4 cursor-pointer"
-          onClick={() => navigate('/inventory')}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <div className="w-7 h-7 bg-pastel-blue/70 flex items-center justify-center">
-              <Package className="w-4 h-4 text-blue-deep" strokeWidth={2} />
-            </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
+            {/* Need refill */}
+            <button
+              type="button"
+              onClick={() => navigate('/inventory')}
+              className="group relative p-5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-[14px] bg-pastel-blue flex items-center justify-center shadow-sm">
+                  <Package className="w-[18px] h-[18px] text-blue-deep" strokeWidth={2.2} />
+                </div>
+                <ChevronRight
+                  className="w-4 h-4 text-text-tertiary transition-transform duration-200 group-hover:translate-x-0.5"
+                  strokeWidth={2}
+                />
+              </div>
+              <p className="text-[28px] font-bold text-text tracking-tight leading-none">
+                {lowStockItems.length}
+              </p>
+              <p className="text-[12px] font-medium text-text-secondary mt-1.5">
+                Need refill
+              </p>
+            </button>
           </div>
-          <p className="text-[24px] font-semibold text-text tracking-tight leading-none">
-            {lowStockItems.length}
-          </p>
-          <p className="text-[12px] text-text-secondary mt-1">Need refill</p>
         </div>
       </motion.div>
 
