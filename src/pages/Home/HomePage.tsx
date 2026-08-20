@@ -178,7 +178,7 @@ export function HomePage() {
 
   return (
     <motion.div
-      className="px-5 pb-6"
+      className="px-5 pb-2"
       variants={container}
       initial="hidden"
       animate="show"
@@ -470,7 +470,7 @@ export function HomePage() {
       </motion.section>
 
       {/* ===== Calendar teaser ===== */}
-      <motion.section variants={item} className="mb-6">
+      <motion.section variants={item} className="mb-0">
         <div className="premium-card-hover p-5 cursor-pointer" onClick={() => navigate('/history')}>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-primary-soft flex items-center justify-center shrink-0">
