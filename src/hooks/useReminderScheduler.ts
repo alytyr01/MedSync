@@ -5,6 +5,7 @@ import {
   cancelAllReminders,
 } from '@/services/notifications';
 import { useSettingsStore } from '@/store/settingsStore';
+import { syncPushSubscription, clearPushSubscription } from '@/services/push-subscriptions';
 
 /**
  * Schedules native local notifications for all medicines.
@@ -22,8 +23,11 @@ export function useReminderScheduler() {
     const run = async () => {
       if (!notificationsEnabled) {
         await cancelAllReminders();
+        await clearPushSubscription();
         return;
       }
+
+      await syncPushSubscription();
 
       if (medicines && medicines.length > 0) {
         await scheduleAllMedicineReminders(medicines);

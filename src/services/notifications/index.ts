@@ -7,6 +7,9 @@ import {
   NOTIFICATION_CHANNEL_NAME,
   NOTIFICATION_CHANNEL_DESC,
 } from '@/constants';
+import { supabase } from '@/services/supabase/client';
+import { useAuthStore } from '@/store/authStore';
+import { syncPushSubscription } from '@/services/push-subscriptions';
 
 /**
  * Notification Service
@@ -25,6 +28,9 @@ export async function requestNotificationPermission(): Promise<boolean> {
     // Web fallback
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        await syncPushSubscription();
+      }
       return permission === 'granted';
     }
     return false;
@@ -90,7 +96,11 @@ export async function scheduleMedicineReminder(
         ],
       });
     } else {
-      // Web fallback - schedule with setTimeout
+      // Web: create a server-side reminder row so the cron edge
+      // function (send-reminder-push) fires even when the app is closed.
+      await upsertServerReminder(medicine.id, time, scheduled);
+
+      // Fallback timer for when the app IS open.
       const delay = scheduled.getTime() - now.getTime();
       setTimeout(() => {
         // Trigger in-app alarm
@@ -117,6 +127,7 @@ export async function scheduleAllMedicineReminders(
 ): Promise<void> {
   // Cancel all existing notifications first
   await cancelAllReminders();
+  await clearServerReminders();
 
   for (const medicine of medicines) {
     for (const time of medicine.schedule_times) {
@@ -247,4 +258,25 @@ function formatScheduleTime(time: string): string {
   const period = hours >= 12 ? 'PM' : 'AM';
   const displayHour = hours % 12 === 0 ? 12 : hours % 12;
   return `${displayHour}:${String(minutes).padStart(2, '0')} ${period}`;
+}
+
+async function upsertServerReminder(medicineId: string, time: string, scheduled: Date): Promise<void> {
+  const user = useAuthStore.getState().user;
+  if (!user) return;
+  const timeKey = `${medicineId}-${time}`;
+  await supabase.from('reminder_notifications').delete().eq('medicine_id', medicineId).eq('time_key', timeKey);
+  const { error } = await supabase.from('reminder_notifications').insert({
+    medicine_id: medicineId,
+    title: 'Time to take your medicine',
+    body: `Scheduled for ${formatScheduleTime(time)}`,
+    time_key: timeKey,
+    scheduled_for: scheduled.toISOString(),
+  });
+  if (error) console.error('Failed to create server reminder:', error);
+}
+
+async function clearServerReminders(): Promise<void> {
+  const user = useAuthStore.getState().user;
+  if (!user) return;
+  await supabase.from('reminder_notifications').delete().eq('user_id', user.id);
 }

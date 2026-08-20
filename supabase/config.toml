@@ -2,3 +2,6 @@ project_id = "medsync"
 
 [functions.scan-prescription]
 verify_jwt = true
+
+[functions.send-reminder-push]
+verify_jwt = false

@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Card, Toggle, Button } from '@/components/common';
 import { APP_NAME, APP_VERSION } from '@/constants';
 import { requestNotificationPermission } from '@/services/notifications';
+import { clearPushSubscription } from '@/services/push-subscriptions';
 
 const container = {
   hidden: { opacity: 0 },
@@ -48,6 +49,8 @@ export function SettingsPage() {
     if (enabled) {
       const granted = await requestNotificationPermission();
       if (!granted) return;
+    } else {
+      await clearPushSubscription();
     }
     updateSettings({ notificationsEnabled: enabled });
   };
