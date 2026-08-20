@@ -178,7 +178,7 @@ export function HomePage() {
 
   return (
     <motion.div
-      className="px-5 pb-24"
+      className="px-5 pb-6"
       variants={container}
       initial="hidden"
       animate="show"
