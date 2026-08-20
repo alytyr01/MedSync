@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import type { Medicine } from '@/types';
+import { useReminderAlarmStore } from '@/store/reminderAlarmStore';
 import {
   NOTIFICATION_CHANNEL_ID,
   NOTIFICATION_CHANNEL_NAME,
@@ -92,10 +93,16 @@ export async function scheduleMedicineReminder(
       // Web fallback - schedule with setTimeout
       const delay = scheduled.getTime() - now.getTime();
       setTimeout(() => {
+        // Trigger in-app alarm
+        useReminderAlarmStore.getState().triggerAlarm(medicine, time);
+
+        // Also show browser notification if permission granted
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification(`Time to take ${medicine.name}`, {
             body: `${medicine.dosage} - ${formatScheduleTime(time)}`,
             tag: notificationId.toString(),
+            icon: '/pwa-icons/pwa-192x192.png',
+            badge: '/pwa-icons/pwa-192x192.png',
           });
         }
       }, delay);
@@ -199,6 +206,23 @@ export async function snoozeReminder(
           },
         ],
       });
+    } else {
+      // Web fallback - schedule snoozed alarm with setTimeout
+      const delay = scheduled.getTime() - now.getTime();
+      setTimeout(() => {
+        // Trigger in-app alarm
+        useReminderAlarmStore.getState().triggerAlarm(medicine, time);
+
+        // Also show browser notification if permission granted
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(`Snoozed: ${medicine.name}`, {
+            body: `${medicine.dosage} - ${formatScheduleTime(time)} (snoozed ${minutes} min)`,
+            tag: notificationId.toString(),
+            icon: '/pwa-icons/pwa-192x192.png',
+            badge: '/pwa-icons/pwa-192x192.png',
+          });
+        }
+      }, delay);
     }
   } catch (error) {
     console.error('Failed to snooze reminder:', error);

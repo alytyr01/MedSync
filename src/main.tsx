@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { registerSW } from 'virtual:pwa-register';
 import { router } from './router';
 import { useAuthStore } from './store/authStore';
 import { setupNotificationChannel } from './services/notifications';
@@ -21,6 +22,11 @@ const queryClient = new QueryClient({
 
 // Initialize auth store
 useAuthStore.getState().initialize();
+
+// Register PWA service worker (skip on native Capacitor platforms)
+if (!Capacitor.isNativePlatform()) {
+  registerSW({ immediate: true });
+}
 
 // Setup capacitor native features
 if (Capacitor.isNativePlatform()) {
