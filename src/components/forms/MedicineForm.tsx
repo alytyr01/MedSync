@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { medicineSchema, type MedicineFormData } from '@/utils/validation';
-import { Button, Input, Select, Textarea } from '@/components/common';
-import { Plus, Trash2 } from 'lucide-react';
+import { Button, Input, Select, Textarea, Modal, TimePickerClock, DatePickerCalendar } from '@/components/common';
+import { Plus, Trash2, Clock, CalendarDays } from 'lucide-react';
 import { getTodayISO } from '@/utils/format';
 import { TIME_OPTIONS } from '@/constants';
 import type { Medicine } from '@/types';
@@ -14,12 +15,32 @@ interface MedicineFormProps {
   loading?: boolean;
 }
 
+function format12Hour(time: string): string {
+  const [h, m] = time.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+function formatDateDisplay(date: string): string {
+  const d = new Date(date + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
 export function MedicineForm({
   initialData,
   onSubmit,
   submitLabel = 'Save Medicine',
   loading = false,
 }: MedicineFormProps) {
+  const [activeTimeIndex, setActiveTimeIndex] = useState<number | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
   const defaultValues: MedicineFormData = {
     name: initialData?.name ?? '',
     dosage: initialData?.dosage ?? '',
@@ -52,6 +73,7 @@ export function MedicineForm({
   const frequency = watch('frequency');
   const timesPerDay = watch('times_per_day');
   const scheduleTimes = watch('schedule_times');
+  const startDate = watch('start_date');
 
   const handleTimesPerDay = (n: number) => {
     setValue('times_per_day', n);
@@ -156,11 +178,20 @@ export function MedicineForm({
         <div className="space-y-2">
           {scheduleTimes.map((time, index) => (
             <div key={index} className="flex items-center gap-2">
-              <Select
-                value={time}
-                onChange={(e) => handleTimeChange(index, e.target.value)}
-                options={TIME_OPTIONS.map((t) => ({ value: t, label: t }))}
-              />
+              <button
+                type="button"
+                onClick={() => setActiveTimeIndex(index)}
+                className="
+                  flex-1 h-[52px] px-4 rounded-control text-[15px] shadow-card
+                  bg-surface text-text border-border
+                  flex items-center justify-between
+                  focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+                  transition-all duration-200
+                "
+              >
+                <span className="font-medium">{format12Hour(time)}</span>
+                <Clock className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
+              </button>
               <button
                 type="button"
                 onClick={() => handleRemoveTime(index)}
@@ -180,12 +211,25 @@ export function MedicineForm({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Input
-          label="Start Date"
-          type="date"
-          error={errors.start_date?.message}
-          {...register('start_date')}
-        />
+        <div>
+          <label className="block text-sm font-medium text-text mb-1.5">
+            Start Date
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowDatePicker(true)}
+            className="
+              w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+              bg-surface text-text border-border
+              flex items-center justify-between
+              focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+              transition-all duration-200
+            "
+          >
+            <span className="font-medium">{formatDateDisplay(startDate)}</span>
+            <CalendarDays className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
+          </button>
+        </div>
         <Input
           label="Duration (days)"
           type="number"
@@ -217,6 +261,34 @@ export function MedicineForm({
       <Button type="submit" fullWidth loading={loading}>
         {submitLabel}
       </Button>
+
+      <Modal
+        isOpen={activeTimeIndex !== null}
+        onClose={() => setActiveTimeIndex(null)}
+        title="Select Time"
+        centered
+      >
+        {activeTimeIndex !== null && (
+          <TimePickerClock
+            value={scheduleTimes[activeTimeIndex]}
+            onChange={(t) => handleTimeChange(activeTimeIndex, t)}
+            onClose={() => setActiveTimeIndex(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        title="Select Date"
+        centered
+      >
+        <DatePickerCalendar
+          value={startDate}
+          onChange={(d) => setValue('start_date', d)}
+          onClose={() => setShowDatePicker(false)}
+        />
+      </Modal>
     </form>
   );
 }
