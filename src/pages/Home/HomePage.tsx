@@ -184,30 +184,30 @@ export function HomePage() {
       animate="show"
     >
       {/* ===== Compact Header — Premium ===== */}
-      <motion.header variants={item} className="pt-7 pb-6">
-        <div className="flex items-start justify-between gap-4">
+      <motion.header variants={item} className="pt-5 pb-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-caption text-text-secondary mb-1">
+            <p className="text-[11px] text-text-secondary mb-0.5">
               {formatFullDate(new Date())}
             </p>
-            <h1 className="text-3xl font-bold text-text tracking-tight leading-snug">
+            <h1 className="text-[22px] font-bold text-text tracking-tight leading-tight">
               {getGreeting()}, Anessa
             </h1>
           </div>
           <div className="flex items-center gap-2 ml-auto shrink-0">
             <button
               type="button"
-              className="w-10 h-10 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"
+              className="w-9 h-9 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"
               aria-label="Notifications"
             >
-              <Bell className="w-5 h-5" strokeWidth={2} />
+              <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
             <button
               type="button"
-              className="w-10 h-10 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"
+              className="w-9 h-9 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"
               aria-label="Profile"
             >
-              <User className="w-5 h-5" strokeWidth={2} />
+              <User className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
           </div>
         </div>
@@ -284,24 +284,6 @@ export function HomePage() {
               </Button>
             )}
           </div>
-        </div>
-      </motion.div>
-
-      {/* ===== Compact Progress ===== */}
-      <motion.div variants={item} className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-caption font-medium text-text-secondary">
-            Daily progress
-          </span>
-          <span className="text-[12px] font-semibold text-text">
-            {takenCount}/{totalCount}
-          </span>
-        </div>
-        <div className="progress-track">
-          <div
-            className="progress-fill bg-primary"
-            style={{ width: `${progress}%` }}
-          />
         </div>
       </motion.div>
 
