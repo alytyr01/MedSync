@@ -65,7 +65,24 @@ export async function updateMedicine(
   id: string,
   values: Partial<MedicineFormValues>
 ): Promise<Medicine> {
-  const updateData: Record<string, unknown> = { ...values };
+  // Only pick fields that exist on the medicines table
+  // (inventory-related fields belong to the inventory table)
+  const updateData: Record<string, unknown> = {
+    name: values.name,
+    dosage: values.dosage,
+    frequency: values.frequency,
+    times_per_day: values.times_per_day,
+    schedule_times: values.schedule_times,
+    duration_days: values.duration_days,
+    start_date: values.start_date,
+    instructions: values.instructions,
+    notes: values.notes,
+  };
+
+  // Remove undefined keys
+  Object.keys(updateData).forEach((key) => {
+    if (updateData[key] === undefined) delete updateData[key];
+  });
 
   if (values.duration_days && values.start_date) {
     updateData.end_date = addDays(values.start_date, values.duration_days);

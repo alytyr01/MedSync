@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { Home, Pill, ScanLine, Clock, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useReminderScheduler } from '@/hooks/useReminderScheduler';
 
 interface NavItem {
   path: string;
@@ -57,6 +58,9 @@ function NavLinkButton({ item, className = '' }: { item: NavItem; className?: st
 
 export function MobileLayout() {
   const location = useLocation();
+
+  // Keep native notifications in sync with medicines
+  useReminderScheduler();
 
   // Hide bottom nav on detail pages
   const hideNav =

@@ -168,10 +168,11 @@ export async function snoozeReminder(
   minutes = 10
 ): Promise<void> {
   try {
-    const [hours, mins] = time.split(':').map(Number);
+    // First cancel the original reminder for this medicine/time
+    await cancelReminder(medicine.id, time);
+
     const now = new Date();
     const scheduled = new Date(now);
-    scheduled.setHours(hours, mins, 0, 0);
     scheduled.setMinutes(scheduled.getMinutes() + minutes);
 
     const notificationId = generateNotificationId(medicine.id, time) + 1000;

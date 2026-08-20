@@ -20,6 +20,7 @@ import {
 } from '@/hooks/useMedicationLogs';
 import { useLowStockInventory } from '@/hooks/useInventory';
 import { useEmergencyContacts } from '@/hooks/useContacts';
+import { snoozeReminder, cancelReminder } from '@/services/notifications';
 import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import {
@@ -92,12 +93,24 @@ export function HomePage() {
     }))
   );
 
+  // Build a set of already-logged reminders (medicine_id + time)
+  const loggedKeys = new Set(
+    (todayLogs ?? []).map(
+      (log) => `${log.medicine_id}-${log.scheduled_time.slice(11, 16)}`
+    )
+  );
+
   const now = new Date();
   const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(
     now.getMinutes()
   ).padStart(2, '0')}`;
 
-  const upcomingReminders = todayReminders.filter((r) => r.time >= currentTime);
+  // Exclude reminders that already have a log entry (taken/skipped/snoozed)
+  const upcomingReminders = todayReminders.filter(
+    (r) =>
+      r.time >= currentTime &&
+      !loggedKeys.has(`${r.medicine.id}-${r.time}`)
+  );
   const nextReminder = upcomingReminders[0];
 
   const takenCount = (todayLogs ?? []).filter(
@@ -113,6 +126,8 @@ export function HomePage() {
   );
 
   const handleTaken = (medicineId: string, time: string) => {
+    // Cancel the native notification for this reminder
+    cancelReminder(medicineId, time);
     logAction.mutate({
       medicineId,
       scheduledTime: `${today}T${time}:00`,
@@ -121,6 +136,8 @@ export function HomePage() {
   };
 
   const handleSkip = (medicineId: string, time: string) => {
+    // Cancel the native notification for this reminder
+    cancelReminder(medicineId, time);
     logAction.mutate({
       medicineId,
       scheduledTime: `${today}T${time}:00`,
@@ -130,6 +147,13 @@ export function HomePage() {
   };
 
   const handleSnooze = (medicineId: string, time: string) => {
+    const medicine = todayReminders.find(
+      (r) => r.medicine.id === medicineId && r.time === time
+    )?.medicine;
+    // Schedule a snoozed native notification (fires again in 10 min)
+    if (medicine) {
+      snoozeReminder(medicine, time, 10);
+    }
     logAction.mutate({
       medicineId,
       scheduledTime: `${today}T${time}:00`,
