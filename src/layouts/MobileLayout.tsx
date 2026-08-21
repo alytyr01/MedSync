@@ -3,12 +3,6 @@ import { motion } from 'framer-motion';
 import { Home, Pill, ScanLine, Clock, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useReminderScheduler } from '@/hooks/useReminderScheduler';
-import { useReminderAlarm } from '@/hooks/useReminderAlarm';
-import { ReminderAlarm } from '@/components/reminder/ReminderAlarm';
-import { useLogMedicationAction } from '@/hooks/useMedicationLogs';
-import { useReminderAlarmStore } from '@/store/reminderAlarmStore';
-import { cancelReminder, snoozeReminder } from '@/services/notifications';
-import { getTodayISO } from '@/utils/format';
 
 interface NavItem {
   path: string;
@@ -64,49 +58,9 @@ function NavLinkButton({ item, className = '' }: { item: NavItem; className?: st
 
 export function MobileLayout() {
   const location = useLocation();
-  const logAction = useLogMedicationAction();
-  const { activeAlarm } = useReminderAlarmStore();
 
   // Keep native notifications in sync with medicines
   useReminderScheduler();
-
-  // Monitor time and trigger in-app alarms
-  useReminderAlarm();
-
-  const today = getTodayISO();
-
-  const handleTaken = (medicineId: string, time: string) => {
-    // Cancel the native notification for this reminder
-    cancelReminder(medicineId, time);
-    logAction.mutate({
-      medicineId,
-      scheduledTime: `${today}T${time}:00`,
-      status: 'taken',
-    });
-  };
-
-  const handleSkip = (medicineId: string, time: string) => {
-    // Cancel the native notification for this reminder
-    cancelReminder(medicineId, time);
-    logAction.mutate({
-      medicineId,
-      scheduledTime: `${today}T${time}:00`,
-      status: 'skipped',
-      skippedReason: 'User skipped',
-    });
-  };
-
-  const handleSnooze = (medicineId: string, time: string) => {
-    // Schedule a snoozed native notification (fires again in 10 min)
-    if (activeAlarm) {
-      snoozeReminder(activeAlarm.medicine, time, 10);
-    }
-    logAction.mutate({
-      medicineId,
-      scheduledTime: `${today}T${time}:00`,
-      status: 'snoozed',
-    });
-  };
 
   // Hide bottom nav on detail pages
   const hideNav =
@@ -149,13 +103,6 @@ export function MobileLayout() {
           </div>
         </nav>
       )}
-
-      {/* ===== In-app Reminder Alarm ===== */}
-      <ReminderAlarm
-        onTaken={handleTaken}
-        onSkip={handleSkip}
-        onSnooze={handleSnooze}
-      />
     </div>
   );
 }

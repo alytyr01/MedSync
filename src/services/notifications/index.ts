@@ -1,7 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import type { Medicine } from '@/types';
-import { useReminderAlarmStore } from '@/store/reminderAlarmStore';
 import {
   NOTIFICATION_CHANNEL_ID,
   NOTIFICATION_CHANNEL_NAME,
@@ -103,10 +102,7 @@ export async function scheduleMedicineReminder(
       // Fallback timer for when the app IS open.
       const delay = scheduled.getTime() - now.getTime();
       setTimeout(() => {
-        // Trigger in-app alarm
-        useReminderAlarmStore.getState().triggerAlarm(medicine, time);
-
-        // Also show browser notification if permission granted
+        // Show browser notification if permission granted
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification(`Time to take ${medicine.name}`, {
             body: `${medicine.dosage} - ${formatScheduleTime(time)}`,
@@ -221,10 +217,7 @@ export async function snoozeReminder(
       // Web fallback - schedule snoozed alarm with setTimeout
       const delay = scheduled.getTime() - now.getTime();
       setTimeout(() => {
-        // Trigger in-app alarm
-        useReminderAlarmStore.getState().triggerAlarm(medicine, time);
-
-        // Also show browser notification if permission granted
+        // Show browser notification if permission granted
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification(`Snoozed: ${medicine.name}`, {
             body: `${medicine.dosage} - ${formatScheduleTime(time)} (snoozed ${minutes} min)`,
