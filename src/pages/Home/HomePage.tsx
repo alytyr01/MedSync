@@ -21,11 +21,7 @@ import { useEmergencyContacts } from '@/hooks/useContacts';
 import { snoozeReminder, cancelReminder } from '@/services/notifications';
 import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
-import {
-  formatFullDate,
-  getTodayISO,
-  addDays,
-} from '@/utils/format';
+import { formatFullDate, getTodayISO } from '@/utils/format';
 
 interface InventoryWithMedicine {
   id: string;
