@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0F766E</color>
+    <color name="colorPrimaryDark">#0B5A54</color>
+    <color name="colorAccent">#14B8A6</color>
+    <color name="alarm_background">#0F172A</color>
+    <color name="alarm_text">#FFFFFF</color>
+    <color name="alarm_text_secondary">#94A3B8</color>
+    <color name="alarm_button_bg">#14B8A6</color>
+    <color name="alarm_button_text">#FFFFFF</color>
+    <color name="alarm_accent">#14B8A6</color>
+    <color name="alarm_take_bg">#14B8A6</color>
+    <color name="alarm_dismiss_bg">#1E293B</color>
+    <color name="alarm_dismiss_border">#475569</color>
+    <color name="alarm_snooze_bg">#334155</color>
+    <color name="alarm_instruction_bg">#164E63</color>
+    <color name="alarm_instruction_text">#67E8F9</color>
+</resources>

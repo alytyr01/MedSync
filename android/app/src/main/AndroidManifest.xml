@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- ===== Core permissions ===== -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- ===== Wake device (alarm clock behavior) ===== -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- ===== Exact alarms (Android 12+) ===== -->
+    <!-- USE_EXACT_ALARM is granted automatically for alarm-clock apps -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- SCHEDULE_EXACT_ALARM is the user-grantable fallback on Android 12+ -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Allows our app to be listed as an alarm-clock provider -->
+    <uses-permission android:name="android.permission.SET_ALARM" />
+
+    <!-- ===== Full-screen alarm over lock screen ===== -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!--
+      "Display over other apps". Holding this permission is a documented
+      Android exemption that allows starting activities from the
+      background — this is what makes the full-screen alarm appear
+      INSTANTLY (no notification tap) even when the app is closed and
+      the device is unlocked.
+    -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- ===== Foreground service while the alarm is actively ringing ===== -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+    <!-- ===== Notifications (Android 13+, used only for the silent
+         foreground-service status notification required by the OS) ===== -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- ===== Reboot rescheduling ===== -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- ===== Battery optimization exemption (OEM devices) ===== -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,19 +50,70 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+
+        <!--
+          Full-screen ringing alarm activity.
+          Behaves exactly like the system Clock alarm screen:
+          - shows over the lock screen (showWhenLocked)
+          - turns the screen on (turnScreenOn)
+          - excluded from Recents so it feels like a system surface
+          - launched DIRECTLY by AlarmReceiver — no notification tap needed
+        -->
+        <activity
+            android:name=".AlarmFullscreenActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:noHistory="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/AlarmTheme" />
+
+        <!--
+          Foreground service that runs ONLY while the alarm is actively
+          ringing. Uses the mediaPlayback type so it can start from the
+          background while the device is idle (same as the system clock).
+        -->
+        <service
+            android:name=".AlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback"
+            android:stopWithTask="false" />
+
+        <!--
+          Fired by AlarmManager at the exact medication time.
+          Wakes the device and launches AlarmFullscreenActivity instantly.
+        -->
+        <receiver
+            android:name=".AlarmReceiver"
+            android:exported="false" />
+
+        <!--
+          Reschedules every medication alarm after reboot / app update /
+          time changes. No user interaction required.
+        -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -35,7 +126,4 @@
         </provider>
     </application>
 
-    <!-- Permissions -->
-
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
