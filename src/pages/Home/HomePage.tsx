@@ -134,7 +134,7 @@ export function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="px-6 pt-8">
+      <div className="px-3 pt-8">
         <div className="space-y-2 mb-6">
           <div className="skeleton h-3 w-32" />
           <div className="skeleton h-8 w-48" />
@@ -146,7 +146,7 @@ export function HomePage() {
 
   if (error) {
     return (
-      <div className="px-6 pt-8">
+      <div className="px-3 pt-8">
         <ErrorState
           message="Failed to load your dashboard"
           onRetry={() => refetch()}

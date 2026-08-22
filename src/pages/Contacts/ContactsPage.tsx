@@ -83,7 +83,7 @@ export function ContactsPage() {
   const primaryContact = items.find((c) => c.is_primary);
 
   return (
-    <div className="px-6">
+    <div className="px-3">
       <PageHeader
         title="Caregiver"
         subtitle={`${items.length} saved contacts`}

@@ -65,7 +65,7 @@ export function MedicinesPage() {
   };
 
   return (
-    <div className="px-6">
+    <div className="px-3">
       <PageHeader
         title="My Medicines"
         subtitle={`${medicines?.length ?? 0} medicines`}

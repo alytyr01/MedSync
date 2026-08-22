@@ -53,7 +53,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="px-6">
+    <div className="px-3">
       <header className="flex items-center gap-3 pt-8 pb-6">
         <button
           onClick={() => navigate(-1)}

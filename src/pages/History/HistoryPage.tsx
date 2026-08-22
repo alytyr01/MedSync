@@ -114,7 +114,7 @@ export function HistoryPage() {
   }
 
   return (
-    <div className="px-6">
+    <div className="px-3">
       <PageHeader title="Today's Schedule" subtitle="Your medication timeline" />
 
       {/* Range Selector — pill-shaped */}

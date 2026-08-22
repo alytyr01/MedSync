@@ -94,7 +94,7 @@ export function MedicineDetailPage() {
   }
 
   return (
-    <div className="px-6">
+    <div className="px-3">
       <BackHeader
         title="Medicine Details"
         onBack={() => navigate('/medicines')}

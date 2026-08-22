@@ -91,7 +91,7 @@ export function InventoryPage() {
   }
 
   return (
-    <div className="px-6">
+    <div className="px-3">
       <PageHeader
         title="Health Summary"
         subtitle="AI-powered medication insights"
