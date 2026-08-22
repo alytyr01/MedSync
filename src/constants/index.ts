@@ -68,7 +68,3 @@ export const QUERY_KEYS = {
   contacts: 'emergency-contacts',
   dashboard: 'dashboard',
 } as const;
-
-export const NOTIFICATION_CHANNEL_ID = 'medsync-reminders';
-export const NOTIFICATION_CHANNEL_NAME = 'Medication Reminders';
-export const NOTIFICATION_CHANNEL_DESC = 'Reminders for your medications';

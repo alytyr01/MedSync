@@ -209,16 +209,18 @@ export function HomePage() {
     >
       {/* ===== Compact Header — Premium ===== */}
       <motion.header variants={item} className="pt-5 pb-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[11px] text-text-secondary mb-0.5">
+            <p className="text-[11px] leading-[16px] text-text-secondary mb-0.5">
               {formatFullDate(new Date())}
             </p>
             <h1 className="text-[22px] font-bold text-text tracking-tight leading-tight">
               {getGreeting()}, Anessa
             </h1>
           </div>
-          <div className="flex items-center gap-2 ml-auto shrink-0">
+          {/* Icon buttons are offset so their centers align with the
+              date text line ("Friday, August 21, 2026") */}
+          <div className="flex items-center gap-2 ml-auto shrink-0 self-start -mt-2.5">
             <button
               type="button"
               className="w-9 h-9 bg-surface-muted rounded-full flex items-center justify-center text-text-secondary hover:bg-border transition-colors"

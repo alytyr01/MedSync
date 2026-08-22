@@ -8,7 +8,6 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { registerSW } from 'virtual:pwa-register';
 import { router } from './router';
 import { useAuthStore } from './store/authStore';
-import { setupNotificationChannel } from './services/notifications';
 import './styles/index.css';
 
 const queryClient = new QueryClient({
@@ -33,7 +32,6 @@ if (Capacitor.isNativePlatform()) {
   StatusBar.setStyle({ style: Style.Dark });
   StatusBar.setBackgroundColor({ color: '#F4F5F7' });
   SplashScreen.hide();
-  setupNotificationChannel();
 }
 
 createRoot(document.getElementById('root')!).render(

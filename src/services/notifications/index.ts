@@ -1,27 +1,39 @@
 import { Capacitor } from '@capacitor/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
 import type { Medicine } from '@/types';
-import {
-  NOTIFICATION_CHANNEL_ID,
-  NOTIFICATION_CHANNEL_NAME,
-  NOTIFICATION_CHANNEL_DESC,
-} from '@/constants';
 import { supabase } from '@/services/supabase/client';
 import { useAuthStore } from '@/store/authStore';
 import { syncPushSubscription } from '@/services/push-subscriptions';
+import {
+  scheduleNativeAlarm,
+  cancelNativeAlarm,
+  cancelAllNativeAlarms,
+  checkAlarmPermissions,
+  requestAlarmPermissions,
+  type AlarmPermissions,
+} from '@/services/alarm';
 
 /**
  * Notification Service
  *
- * Uses Capacitor Local Notifications for native reminders.
- * Falls back to browser notifications on web.
+ * On native (Android), medication reminders are scheduled as real
+ * alarm-clock style alarms (full-screen + sound + vibration) via the
+ * MedSyncAlarm plugin. No notification is shown - the alarm rings
+ * and displays a full-screen UI just like the system alarm clock.
+ *
+ * On web, falls back to browser notifications.
  */
 
 export async function requestNotificationPermission(): Promise<boolean> {
   try {
     if (Capacitor.isNativePlatform()) {
-      const status = await LocalNotifications.requestPermissions();
-      return status.display === 'granted';
+      // Check all required permissions (notifications, exact alarm,
+      // full-screen intent, battery optimization). If any are missing,
+      // request them.
+      const perms = await checkAlarmPermissions();
+      if (!allPermissionsGranted(perms)) {
+        await requestAlarmPermissions();
+      }
+      return true;
     }
 
     // Web fallback
@@ -39,11 +51,20 @@ export async function requestNotificationPermission(): Promise<boolean> {
   }
 }
 
+function allPermissionsGranted(perms: AlarmPermissions): boolean {
+  return (
+    perms.notifications &&
+    perms.exactAlarm &&
+    perms.fullScreenIntent &&
+    perms.batteryOptimization &&
+    perms.overlay
+  );
+}
+
 export async function checkNotificationPermission(): Promise<boolean> {
   try {
     if (Capacitor.isNativePlatform()) {
-      const status = await LocalNotifications.checkPermissions();
-      return status.display === 'granted';
+      return true;
     }
 
     if ('Notification' in window) {
@@ -71,29 +92,9 @@ export async function scheduleMedicineReminder(
       scheduled.setDate(scheduled.getDate() + 1);
     }
 
-    const notificationId = generateNotificationId(medicine.id, time);
-
     if (Capacitor.isNativePlatform()) {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            id: notificationId,
-            title: `Time to take ${medicine.name}`,
-            body: `${medicine.dosage} - ${formatScheduleTime(time)}`,
-            schedule: {
-              at: scheduled,
-              allowWhileIdle: true,
-            },
-            sound: 'default',
-            smallIcon: 'ic_stat_medsync',
-            channelId: NOTIFICATION_CHANNEL_ID,
-            extra: {
-              medicineId: medicine.id,
-              scheduledTime: time,
-            },
-          },
-        ],
-      });
+      // Schedule a native full-screen alarm (alarm clock style)
+      await scheduleNativeAlarm(medicine, time);
     } else {
       // Web: create a server-side reminder row so the cron edge
       // function (send-reminder-push) fires even when the app is closed.
@@ -106,7 +107,7 @@ export async function scheduleMedicineReminder(
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification(`Time to take ${medicine.name}`, {
             body: `${medicine.dosage} - ${formatScheduleTime(time)}`,
-            tag: notificationId.toString(),
+            tag: `${medicine.id}-${time}`,
             icon: '/pwa-icons/pwa-192x192.png',
             badge: '/pwa-icons/pwa-192x192.png',
           });
@@ -121,7 +122,7 @@ export async function scheduleMedicineReminder(
 export async function scheduleAllMedicineReminders(
   medicines: Medicine[]
 ): Promise<void> {
-  // Cancel all existing notifications first
+  // Cancel all existing alarms first
   await cancelAllReminders();
   await clearServerReminders();
 
@@ -137,11 +138,9 @@ export async function cancelReminder(
   time: string
 ): Promise<void> {
   try {
-    const notificationId = generateNotificationId(medicineId, time);
     if (Capacitor.isNativePlatform()) {
-      await LocalNotifications.cancel({
-        notifications: [{ id: notificationId }],
-      });
+      // Cancel the native full-screen alarm
+      await cancelNativeAlarm(medicineId, time);
     }
   } catch (error) {
     console.error('Failed to cancel reminder:', error);
@@ -151,28 +150,11 @@ export async function cancelReminder(
 export async function cancelAllReminders(): Promise<void> {
   try {
     if (Capacitor.isNativePlatform()) {
-      await LocalNotifications.cancelAll();
+      // Cancel all native full-screen alarms
+      await cancelAllNativeAlarms();
     }
   } catch (error) {
     console.error('Failed to cancel all reminders:', error);
-  }
-}
-
-export async function setupNotificationChannel(): Promise<void> {
-  try {
-    if (Capacitor.isNativePlatform()) {
-      await LocalNotifications.createChannel({
-        id: NOTIFICATION_CHANNEL_ID,
-        name: NOTIFICATION_CHANNEL_NAME,
-        description: NOTIFICATION_CHANNEL_DESC,
-        importance: 5, // HIGH
-        visibility: 1, // PUBLIC
-        sound: 'default',
-        vibration: true,
-      });
-    }
-  } catch (error) {
-    console.error('Failed to setup notification channel:', error);
   }
 }
 
@@ -182,37 +164,17 @@ export async function snoozeReminder(
   minutes = 10
 ): Promise<void> {
   try {
-    // First cancel the original reminder for this medicine/time
+    // First cancel the original alarm for this medicine/time
     await cancelReminder(medicine.id, time);
 
     const now = new Date();
     const scheduled = new Date(now);
     scheduled.setMinutes(scheduled.getMinutes() + minutes);
 
-    const notificationId = generateNotificationId(medicine.id, time) + 1000;
-
     if (Capacitor.isNativePlatform()) {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            id: notificationId,
-            title: `Snoozed: ${medicine.name}`,
-            body: `${medicine.dosage} - ${formatScheduleTime(time)} (snoozed ${minutes} min)`,
-            schedule: {
-              at: scheduled,
-              allowWhileIdle: true,
-            },
-            sound: 'default',
-            smallIcon: 'ic_stat_medsync',
-            channelId: NOTIFICATION_CHANNEL_ID,
-            extra: {
-              medicineId: medicine.id,
-              scheduledTime: time,
-              snoozed: true,
-            },
-          },
-        ],
-      });
+      // Schedule a snoozed native alarm
+      const snoozeTime = `${String(scheduled.getHours()).padStart(2, '0')}:${String(scheduled.getMinutes()).padStart(2, '0')}`;
+      await scheduleNativeAlarm(medicine, snoozeTime);
     } else {
       // Web fallback - schedule snoozed alarm with setTimeout
       const delay = scheduled.getTime() - now.getTime();
@@ -221,7 +183,7 @@ export async function snoozeReminder(
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification(`Snoozed: ${medicine.name}`, {
             body: `${medicine.dosage} - ${formatScheduleTime(time)} (snoozed ${minutes} min)`,
-            tag: notificationId.toString(),
+            tag: `${medicine.id}-${time}-snoozed`,
             icon: '/pwa-icons/pwa-192x192.png',
             badge: '/pwa-icons/pwa-192x192.png',
           });
@@ -234,17 +196,6 @@ export async function snoozeReminder(
 }
 
 // ===== Helpers =====
-
-function generateNotificationId(medicineId: string, time: string): number {
-  // Generate a stable numeric ID from medicine ID + time
-  let hash = 0;
-  const str = `${medicineId}-${time}`;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash) % 2147483647;
-}
 
 function formatScheduleTime(time: string): string {
   const [hours, minutes] = time.split(':').map(Number);

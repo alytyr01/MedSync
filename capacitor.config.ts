@@ -19,10 +19,6 @@ const config: CapacitorConfig = {
       style: 'DARK',
       backgroundColor: '#2D6A4F',
     },
-    LocalNotifications: {
-      smallIcon: 'ic_stat_medsync',
-      iconColor: '#2D6A4F',
-    },
   },
   android: {
     allowMixedContent: false,

@@ -39,20 +39,31 @@ export async function syncPushSubscription(): Promise<boolean> {
 }
 
 export async function clearPushSubscription(): Promise<void> {
-  if (Capacitor.isNativePlatform() || !('serviceWorker' in navigator)) return;
-
-  try {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-    if (subscription) {
-      await subscription.unsubscribe();
-      await supabase
-        .from('push_subscriptions')
-        .delete()
-        .eq('endpoint', subscription.endpoint);
+  // On native, there is no service worker / web push. But we must still
+  // delete any push_subscriptions rows in the database for this user so
+  // the cron edge function (send-reminder-push) does NOT send a regular
+  // push notification to the device. The native full-screen alarm handles
+  // everything on Android.
+  const user = useAuthStore.getState().user;
+  if (user) {
+    try {
+      await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+    } catch (error) {
+      console.error('Failed to clear push subscriptions from database:', error);
     }
-  } catch (error) {
-    console.error('Failed to clear push subscription:', error);
+  }
+
+  // On web, also unsubscribe the service worker push subscription
+  if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await subscription.unsubscribe();
+      }
+    } catch (error) {
+      console.error('Failed to clear push subscription:', error);
+    }
   }
 }
 

@@ -47,6 +47,9 @@ export function SettingsPage() {
 
   const handleNotificationsToggle = async (enabled: boolean) => {
     if (enabled) {
+      // Request notification permission (Android 13+). The full-screen
+      // alarm, exact alarm, and battery optimization permissions are
+      // managed by the system via App Info > Permissions.
       const granted = await requestNotificationPermission();
       if (!granted) return;
     } else {
