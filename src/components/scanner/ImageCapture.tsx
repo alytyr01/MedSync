@@ -117,13 +117,8 @@ export function ImageCapture({
           <img
             src={preview}
             alt="Prescription preview"
-            className="w-full h-64 object-cover"
+            className="w-full h-auto block"
           />
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-            {(loading || processing) && (
-              <div className="w-10 h-10 rounded-full border-3 border-white/30 border-t-white animate-spin" />
-            )}
-          </div>
           <div className="absolute top-3 left-3 flex gap-2">
             {getQualityBadge()}
             {enhanced && <Badge variant="info">Auto-enhanced</Badge>}

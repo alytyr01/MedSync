@@ -9,6 +9,8 @@ import {
   Pill,
   ChevronRight,
   CalendarDays,
+  ScanLine,
+  Sparkles,
 } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
@@ -219,40 +221,58 @@ export function HomePage() {
 
       {/* ===== Reminder Companion — premium hero design card ===== */}
       <div className="mb-4">
-        <div className="relative overflow-hidden rounded-[24px] bg-ink shadow-float">
+        <div className="relative overflow-hidden rounded-[28px] bg-ink shadow-float ring-1 ring-white/10">
           {/* Decorative ambient glows */}
-          <div className="pointer-events-none absolute -top-20 -right-14 w-52 h-52 rounded-full bg-mint-deep/25 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-12 w-44 h-44 rounded-full bg-primary/20 blur-3xl" />
+          <div className="pointer-events-none absolute -top-24 -right-16 w-56 h-56 rounded-full bg-mint-deep/30 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-28 -left-14 w-48 h-48 rounded-full bg-primary/25 blur-3xl" />
           {/* Fine top highlight line */}
-          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
 
-          <div className="relative flex items-stretch">
-            {/* Companion image — flush to the left & bottom edges */}
-            <div className="w-32 shrink-0 self-stretch">
+          {/* Extra-large gap compensates for the scaled-up image overflow,
+              keeping clear visual space between image and bubble */}
+          <div className="relative flex items-end gap-12 px-5 pt-5">
+            {/* Companion image — flush to the bottom edge.
+                Scaled up visually without affecting the bubble's size. */}
+            <div className="w-28 h-28 shrink-0 relative -ml-5">
               <img
                 src="/images/hero-image.png"
                 alt="Reminder companion"
-                className="w-full h-full object-cover"
+                className="absolute bottom-0 left-0 w-full h-full object-cover object-bottom scale-[1.4] origin-bottom-left"
               />
             </div>
 
             {/* Chat bubble */}
-            <div className="flex-1 min-w-0 px-4 py-6 pr-5">
-              <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-[18px] rounded-tl-[6px] px-4 py-3.5">
-                <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-teal-300 mb-1.5">
+            <div className="flex-1 min-w-0 pb-4">
+              <div className="bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-[22px] rounded-tl-[8px] px-5 py-3 shadow-lg">
+                <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-teal-300 mb-2">
+                  <Sparkles className="w-3 h-3" strokeWidth={2.2} />
                   Good Morning!
                 </p>
                 {nextReminder ? (
                   <p className="text-[15px] font-semibold text-white leading-snug">
                     Time to take your{' '}
-                    <span className="text-teal-300">{nextReminder.medicine.name}</span>{' '}
-                    {nextReminder.medicine.dosage}
+                    <span className="font-bold text-teal-300">
+                      {nextReminder.medicine.name}{' '}
+                      {nextReminder.medicine.dosage}
+                    </span>
                   </p>
                 ) : (
                   <p className="text-[15px] font-semibold text-white leading-snug">
                     You're all caught up for now!
                   </p>
                 )}
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/scan')}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-300 to-emerald-300 text-ink font-semibold rounded-full pl-3.5 pr-4 py-2 shadow-[0_4px_18px_rgba(94,234,212,0.35)] hover:brightness-110 active:scale-[0.97] transition-all"
+                  >
+                    <ScanLine className="w-4 h-4" strokeWidth={2.2} />
+                    <span className="text-[12.5px] tracking-tight">
+                      Scan Prescription
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
