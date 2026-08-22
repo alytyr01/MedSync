@@ -1,22 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
-  Users,
   User,
-  Phone,
-  Check,
   ChevronRight,
   CalendarDays,
   ScanLine,
+  BriefcaseMedical,
 } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
   useTodayLogs,
   useLogMedicationAction,
 } from '@/hooks/useMedicationLogs';
-import { useEmergencyContacts } from '@/hooks/useContacts';
 import { snoozeReminder, cancelReminder } from '@/services/notifications';
-import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
+import { LoadingState, ErrorState, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import { formatFullDate, getTodayISO } from '@/utils/format';
 
@@ -27,18 +24,10 @@ function getGreeting(): string {
   return 'Good Evening';
 }
 
-function formatPhone(phone: string): string {
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length <= 3) return cleaned;
-  if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
-  return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
-}
-
 export function HomePage() {
   const navigate = useNavigate();
   const { data: medicines, isLoading, error, refetch } = useMedicines();
   const { data: todayLogs } = useTodayLogs();
-  const { data: contacts } = useEmergencyContacts();
   const logAction = useLogMedicationAction();
 
   const today = getTodayISO();
@@ -106,8 +95,6 @@ export function HomePage() {
       status: 'snoozed',
     });
   };
-
-  const primaryContact = (contacts ?? []).find((c) => c.is_primary);
 
   if (isLoading) {
     return (
@@ -229,10 +216,19 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* ===== Upcoming ===== */}
+      {/* ===== Today's Medicines ===== */}
       <section className="mb-4">
-        <div className="flex items-center justify-between mb-2.5">
-          <h2 className="section-title">Upcoming</h2>
+        <div className="flex items-start justify-between mb-2.5">
+          <div>
+            <h2 className="section-title">Today's Medicines</h2>
+            <p className="text-[11px] text-text-secondary mt-0.5">
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </p>
+          </div>
           {upcomingReminders.length > 0 && (
             <button
               onClick={() => navigate('/history')}
@@ -245,12 +241,22 @@ export function HomePage() {
 
         {upcomingReminders.length === 0 ? (
           <div className="premium-card p-4 text-center">
-            <div className="w-9 h-9 bg-mint-soft flex items-center justify-center mx-auto mb-2">
-              <Check className="w-4 h-4 text-mint-deep" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-full bg-mint-soft flex items-center justify-center mx-auto mb-2.5">
+              <BriefcaseMedical
+                className="w-5 h-5 text-mint-deep"
+                strokeWidth={2}
+              />
             </div>
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm text-text-secondary mb-3">
               No upcoming reminders today.
             </p>
+            <Button
+              size="sm"
+              onClick={() => navigate('/medicines')}
+              className="min-h-[40px] px-6"
+            >
+              Add Reminder
+            </Button>
           </div>
         ) : (
           <div className="space-y-2.5">
@@ -264,68 +270,6 @@ export function HomePage() {
                 onSnooze={() => handleSnooze(reminder.medicine.id, reminder.time)}
               />
             ))}
-          </div>
-        )}
-      </section>
-
-      {/* ===== Caregiver ===== */}
-      <section className="mb-4">
-        <h2 className="section-title mb-2.5">Caregiver</h2>
-        {primaryContact ? (
-          <div className="premium-card p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-pastel-blue/60 flex items-center justify-center shrink-0">
-                <span className="text-blue-deep font-semibold text-[16px]">
-                  {primaryContact.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-medium text-text text-[15px]">
-                    {primaryContact.name}
-                  </h3>
-                  <Badge variant="success" dot>
-                    Available
-                  </Badge>
-                </div>
-                <p className="text-[13px] text-text-secondary mt-0.5">
-                  {primaryContact.relationship} ·{' '}
-                  {formatPhone(primaryContact.phone)}
-                </p>
-              </div>
-              <button
-                onClick={() =>
-                  (window.location.href = `tel:${primaryContact.phone.replace(
-                    /[^+\d]/g,
-                    ''
-                  )}`)
-                }
-                className="w-10 h-10 bg-primary text-white flex items-center justify-center hover:bg-primary-light transition-colors shrink-0 ml-2"
-                aria-label={`Call ${primaryContact.name}`}
-              >
-                <Phone className="w-[17px] h-[17px]" strokeWidth={2} />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="premium-card p-4 text-center">
-            <div className="w-9 h-9 bg-surface-muted flex items-center justify-center mx-auto mb-3">
-              <Users className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
-            </div>
-            <h3 className="text-[14px] font-medium text-text tracking-tight mb-1">
-              No caregiver assigned
-            </h3>
-            <p className="text-[13px] text-text-secondary mb-4 max-w-xs mx-auto leading-relaxed">
-              Add an emergency contact to have a caregiver status on your
-              dashboard.
-            </p>
-            <Button
-              size="sm"
-              onClick={() => navigate('/contacts')}
-              className="min-h-[40px] px-6"
-            >
-              Add Emergency Contact
-            </Button>
           </div>
         )}
       </section>
