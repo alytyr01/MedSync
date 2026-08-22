@@ -10,7 +10,6 @@ import {
   ChevronRight,
   CalendarDays,
   ScanLine,
-  Sparkles,
 } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
@@ -243,13 +242,12 @@ export function HomePage() {
 
             {/* Chat bubble */}
             <div className="flex-1 min-w-0 pb-4">
-              <div className="bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-[22px] rounded-tl-[8px] px-5 py-3 shadow-lg">
-                <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-teal-300 mb-2">
-                  <Sparkles className="w-3 h-3" strokeWidth={2.2} />
+              <div className="bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-[22px] rounded-tl-[8px] px-4 py-2.5 shadow-lg">
+                <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-teal-300 mb-1.5">
                   Good Morning!
                 </p>
                 {nextReminder ? (
-                  <p className="text-[15px] font-semibold text-white leading-snug">
+                  <p className="text-[13px] font-semibold text-white leading-snug">
                     Time to take your{' '}
                     <span className="font-bold text-teal-300">
                       {nextReminder.medicine.name}{' '}
@@ -257,18 +255,18 @@ export function HomePage() {
                     </span>
                   </p>
                 ) : (
-                  <p className="text-[15px] font-semibold text-white leading-snug">
+                  <p className="text-[13px] font-semibold text-white leading-snug">
                     You're all caught up for now!
                   </p>
                 )}
-                <div className="mt-4 flex justify-end">
+                <div className="mt-3 flex justify-end">
                   <button
                     type="button"
                     onClick={() => navigate('/scan')}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-300 to-emerald-300 text-ink font-semibold rounded-full pl-3.5 pr-4 py-2 shadow-[0_4px_18px_rgba(94,234,212,0.35)] hover:brightness-110 active:scale-[0.97] transition-all"
+                    className="inline-flex items-center gap-1.5 bg-teal-500/80 text-white font-semibold rounded-full pl-3 pr-3.5 py-1.5 shadow-[0_2px_8px_rgba(94,234,212,0.15)] hover:bg-teal-500 active:scale-[0.97] transition-all"
                   >
-                    <ScanLine className="w-4 h-4" strokeWidth={2.2} />
-                    <span className="text-[12.5px] tracking-tight">
+                    <ScanLine className="w-3.5 h-3.5" strokeWidth={2.2} />
+                    <span className="text-[11px] tracking-tight">
                       Scan Prescription
                     </span>
                   </button>
