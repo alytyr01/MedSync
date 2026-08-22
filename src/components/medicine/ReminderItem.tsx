@@ -1,5 +1,4 @@
-﻿import { motion } from 'framer-motion';
-import { Check, Clock, X, Bell } from 'lucide-react';
+﻿import { Check, Clock, X, Bell } from 'lucide-react';
 import type { Medicine } from '@/types';
 import { formatTime } from '@/utils/format';
 
@@ -9,7 +8,6 @@ interface ReminderItemProps {
   onTaken: () => void;
   onSkip: () => void;
   onSnooze: () => void;
-  index?: number;
 }
 
 export function ReminderItem({
@@ -18,15 +16,9 @@ export function ReminderItem({
   onTaken,
   onSkip,
   onSnooze,
-  index = 0,
 }: ReminderItemProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="premium-card p-5"
-    >
+    <div className="premium-card p-5">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-[14px] bg-blue-soft flex items-center justify-center shrink-0">
@@ -69,6 +61,6 @@ export function ReminderItem({
           <X className="w-4 h-4" strokeWidth={2} /> Skip
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

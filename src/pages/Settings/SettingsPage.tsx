@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   Users,
@@ -15,16 +14,6 @@ import { APP_NAME, APP_VERSION } from '@/constants';
 import { requestNotificationPermission } from '@/services/notifications';
 import { clearPushSubscription } from '@/services/push-subscriptions';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } },
-};
-
 function SettingsSection({
   title,
   children,
@@ -33,10 +22,10 @@ function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <motion.div variants={item}>
+    <div>
       <h2 className="eyebrow mb-2 px-2">{title}</h2>
       <Card className="p-2 px-4 divide-y divide-border-subtle">{children}</Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -64,16 +53,8 @@ export function SettingsPage() {
   };
 
   return (
-    <motion.div
-      className="px-6"
-      variants={container}
-      initial="hidden"
-      animate="show"
-    >
-      <motion.header
-        variants={item}
-        className="flex items-center gap-3 pt-8 pb-6"
-      >
+    <div className="px-6">
+      <header className="flex items-center gap-3 pt-8 pb-6">
         <button
           onClick={() => navigate(-1)}
           className="p-2 -ml-2 rounded-full hover:bg-surface-muted transition-colors"
@@ -84,7 +65,7 @@ export function SettingsPage() {
         <h1 className="text-[26px] font-bold text-text tracking-tight">
           Settings
         </h1>
-      </motion.header>
+      </header>
 
       <div className="space-y-8">
         <SettingsSection title="Notifications">
@@ -195,6 +176,6 @@ export function SettingsPage() {
           </SettingsSection>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

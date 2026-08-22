@@ -1,7 +1,6 @@
 ﻿import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { motion } from 'framer-motion';
 import { Upload, Camera as CameraIcon, ScanLine } from 'lucide-react';
 import { Button, Badge } from '@/components/common';
 import { preprocessImage, type ClientImageQuality } from '@/services/image/enhance';
@@ -114,11 +113,7 @@ export function ImageCapture({
   return (
     <div className="space-y-5">
       {preview ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative rounded-[16px] overflow-hidden shadow-card"
-        >
+        <div className="relative rounded-[16px] overflow-hidden shadow-card">
           <img
             src={preview}
             alt="Prescription preview"
@@ -133,7 +128,7 @@ export function ImageCapture({
             {getQualityBadge()}
             {enhanced && <Badge variant="info">Auto-enhanced</Badge>}
           </div>
-        </motion.div>
+        </div>
       ) : (
         <div className="premium-card p-8 text-center">
           {/* Minimal illustration */}

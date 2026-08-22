@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { RefreshCw, AlertTriangle, Package, TrendingUp, Clock3, XCircle, Sparkles } from 'lucide-react';
 import { useInventory, useRefillInventory } from '@/hooks/useInventory';
 import {
@@ -124,7 +123,7 @@ export function InventoryPage() {
                   stroke="rgba(15, 118, 110, 0.06)"
                   strokeWidth="10"
                 />
-                <motion.circle
+                <circle
                   cx="75"
                   cy="75"
                   r={CIRCLE_R}
@@ -133,9 +132,7 @@ export function InventoryPage() {
                   strokeWidth="10"
                   strokeLinecap="round"
                   strokeDasharray={CIRCUMFERENCE}
-                  initial={{ strokeDashoffset: CIRCUMFERENCE }}
-                  animate={{ strokeDashoffset: circleOffset }}
-                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                  strokeDashoffset={circleOffset}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -245,13 +242,8 @@ export function InventoryPage() {
                 <Badge variant="danger">{lowStockItems.length}</Badge>
               </div>
               <div className="space-y-4">
-                {lowStockItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
+                {lowStockItems.map((item) => (
+                  <div key={item.id}>
                     <Card className="p-5">
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
@@ -298,7 +290,7 @@ export function InventoryPage() {
                         </button>
                       </div>
                     </Card>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -316,13 +308,8 @@ export function InventoryPage() {
                 </h2>
               </div>
               <div className="space-y-4">
-                {healthyItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
+                {healthyItems.map((item) => (
+                  <div key={item.id}>
                     <Card className="p-5">
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
@@ -361,7 +348,7 @@ export function InventoryPage() {
                         </div>
                       </div>
                     </Card>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>

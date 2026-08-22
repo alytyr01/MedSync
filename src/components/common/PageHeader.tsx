@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
 interface PageHeaderProps {
@@ -9,11 +8,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-end justify-between px-1 pt-8 pb-6"
-    >
+    <header className="flex items-end justify-between px-1 pt-8 pb-6">
       <div>
         <h1 className="text-[32px] font-bold text-text tracking-tight leading-tight">
           {title}
@@ -23,7 +18,7 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
         )}
       </div>
       {action && <div className="ml-4 shrink-0 mb-0.5">{action}</div>}
-    </motion.header>
+    </header>
   );
 }
 
@@ -37,11 +32,7 @@ export function BackHeader({
   action?: ReactNode;
 }) {
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-2 pt-7 pb-5"
-    >
+    <header className="flex items-center gap-2 pt-7 pb-5">
       <button
         onClick={onBack}
         className="w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-secondary hover:bg-surface-muted transition-colors"
@@ -65,6 +56,6 @@ export function BackHeader({
         {title}
       </h1>
       {action}
-    </motion.header>
+    </header>
   );
 }

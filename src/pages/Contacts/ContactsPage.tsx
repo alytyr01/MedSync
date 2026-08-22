@@ -1,5 +1,4 @@
 ﻿import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Plus, Phone, Trash2, Edit2, Star, Users, HeartPulse } from 'lucide-react';
 import {
   useEmergencyContacts,
@@ -206,13 +205,8 @@ export function ContactsPage() {
           <div>
             <h2 className="section-title mb-4">All Contacts</h2>
             <div className="space-y-3">
-              {items.map((contact, index) => (
-                <motion.div
-                  key={contact.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
+              {items.map((contact) => (
+                <div key={contact.id}>
                   <Card className="p-5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3.5 flex-1 min-w-0">
@@ -263,7 +257,7 @@ export function ContactsPage() {
                       </div>
                     </div>
                   </Card>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>

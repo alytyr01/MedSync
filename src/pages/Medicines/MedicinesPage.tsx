@@ -6,7 +6,6 @@ import { PageHeader, Input, Modal, LoadingState, ErrorState, EmptyState } from '
 import { MedicineCard } from '@/components/medicine/MedicineCard';
 import { MedicineForm } from '@/components/forms/MedicineForm';
 import type { MedicineFormData } from '@/utils/validation';
-import { motion } from 'framer-motion';
 
 type FilterOption = 'all' | 'active' | 'ending';
 
@@ -140,11 +139,7 @@ export function MedicinesPage() {
       )}
 
       {!isLoading && !error && filteredMedicines.length > 0 && (
-        <motion.div
-          className="grid grid-cols-2 gap-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
+        <div className="grid grid-cols-2 gap-4">
           {filteredMedicines.map((medicine, index) => (
             <MedicineCard
               key={medicine.id}
@@ -152,7 +147,7 @@ export function MedicinesPage() {
               index={index}
             />
           ))}
-        </motion.div>
+        </div>
       )}
 
       {/* ===== Inventory Insights ===== */}

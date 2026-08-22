@@ -1,8 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   Bell,
-  Clock,
   Package,
   Users,
   User,
@@ -25,26 +23,11 @@ import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import {
   formatFullDate,
-  formatTime,
   getProgressPercentage,
   getRelativeTime,
   getTodayISO,
   addDays,
 } from '@/utils/format';
-
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 10 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
 
 interface InventoryWithMedicine {
   id: string;
@@ -201,14 +184,9 @@ export function HomePage() {
   }
 
   return (
-    <motion.div
-      className="px-5 pb-2"
-      variants={container}
-      initial="hidden"
-      animate="show"
-    >
+    <div className="px-5 pb-2">
       {/* ===== Compact Header — Premium ===== */}
-      <motion.header variants={item} className="pt-5 pb-4">
+      <header className="pt-5 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-[11px] leading-[16px] text-text-secondary mb-0.5">
@@ -237,84 +215,52 @@ export function HomePage() {
             </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
-      {/* ===== Reminder Companion Card — always shown ===== */}
-      <motion.div variants={item} className="mb-4">
-        <div className="premium-card overflow-hidden">
-          <div className="px-5 pt-5 pb-5">
-            {/* Avatar + Chat bubble */}
-            <div className="flex items-start gap-3">
-              {/* Companion avatar image */}
-              <div className="w-20 h-20 shrink-0 bg-pastel-mint/60 rounded-full flex items-center justify-center overflow-hidden">
-                <img
-                  src="/images/hero-image.png"
-                  alt="Reminder companion"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+      {/* ===== Reminder Companion — premium hero design card ===== */}
+      <div className="mb-4">
+        <div className="relative overflow-hidden rounded-[24px] bg-ink shadow-float">
+          {/* Decorative ambient glows */}
+          <div className="pointer-events-none absolute -top-20 -right-14 w-52 h-52 rounded-full bg-mint-deep/25 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-12 w-44 h-44 rounded-full bg-primary/20 blur-3xl" />
+          {/* Fine top highlight line */}
+          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
-              {/* Chat bubble */}
-              <div className="flex-1 min-w-0">
-                <div className="bg-primary-soft rounded-[18px] rounded-tl-[6px] px-4 py-3">
-                  <p className="eyebrow mb-1">Good Morning!</p>
-                  {nextReminder ? (
-                    <p className="text-[15px] font-semibold text-text leading-snug">
-                      Time to take your{' '}
-                      <span className="text-primary">{nextReminder.medicine.name}</span>{' '}
-                      {nextReminder.medicine.dosage}
-                    </p>
-                  ) : (
-                    <p className="text-[15px] font-semibold text-text leading-snug">
-                      You're all caught up for now!
-                    </p>
-                  )}
-                </div>
-              </div>
+          <div className="relative flex items-stretch">
+            {/* Companion image — flush to the left & bottom edges */}
+            <div className="w-32 shrink-0 self-stretch">
+              <img
+                src="/images/hero-image.png"
+                alt="Reminder companion"
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {/* Scheduled info */}
-            <div className="mt-4 flex items-center gap-2 text-text-secondary">
-              <Clock className="w-4 h-4" strokeWidth={2} />
-              {nextReminder ? (
-                <>
-                  <span className="text-[13px] font-medium">
-                    Scheduled ·{' '}
-                    <span className="font-semibold text-text">
-                      {formatTime(nextReminder.time)}
-                    </span>
-                  </span>
-                  <span className="text-xs text-text-tertiary ml-auto">
-                    {upcomingReminders.length} remaining today
-                  </span>
-                </>
-              ) : (
-                <span className="text-[13px] font-medium">
-                  No medications scheduled right now
-                </span>
-              )}
+            {/* Chat bubble */}
+            <div className="flex-1 min-w-0 px-4 py-6 pr-5">
+              <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-[18px] rounded-tl-[6px] px-4 py-3.5">
+                <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-teal-300 mb-1.5">
+                  Good Morning!
+                </p>
+                {nextReminder ? (
+                  <p className="text-[15px] font-semibold text-white leading-snug">
+                    Time to take your{' '}
+                    <span className="text-teal-300">{nextReminder.medicine.name}</span>{' '}
+                    {nextReminder.medicine.dosage}
+                  </p>
+                ) : (
+                  <p className="text-[15px] font-semibold text-white leading-snug">
+                    You're all caught up for now!
+                  </p>
+                )}
+              </div>
             </div>
-
-            {/* Mark as Taken */}
-            {nextReminder && (
-              <Button
-                onClick={() =>
-                  handleTaken(nextReminder.medicine.id, nextReminder.time)
-                }
-                size="md"
-                fullWidth
-                className="mt-4"
-              >
-                <Check className="w-5 h-5" strokeWidth={2.2} />
-                Mark as Taken
-              </Button>
-            )}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* ===== Quick stats — premium single card ===== */}
-      <motion.div variants={item} className="mb-6">
+      <div className="mb-6">
         <div className="premium-card overflow-hidden">
           <div className="grid grid-cols-2 divide-x divide-border">
             {/* Medications */}
@@ -364,10 +310,10 @@ export function HomePage() {
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* ===== Upcoming ===== */}
-      <motion.section variants={item} className="mb-5">
+      <section className="mb-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="section-title">Upcoming</h2>
           {upcomingReminders.length > 0 && (
@@ -391,7 +337,7 @@ export function HomePage() {
           </div>
         ) : (
           <div className="space-y-2.5">
-            {upcomingReminders.slice(0, 4).map((reminder, index) => (
+            {upcomingReminders.slice(0, 4).map((reminder) => (
               <ReminderItem
                 key={reminder.key}
                 medicine={reminder.medicine}
@@ -399,15 +345,14 @@ export function HomePage() {
                 onTaken={() => handleTaken(reminder.medicine.id, reminder.time)}
                 onSkip={() => handleSkip(reminder.medicine.id, reminder.time)}
                 onSnooze={() => handleSnooze(reminder.medicine.id, reminder.time)}
-                index={index}
               />
             ))}
           </div>
         )}
-      </motion.section>
+      </section>
 
       {/* ===== This Week ===== */}
-      <motion.section variants={item} className="mb-6">
+      <section className="mb-6">
         <h2 className="section-title mb-3">This Week</h2>
         <div className="premium-card p-5">
           <div className="grid grid-cols-3 gap-3">
@@ -431,10 +376,10 @@ export function HomePage() {
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* ===== Caregiver ===== */}
-      <motion.section variants={item} className="mb-6">
+      <section className="mb-6">
         <h2 className="section-title mb-3">Caregiver</h2>
         {primaryContact ? (
           <div className="premium-card p-5">
@@ -493,10 +438,10 @@ export function HomePage() {
             </Button>
           </div>
         )}
-      </motion.section>
+      </section>
 
       {/* ===== Calendar teaser ===== */}
-      <motion.section variants={item} className="mb-0">
+      <section className="mb-0">
         <div className="premium-card-hover p-5 cursor-pointer" onClick={() => navigate('/history')}>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-primary-soft flex items-center justify-center shrink-0">
@@ -513,7 +458,7 @@ export function HomePage() {
             <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
           </div>
         </div>
-      </motion.section>
-    </motion.div>
+      </section>
+    </div>
   );
 }

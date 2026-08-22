@@ -1,5 +1,4 @@
 ﻿import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
 import { AlertCircle, Inbox, RefreshCw } from 'lucide-react';
 import { Button } from './Button';
 
@@ -56,11 +55,7 @@ export function ErrorState({
   onRetry,
 }: ErrorStateProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center py-16 px-6 text-center gap-4"
-    >
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center gap-4">
       <div className="w-14 h-14 rounded-full bg-rose-soft flex items-center justify-center">
         <AlertCircle className="w-6 h-6 text-danger" strokeWidth={2} />
       </div>
@@ -71,7 +66,7 @@ export function ErrorState({
           Retry
         </Button>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -91,11 +86,7 @@ export function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center py-16 px-6 text-center gap-3"
-    >
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center gap-3">
       <div className="w-16 h-16 rounded-[16px] bg-blue-soft flex items-center justify-center mb-1">
         {icon || <Inbox className="w-7 h-7 text-primary" strokeWidth={2} />}
       </div>
@@ -108,6 +99,6 @@ export function EmptyState({
         </p>
       )}
       {action && <div className="mt-2">{action}</div>}
-    </motion.div>
+    </div>
   );
 }

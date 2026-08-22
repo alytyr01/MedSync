@@ -1,6 +1,5 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Mail, Lock, ShieldCheck } from 'lucide-react';
 import { signIn, signUp } from '@/services/supabase/database';
 import { useAuthStore } from '@/store/authStore';
@@ -47,23 +46,14 @@ export function AuthPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
-      >
+      <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="text-center mb-9">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
-            className="w-[72px] h-[72px] mx-auto rounded-[12px] bg-primary flex items-center justify-center mb-5 shadow-button"
-          >
+          <div className="w-[72px] h-[72px] mx-auto rounded-[12px] bg-primary flex items-center justify-center mb-5 shadow-button">
             <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-          </motion.div>
+          </div>
           <h1 className="text-[32px] font-bold text-text tracking-tight">
             {APP_NAME}
           </h1>
@@ -119,17 +109,15 @@ export function AuthPage() {
             />
 
             {error && (
-              <motion.p
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
+              <p
                 className={`text-[13px] rounded-[14px] p-3 ${
                   error.startsWith('Account created')
                     ? 'text-mint-deep bg-mint-soft'
-                    : 'text-rose-deep bg-rose-soft'
+                  : 'text-rose-deep bg-rose-soft'
                 }`}
               >
                 {error}
-              </motion.p>
+              </p>
             )}
 
             <Button
@@ -148,7 +136,7 @@ export function AuthPage() {
           <ShieldCheck className="w-3.5 h-3.5" strokeWidth={2} />
           Your medication data is securely stored
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,4 @@
 ﻿import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Clock, Pill } from 'lucide-react';
 import type { Medicine } from '@/types';
 import { formatTime, getDaysRemaining } from '@/utils/format';
@@ -27,11 +26,7 @@ export function MedicineCard({ medicine, index = 0 }: MedicineCardProps) {
   const style = pastelStyles[index % pastelStyles.length];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-    >
+    <div>
       <div
         onClick={() => navigate(`/medicines/${medicine.id}`)}
         className={`${style.bg} rounded-[16px] p-5 cursor-pointer active:scale-[0.98] transition-transform duration-200`}
@@ -74,6 +69,6 @@ export function MedicineCard({ medicine, index = 0 }: MedicineCardProps) {
           </span>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

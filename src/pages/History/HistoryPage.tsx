@@ -1,5 +1,4 @@
 ﻿import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Check, X, Clock, AlertCircle } from 'lucide-react';
 import { useMedicationLogs } from '@/hooks/useMedicationLogs';
 import {
@@ -179,16 +178,11 @@ export function HistoryPage() {
                 {formatDate(date)}
               </h3>
               <div className="space-y-3">
-                {groupedLogs[date].map((log, index) => {
+                {groupedLogs[date].map((log) => {
                   const config = statusConfig[log.status];
                   const Icon = config.icon;
                   return (
-                    <motion.div
-                      key={log.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                    >
+                    <div key={log.id}>
                       <Card className="p-5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3.5">
@@ -219,7 +213,7 @@ export function HistoryPage() {
                           </div>
                         </div>
                       </Card>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>

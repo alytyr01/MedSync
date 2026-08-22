@@ -1,7 +1,6 @@
 ﻿import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Trash2, Edit2, Clock, CalendarDays, Package, AlertTriangle, Pill, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useMedicine, useUpdateMedicine, useDeleteMedicine } from '@/hooks/useMedicines';
 import { useInventory, useRefillInventory } from '@/hooks/useInventory';
 import {
@@ -110,11 +109,7 @@ export function MedicineDetailPage() {
         }
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-4"
-      >
+      <div className="space-y-4">
         {/* Medicine Info Card */}
         <div className="premium-card p-6">
           <div className="flex items-start justify-between">
@@ -255,7 +250,7 @@ export function MedicineDetailPage() {
         >
           <Edit2 className="w-4 h-4" strokeWidth={2} /> Edit Medicine
         </Button>
-      </motion.div>
+      </div>
 
       {/* Edit Modal */}
       <Modal
