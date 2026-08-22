@@ -252,7 +252,7 @@ export function HomePage() {
             </p>
             <Button
               size="sm"
-              onClick={() => navigate('/medicines')}
+              onClick={() => navigate('/medicines?add=1')}
               className="min-h-[40px] px-6"
             >
               Add Reminder

@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { medicineSchema, type MedicineFormData } from '@/utils/validation';
-import { Button, Input, Select, Textarea, Modal, TimePickerClock, DatePickerCalendar } from '@/components/common';
-import { Plus, Trash2, Clock, CalendarDays } from 'lucide-react';
+import { Button, Modal, TimePickerClock } from '@/components/common';
+import { Plus, Trash2, Clock, Pill, Syringe, FlaskConical, Tablets } from 'lucide-react';
 import { getTodayISO } from '@/utils/format';
 import { TIME_OPTIONS } from '@/constants';
-import type { Medicine } from '@/types';
+import type { Medicine, MedicineType, MealRelation } from '@/types';
 
 interface MedicineFormProps {
   initialData?: Partial<Medicine>;
@@ -15,6 +15,23 @@ interface MedicineFormProps {
   loading?: boolean;
 }
 
+const MEDICINE_TYPES: {
+  value: MedicineType;
+  label: string;
+  icon: typeof Pill;
+}[] = [
+  { value: 'tablet', label: 'Tablet', icon: Pill },
+  { value: 'syrup', label: 'Syrup', icon: FlaskConical },
+  { value: 'capsule', label: 'Capsule', icon: Tablets },
+  { value: 'injection', label: 'Injection', icon: Syringe },
+];
+
+const MEAL_OPTIONS: { value: MealRelation; label: string }[] = [
+  { value: 'before_meal', label: 'Before Meal' },
+  { value: 'after_meal', label: 'After Meal' },
+  { value: 'anytime', label: 'Anytime' },
+];
+
 function format12Hour(time: string): string {
   const [h, m] = time.split(':').map(Number);
   const period = h >= 12 ? 'PM' : 'AM';
@@ -22,14 +39,10 @@ function format12Hour(time: string): string {
   return `${h12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
-function formatDateDisplay(date: string): string {
-  const d = new Date(date + 'T00:00:00');
-  return d.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+function addDaysISO(isoDate: string, days: number): string {
+  const d = new Date(isoDate + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
 }
 
 export function MedicineForm({
@@ -39,7 +52,14 @@ export function MedicineForm({
   loading = false,
 }: MedicineFormProps) {
   const [activeTimeIndex, setActiveTimeIndex] = useState<number | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Derive a sensible end date from duration_days when editing
+  const defaultEndDate = initialData?.duration_days
+    ? addDaysISO(
+        initialData.start_date ?? getTodayISO(),
+        initialData.duration_days - 1
+      )
+    : '';
 
   const defaultValues: MedicineFormData = {
     name: initialData?.name ?? '',
@@ -57,6 +77,9 @@ export function MedicineForm({
     total_quantity: 0,
     low_stock_threshold: 5,
     refill_reminder: true,
+    medicine_type: 'tablet',
+    meal_relation: 'anytime',
+    end_date: defaultEndDate,
   };
 
   const {
@@ -70,29 +93,17 @@ export function MedicineForm({
     defaultValues,
   });
 
-  const frequency = watch('frequency');
-  const timesPerDay = watch('times_per_day');
   const scheduleTimes = watch('schedule_times');
   const startDate = watch('start_date');
-
-  const handleTimesPerDay = (n: number) => {
-    setValue('times_per_day', n);
-    const current = [...scheduleTimes];
-    while (current.length < n) {
-      const used = new Set(current);
-      const next = TIME_OPTIONS.find((t) => !used.has(t));
-      if (next) current.push(next);
-      else break;
-    }
-    while (current.length > n) current.pop();
-    setValue('schedule_times', current);
-  };
+  const medicineType = watch('medicine_type');
+  const mealRelation = watch('meal_relation');
 
   const handleAddTime = () => {
     const usedTimes = new Set(scheduleTimes);
     const available = TIME_OPTIONS.find((t) => !usedTimes.has(t));
     if (available) {
       setValue('schedule_times', [...scheduleTimes, available]);
+      setActiveTimeIndex(scheduleTimes.length);
     }
   };
 
@@ -108,101 +119,205 @@ export function MedicineForm({
     setValue('schedule_times', current);
   };
 
+  const submit = handleSubmit((values) => {
+    // Convert the End Date into duration_days for storage
+    let duration_days = values.duration_days;
+    if (values.end_date) {
+      const start = new Date(values.start_date + 'T00:00:00');
+      const end = new Date(values.end_date + 'T00:00:00');
+      const days =
+        Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+      duration_days = Math.max(1, days);
+    }
+    onSubmit({ ...values, duration_days });
+  });
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <Input
-        label="Medicine Name"
-        placeholder="e.g. Amoxicillin"
-        error={errors.name?.message}
-        {...register('name')}
-      />
+    <form onSubmit={submit} className="space-y-5">
+      {/* Medicine Name */}
+      <div>
+        <input
+          type="text"
+          placeholder="Medicine Name"
+          {...register('name')}
+          className="
+            w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+            bg-surface text-text border border-border placeholder:text-text-tertiary
+            focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+            transition-all duration-200
+          "
+        />
+        {errors.name?.message && (
+          <p className="mt-1.5 text-sm text-danger">{errors.name.message}</p>
+        )}
+      </div>
 
-      <Input
-        label="Dosage"
-        placeholder="e.g. 500mg"
-        error={errors.dosage?.message}
-        {...register('dosage')}
-      />
+      {/* Dosage */}
+      <div>
+        <input
+          type="text"
+          placeholder="Dosage (e.g. 500mg)"
+          {...register('dosage')}
+          className="
+            w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+            bg-surface text-text border border-border placeholder:text-text-tertiary
+            focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+            transition-all duration-200
+          "
+        />
+        {errors.dosage?.message && (
+          <p className="mt-1.5 text-sm text-danger">{errors.dosage.message}</p>
+        )}
+      </div>
 
-      <Select
-        label="Frequency"
-        options={[
-          { value: 'daily', label: 'Daily' },
-          { value: 'weekly', label: 'Weekly' },
-          { value: 'monthly', label: 'Monthly' },
-          { value: 'as_needed', label: 'As Needed' },
-        ]}
-        error={errors.frequency?.message}
-        {...register('frequency')}
-      />
+      {/* Medicine Type */}
+      <div>
+        <label className="block text-sm font-medium text-text mb-2">Type</label>
+        <div className="flex flex-wrap gap-2">
+          {MEDICINE_TYPES.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setValue('medicine_type', value)}
+              className={`
+                inline-flex items-center gap-1.5 px-4 py-2 rounded-pill text-[13px] font-semibold
+                transition-all duration-200
+                ${
+                  medicineType === value
+                    ? 'bg-primary text-white shadow-button'
+                    : 'bg-surface text-secondary border border-border hover:border-primary/40'
+                }
+              `}
+            >
+              <Icon className="w-3.5 h-3.5" strokeWidth={2} />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {frequency === 'daily' && (
-        <div>
-          <label className="block text-sm font-medium text-text mb-1.5">
-            Times Per Day
+      {/* Meal Relation */}
+      <div>
+        <label className="block text-sm font-medium text-text mb-2">Meal</label>
+        <div className="flex flex-wrap gap-2">
+          {MEAL_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setValue('meal_relation', value)}
+              className={`
+                px-4 py-2 rounded-pill text-[13px] font-semibold
+                transition-all duration-200
+                ${
+                  mealRelation === value
+                    ? 'bg-primary text-white shadow-button'
+                    : 'bg-surface text-secondary border border-border hover:border-primary/40'
+                }
+              `}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Schedule & Duration */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="relative">
+          <label className="absolute -top-2 left-3 px-1 text-[11px] font-medium text-secondary bg-surface z-10">
+            Start Date
           </label>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => handleTimesPerDay(n)}
-                className={`
-                  flex-1 py-2 rounded-xl border text-sm font-medium
-                  transition-colors duration-200
-                  ${timesPerDay === n
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-surface text-secondary border-border hover:border-primary/50'}
-                `}
-              >
-                {n}x
-              </button>
+          <input
+            type="date"
+            {...register('start_date')}
+            className="
+              w-full h-[52px] px-3 rounded-control text-[14px] shadow-card
+              bg-surface text-text border border-border
+              focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+              transition-all duration-200
+            "
+          />
+        </div>
+        <div className="relative">
+          <label className="absolute -top-2 left-3 px-1 text-[11px] font-medium text-secondary bg-surface z-10">
+            End Date
+          </label>
+          <input
+            type="date"
+            min={startDate}
+            {...register('end_date')}
+            className="
+              w-full h-[52px] px-3 rounded-control text-[14px] shadow-card
+              bg-surface text-text border border-border
+              focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+              transition-all duration-200
+            "
+          />
+        </div>
+      </div>
+
+      {/* Time */}
+      <div>
+        <button
+          type="button"
+          onClick={() => setActiveTimeIndex(0)}
+          className="
+            w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+            bg-surface text-text border-border
+            flex items-center justify-between
+            focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+            transition-all duration-200
+          "
+        >
+          <span className="font-medium">
+            {format12Hour(scheduleTimes[0] ?? '08:00')}
+          </span>
+          <Clock className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
+        </button>
+
+        {/* Additional times (when editing a multi-time medicine) */}
+        {scheduleTimes.length > 1 && (
+          <div className="mt-2 space-y-2">
+            {scheduleTimes.slice(1).map((time, i) => (
+              <div key={i + 1} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTimeIndex(i + 1)}
+                  className="
+                    flex-1 h-[44px] px-4 rounded-control text-[14px]
+                    bg-surface text-text border border-border
+                    flex items-center justify-between
+                    transition-all duration-200
+                  "
+                >
+                  <span className="font-medium">{format12Hour(time)}</span>
+                  <Clock
+                    className="w-4 h-4 text-text-tertiary"
+                    strokeWidth={2}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTime(i + 1)}
+                  className="p-2 rounded-xl text-danger hover:bg-danger/10 transition-colors"
+                  aria-label="Remove time"
+                >
+                  <Trash2 className="w-4 h-4" strokeWidth={2} />
+                </button>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-sm font-medium text-text">
-            Schedule Times
-          </label>
+        {scheduleTimes.length < 6 && (
           <button
             type="button"
             onClick={handleAddTime}
-            className="text-sm text-primary font-medium flex items-center gap-1 hover:text-primary-dark"
+            className="mt-2 text-sm text-primary font-medium flex items-center gap-1 hover:text-primary-dark"
           >
-            <Plus className="w-4 h-4" strokeWidth={2} /> Add Time
+            <Plus className="w-4 h-4" strokeWidth={2} /> Add another time
           </button>
-        </div>
-        <div className="space-y-2">
-          {scheduleTimes.map((time, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveTimeIndex(index)}
-                className="
-                  flex-1 h-[52px] px-4 rounded-control text-[15px] shadow-card
-                  bg-surface text-text border-border
-                  flex items-center justify-between
-                  focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
-                  transition-all duration-200
-                "
-              >
-                <span className="font-medium">{format12Hour(time)}</span>
-                <Clock className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleRemoveTime(index)}
-                className="p-2.5 rounded-xl text-danger hover:bg-danger/10 transition-colors"
-                aria-label="Remove time"
-              >
-                <Trash2 className="w-4 h-4" strokeWidth={2} />
-              </button>
-            </div>
-          ))}
-        </div>
+        )}
         {errors.schedule_times?.message && (
           <p className="mt-1.5 text-sm text-danger">
             {errors.schedule_times.message}
@@ -210,54 +325,7 @@ export function MedicineForm({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-text mb-1.5">
-            Start Date
-          </label>
-          <button
-            type="button"
-            onClick={() => setShowDatePicker(true)}
-            className="
-              w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
-              bg-surface text-text border-border
-              flex items-center justify-between
-              focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
-              transition-all duration-200
-            "
-          >
-            <span className="font-medium">{formatDateDisplay(startDate)}</span>
-            <CalendarDays className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
-          </button>
-        </div>
-        <Input
-          label="Duration (days)"
-          type="number"
-          placeholder="Optional"
-          min={1}
-          error={errors.duration_days?.message}
-          {...register('duration_days', {
-            setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
-          })}
-        />
-      </div>
-
-      <Textarea
-        label="Instructions"
-        placeholder="e.g. Take with food"
-        rows={3}
-        error={errors.instructions?.message}
-        {...register('instructions')}
-      />
-
-      <Textarea
-        label="Notes"
-        placeholder="Additional notes..."
-        rows={2}
-        error={errors.notes?.message}
-        {...register('notes')}
-      />
-
+      {/* Primary Action */}
       <Button type="submit" fullWidth loading={loading}>
         {submitLabel}
       </Button>
@@ -275,19 +343,6 @@ export function MedicineForm({
             onClose={() => setActiveTimeIndex(null)}
           />
         )}
-      </Modal>
-
-      <Modal
-        isOpen={showDatePicker}
-        onClose={() => setShowDatePicker(false)}
-        title="Select Date"
-        centered
-      >
-        <DatePickerCalendar
-          value={startDate}
-          onChange={(d) => setValue('start_date', d)}
-          onClose={() => setShowDatePicker(false)}
-        />
       </Modal>
     </form>
   );

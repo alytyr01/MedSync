@@ -56,6 +56,10 @@ export interface EmergencyContact {
 
 export type Frequency = 'daily' | 'weekly' | 'monthly' | 'as_needed';
 
+export type MedicineType = 'tablet' | 'syrup' | 'capsule' | 'injection';
+
+export type MealRelation = 'before_meal' | 'after_meal' | 'anytime';
+
 export type LogStatus = 'taken' | 'skipped' | 'snoozed' | 'missed' | 'pending';
 
 export type ReminderAction = 'taken' | 'skip' | 'snooze';
@@ -120,6 +124,9 @@ export interface MedicineFormValues {
   total_quantity: number;
   low_stock_threshold: number;
   refill_reminder: boolean;
+  medicine_type?: MedicineType;
+  meal_relation?: MealRelation;
+  end_date?: string;
 }
 
 export interface ContactFormValues {

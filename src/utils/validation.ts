@@ -8,6 +8,19 @@ export const frequencySchema = z.enum([
   'as_needed',
 ]);
 
+export const medicineTypeSchema = z.enum([
+  'tablet',
+  'syrup',
+  'capsule',
+  'injection',
+]);
+
+export const mealRelationSchema = z.enum([
+  'before_meal',
+  'after_meal',
+  'anytime',
+]);
+
 export const medicineSchema = z.object({
   name: z
     .string()
@@ -45,6 +58,9 @@ export const medicineSchema = z.object({
   total_quantity: z.number().int().min(0, 'Quantity cannot be negative'),
   low_stock_threshold: z.number().int().min(0, 'Threshold cannot be negative'),
   refill_reminder: z.boolean(),
+  medicine_type: medicineTypeSchema.optional(),
+  meal_relation: mealRelationSchema.optional(),
+  end_date: z.string().optional(),
 });
 
 export type MedicineFormData = z.infer<typeof medicineSchema>;

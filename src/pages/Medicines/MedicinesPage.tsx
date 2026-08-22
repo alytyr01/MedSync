@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, AlertTriangle, Package } from 'lucide-react';
 import { useMedicines, useCreateMedicine } from '@/hooks/useMedicines';
 import { useInventory } from '@/hooks/useInventory';
@@ -25,9 +26,14 @@ export function MedicinesPage() {
   const { data: inventory } = useInventory();
   const createMedicine = useCreateMedicine();
 
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterOption>('all');
-  const [showAddModal, setShowAddModal] = useState(false);
+  // Auto-open the Add Medicine modal when arriving with ?add=1
+  // (e.g. via the "Add Reminder" button on the home page)
+  const [showAddModal, setShowAddModal] = useState(
+    () => searchParams.get('add') === '1'
+  );
 
   const inventoryItems = (inventory ?? []) as InventoryWithMedicine[];
 
