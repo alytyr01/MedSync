@@ -1,12 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
-  Package,
   Users,
   User,
   Phone,
   Check,
-  Pill,
   ChevronRight,
   CalendarDays,
   ScanLine,
@@ -16,23 +14,11 @@ import {
   useTodayLogs,
   useLogMedicationAction,
 } from '@/hooks/useMedicationLogs';
-import { useLowStockInventory } from '@/hooks/useInventory';
 import { useEmergencyContacts } from '@/hooks/useContacts';
 import { snoozeReminder, cancelReminder } from '@/services/notifications';
 import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import { formatFullDate, getTodayISO } from '@/utils/format';
-
-interface InventoryWithMedicine {
-  id: string;
-  medicine_id: string;
-  total_quantity: number;
-  remaining_quantity: number;
-  low_stock_threshold: number;
-  refill_reminder: boolean;
-  last_refilled_at: string | null;
-  medicines?: { name: string; dosage: string } | null;
-}
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -52,7 +38,6 @@ export function HomePage() {
   const navigate = useNavigate();
   const { data: medicines, isLoading, error, refetch } = useMedicines();
   const { data: todayLogs } = useTodayLogs();
-  const { data: lowStock } = useLowStockInventory();
   const { data: contacts } = useEmergencyContacts();
   const logAction = useLogMedicationAction();
 
@@ -85,12 +70,6 @@ export function HomePage() {
       !loggedKeys.has(`${r.medicine.id}-${r.time}`)
   );
   const nextReminder = upcomingReminders[0];
-
-  const uniqueMedicines = Array.from(
-    new Map(
-      todayReminders.map((r) => [r.medicine.id, r.medicine])
-    ).values()
-  );
 
   const handleTaken = (medicineId: string, time: string) => {
     // Cancel the native notification for this reminder
@@ -129,8 +108,6 @@ export function HomePage() {
   };
 
   const primaryContact = (contacts ?? []).find((c) => c.is_primary);
-
-  const lowStockItems = (lowStock ?? []) as InventoryWithMedicine[];
 
   if (isLoading) {
     return (
@@ -248,59 +225,6 @@ export function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ===== Quick stats — premium single card ===== */}
-      <div className="mb-4">
-        <div className="premium-card overflow-hidden">
-          <div className="grid grid-cols-2 divide-x divide-border">
-            {/* Medications */}
-            <button
-              type="button"
-              onClick={() => navigate('/medicines')}
-              className="group relative px-4 py-3.5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-9 h-9 rounded-[14px] bg-pastel-mint flex items-center justify-center shadow-sm">
-                  <Pill className="w-[18px] h-[18px] text-mint-deep" strokeWidth={2.2} />
-                </div>
-                <ChevronRight
-                  className="w-4 h-4 text-text-tertiary transition-transform duration-200 group-hover:translate-x-0.5"
-                  strokeWidth={2}
-                />
-              </div>
-              <p className="text-[28px] font-bold text-text tracking-tight leading-none">
-                {uniqueMedicines.length}
-              </p>
-              <p className="text-[12px] font-medium text-text-secondary mt-1.5">
-                Medications
-              </p>
-            </button>
-
-            {/* Need refill */}
-            <button
-              type="button"
-              onClick={() => navigate('/inventory')}
-              className="group relative px-4 py-3.5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-9 h-9 rounded-[14px] bg-pastel-blue flex items-center justify-center shadow-sm">
-                  <Package className="w-[18px] h-[18px] text-blue-deep" strokeWidth={2.2} />
-                </div>
-                <ChevronRight
-                  className="w-4 h-4 text-text-tertiary transition-transform duration-200 group-hover:translate-x-0.5"
-                  strokeWidth={2}
-                />
-              </div>
-              <p className="text-[28px] font-bold text-text tracking-tight leading-none">
-                {lowStockItems.length}
-              </p>
-              <p className="text-[12px] font-medium text-text-secondary mt-1.5">
-                Need refill
-              </p>
-            </button>
           </div>
         </div>
       </div>
