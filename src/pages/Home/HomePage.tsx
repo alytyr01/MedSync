@@ -15,7 +15,6 @@ import { useMedicines } from '@/hooks/useMedicines';
 import {
   useTodayLogs,
   useLogMedicationAction,
-  useMedicationLogs,
 } from '@/hooks/useMedicationLogs';
 import { useLowStockInventory } from '@/hooks/useInventory';
 import { useEmergencyContacts } from '@/hooks/useContacts';
@@ -24,8 +23,6 @@ import { LoadingState, ErrorState, Badge, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import {
   formatFullDate,
-  getProgressPercentage,
-  getRelativeTime,
   getTodayISO,
   addDays,
 } from '@/utils/format';
@@ -61,10 +58,6 @@ export function HomePage() {
   const { data: todayLogs } = useTodayLogs();
   const { data: lowStock } = useLowStockInventory();
   const { data: contacts } = useEmergencyContacts();
-  const { data: recentLogs } = useMedicationLogs(
-    addDays(getTodayISO(), -7),
-    getTodayISO()
-  );
   const logAction = useLogMedicationAction();
 
   const today = getTodayISO();
@@ -96,12 +89,6 @@ export function HomePage() {
       !loggedKeys.has(`${r.medicine.id}-${r.time}`)
   );
   const nextReminder = upcomingReminders[0];
-
-  const takenCount = (todayLogs ?? []).filter(
-    (log) => log.status === 'taken'
-  ).length;
-  const totalCount = todayReminders.length;
-  const progress = getProgressPercentage(takenCount, totalCount);
 
   const uniqueMedicines = Array.from(
     new Map(
@@ -146,18 +133,6 @@ export function HomePage() {
   };
 
   const primaryContact = (contacts ?? []).find((c) => c.is_primary);
-
-  const takenLogs = (recentLogs ?? []).filter(
-    (log) => log.status === 'taken' && log.taken_at
-  );
-  const lastTakenTime =
-    takenLogs.length > 0
-      ? takenLogs.reduce((latest, log) =>
-          log.taken_at && (!latest || log.taken_at > latest)
-            ? log.taken_at
-            : latest
-        , '')
-      : null;
 
   const lowStockItems = (lowStock ?? []) as InventoryWithMedicine[];
 
@@ -367,33 +342,6 @@ export function HomePage() {
             ))}
           </div>
         )}
-      </section>
-
-      {/* ===== This Week ===== */}
-      <section className="mb-6">
-        <h2 className="section-title mb-3">This Week</h2>
-        <div className="premium-card p-5">
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <p className="text-[24px] font-semibold text-text tracking-tight">
-                {takenLogs.length}
-              </p>
-              <p className="text-[11px] text-text-secondary mt-0.5">Doses taken</p>
-            </div>
-            <div>
-              <p className="text-[24px] font-semibold text-text tracking-tight">
-                {progress}%
-              </p>
-              <p className="text-[11px] text-text-secondary mt-0.5">Adherence</p>
-            </div>
-            <div>
-              <p className="text-[24px] font-semibold text-text tracking-tight">
-                {lastTakenTime ? getRelativeTime(lastTakenTime) : '—'}
-              </p>
-              <p className="text-[11px] text-text-secondary mt-0.5">Last dose</p>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ===== Caregiver ===== */}
