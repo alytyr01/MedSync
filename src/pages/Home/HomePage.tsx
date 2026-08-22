@@ -156,7 +156,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="px-5 pb-2">
+    <div className="px-3 pb-2">
       {/* ===== Compact Header — Premium ===== */}
       <header className="pt-5 pb-4">
         <div className="flex items-start justify-between gap-4">
@@ -190,7 +190,7 @@ export function HomePage() {
       </header>
 
       {/* ===== Reminder Companion — premium hero design card ===== */}
-      <div className="mb-4">
+      <div className="mb-3">
         <div className="relative overflow-hidden rounded-[28px] bg-ink shadow-float ring-1 ring-white/10">
           {/* Decorative ambient glows */}
           <div className="pointer-events-none absolute -top-24 -right-16 w-56 h-56 rounded-full bg-mint-deep/30 blur-3xl" />
@@ -200,10 +200,10 @@ export function HomePage() {
 
           {/* Extra-large gap compensates for the scaled-up image overflow,
               keeping clear visual space between image and bubble */}
-          <div className="relative flex items-end gap-12 px-5 pt-5">
+          <div className="relative flex items-end gap-12 px-4 pt-5">
             {/* Companion image — flush to the bottom edge.
                 Scaled up visually without affecting the bubble's size. */}
-            <div className="w-28 h-28 shrink-0 relative -ml-5">
+            <div className="w-28 h-28 shrink-0 relative -ml-4">
               <img
                 src="/images/hero-image.png"
                 alt="Reminder companion"
@@ -249,14 +249,14 @@ export function HomePage() {
       </div>
 
       {/* ===== Quick stats — premium single card ===== */}
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="premium-card overflow-hidden">
           <div className="grid grid-cols-2 divide-x divide-border">
             {/* Medications */}
             <button
               type="button"
               onClick={() => navigate('/medicines')}
-              className="group relative p-5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
+              className="group relative px-4 py-3.5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="w-9 h-9 rounded-[14px] bg-pastel-mint flex items-center justify-center shadow-sm">
@@ -279,7 +279,7 @@ export function HomePage() {
             <button
               type="button"
               onClick={() => navigate('/inventory')}
-              className="group relative p-5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
+              className="group relative px-4 py-3.5 text-left transition-colors hover:bg-surface-muted/60 active:bg-surface-muted"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="w-9 h-9 rounded-[14px] bg-pastel-blue flex items-center justify-center shadow-sm">
@@ -302,8 +302,8 @@ export function HomePage() {
       </div>
 
       {/* ===== Upcoming ===== */}
-      <section className="mb-5">
-        <div className="flex items-center justify-between mb-3">
+      <section className="mb-4">
+        <div className="flex items-center justify-between mb-2.5">
           <h2 className="section-title">Upcoming</h2>
           {upcomingReminders.length > 0 && (
             <button
@@ -316,7 +316,7 @@ export function HomePage() {
         </div>
 
         {upcomingReminders.length === 0 ? (
-          <div className="premium-card p-5 text-center">
+          <div className="premium-card p-4 text-center">
             <div className="w-9 h-9 bg-mint-soft flex items-center justify-center mx-auto mb-2">
               <Check className="w-4 h-4 text-mint-deep" strokeWidth={2} />
             </div>
@@ -341,10 +341,10 @@ export function HomePage() {
       </section>
 
       {/* ===== Caregiver ===== */}
-      <section className="mb-6">
-        <h2 className="section-title mb-3">Caregiver</h2>
+      <section className="mb-4">
+        <h2 className="section-title mb-2.5">Caregiver</h2>
         {primaryContact ? (
-          <div className="premium-card p-5">
+          <div className="premium-card p-4">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 bg-pastel-blue/60 flex items-center justify-center shrink-0">
                 <span className="text-blue-deep font-semibold text-[16px]">
@@ -380,7 +380,7 @@ export function HomePage() {
             </div>
           </div>
         ) : (
-          <div className="premium-card p-6 text-center">
+          <div className="premium-card p-4 text-center">
             <div className="w-9 h-9 bg-surface-muted flex items-center justify-center mx-auto mb-3">
               <Users className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
             </div>
@@ -404,7 +404,7 @@ export function HomePage() {
 
       {/* ===== Calendar teaser ===== */}
       <section className="mb-0">
-        <div className="premium-card-hover p-5 cursor-pointer" onClick={() => navigate('/history')}>
+        <div className="premium-card-hover p-4 cursor-pointer" onClick={() => navigate('/history')}>
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-primary-soft flex items-center justify-center shrink-0">
               <CalendarDays className="w-5 h-5 text-primary" strokeWidth={2} />
