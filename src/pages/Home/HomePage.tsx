@@ -191,19 +191,23 @@ export function HomePage() {
 
       {/* ===== Reminder Companion — premium hero design card ===== */}
       <div className="mb-3">
-        <div className="relative overflow-hidden rounded-[28px] bg-ink shadow-float ring-1 ring-white/10">
-          {/* Decorative ambient glows */}
-          <div className="pointer-events-none absolute -top-24 -right-16 w-56 h-56 rounded-full bg-mint-deep/30 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-28 -left-14 w-48 h-48 rounded-full bg-primary/25 blur-3xl" />
-          {/* Fine top highlight line */}
-          <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        <div className="relative rounded-[28px] bg-ink shadow-float ring-1 ring-white/10">
+          {/* Decorative layer — clipped to the card so glows don't bleed,
+              while the companion image is free to overflow the top */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+            <div className="absolute -top-24 -right-16 w-56 h-56 rounded-full bg-mint-deep/30 blur-3xl" />
+            <div className="absolute -bottom-28 -left-14 w-48 h-48 rounded-full bg-primary/25 blur-3xl" />
+            {/* Fine top highlight line */}
+            <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          </div>
 
           {/* Extra-large gap compensates for the scaled-up image overflow,
               keeping clear visual space between image and bubble */}
           <div className="relative flex items-end gap-12 px-4 pt-5">
-            {/* Companion image — flush to the bottom edge.
-                Scaled up visually without affecting the bubble's size. */}
-            <div className="w-28 h-28 shrink-0 relative -ml-4">
+            {/* Companion image — flush to the bottom edge, overflowing
+                slightly above the card's top edge. Scaled up visually
+                without affecting the bubble's size. */}
+            <div className="w-28 h-28 shrink-0 relative -ml-4 -mt-7 z-10">
               <img
                 src="/images/hero-image.png"
                 alt="Reminder companion"
