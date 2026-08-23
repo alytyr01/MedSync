@@ -141,7 +141,7 @@ export function MedicineForm({
           placeholder="Medicine Name"
           {...register('name')}
           className="
-            w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+            w-full h-[52px] px-4 rounded-lg text-[15px] shadow-card
             bg-surface text-text border border-border placeholder:text-text-tertiary
             focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
             transition-all duration-200
@@ -159,7 +159,7 @@ export function MedicineForm({
           placeholder="Dosage (e.g. 500mg)"
           {...register('dosage')}
           className="
-            w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+            w-full h-[52px] px-4 rounded-lg text-[15px] shadow-card
             bg-surface text-text border border-border placeholder:text-text-tertiary
             focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
             transition-all duration-200
@@ -180,7 +180,7 @@ export function MedicineForm({
               type="button"
               onClick={() => setValue('medicine_type', value)}
               className={`
-                inline-flex items-center gap-1.5 px-4 py-2 rounded-pill text-[13px] font-semibold
+                inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-semibold
                 transition-all duration-200
                 ${
                   medicineType === value
@@ -206,7 +206,7 @@ export function MedicineForm({
               type="button"
               onClick={() => setValue('meal_relation', value)}
               className={`
-                px-4 py-2 rounded-pill text-[13px] font-semibold
+                px-4 py-2 rounded-md text-[13px] font-semibold
                 transition-all duration-200
                 ${
                   mealRelation === value
@@ -231,7 +231,7 @@ export function MedicineForm({
             type="date"
             {...register('start_date')}
             className="
-              w-full h-[52px] px-3 rounded-control text-[14px] shadow-card
+              w-full h-[52px] px-3 rounded-lg text-[14px] shadow-card
               bg-surface text-text border border-border
               focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
               transition-all duration-200
@@ -247,7 +247,7 @@ export function MedicineForm({
             min={startDate}
             {...register('end_date')}
             className="
-              w-full h-[52px] px-3 rounded-control text-[14px] shadow-card
+              w-full h-[52px] px-3 rounded-lg text-[14px] shadow-card
               bg-surface text-text border border-border
               focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
               transition-all duration-200
@@ -262,7 +262,7 @@ export function MedicineForm({
           type="button"
           onClick={() => setActiveTimeIndex(0)}
           className="
-            w-full h-[52px] px-4 rounded-control text-[15px] shadow-card
+            w-full h-[52px] px-4 rounded-lg text-[15px] shadow-card
             bg-surface text-text border-border
             flex items-center justify-between
             focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
@@ -284,7 +284,7 @@ export function MedicineForm({
                   type="button"
                   onClick={() => setActiveTimeIndex(i + 1)}
                   className="
-                    flex-1 h-[44px] px-4 rounded-control text-[14px]
+                    flex-1 h-[44px] px-4 rounded-lg text-[14px]
                     bg-surface text-text border border-border
                     flex items-center justify-between
                     transition-all duration-200
