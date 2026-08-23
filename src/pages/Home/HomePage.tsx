@@ -98,7 +98,7 @@ export function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="px-3 pt-8">
+      <div className="px-3 pt-8 font-alarm">
         <div className="space-y-2 mb-6">
           <div className="skeleton h-3 w-32" />
           <div className="skeleton h-8 w-48" />
@@ -110,7 +110,7 @@ export function HomePage() {
 
   if (error) {
     return (
-      <div className="px-3 pt-8">
+      <div className="px-3 pt-8 font-alarm">
         <ErrorState
           message="Failed to load your dashboard"
           onRetry={() => refetch()}
@@ -120,7 +120,7 @@ export function HomePage() {
   }
 
   return (
-    <div className="px-3 pb-2">
+    <div className="px-3 pb-2 font-alarm">
       {/* ===== Compact Header — Premium ===== */}
       <header className="pt-5 pb-4">
         <div className="flex items-start justify-between gap-4">

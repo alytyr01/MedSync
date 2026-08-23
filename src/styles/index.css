@@ -58,6 +58,10 @@
   --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont,
     "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
 
+  /* Alarm clock font — matches the native Android alarm screen
+     (sans-serif-light / sans-serif-medium = Roboto) */
+  --font-alarm: "Roboto", "Segoe UI", -apple-system, sans-serif;
+
   /* ===== Radius — soft, smooth, premium ===== */
   --radius-card: 1.5rem;        /* 24px — main cards */
   --radius-card-lg: 1.75rem;    /* 28px — hero cards */
