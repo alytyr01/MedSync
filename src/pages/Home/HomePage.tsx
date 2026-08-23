@@ -15,7 +15,7 @@ import {
 import { snoozeReminder, cancelReminder } from '@/services/notifications';
 import { LoadingState, ErrorState, Button } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
-import { formatFullDate, getTodayISO } from '@/utils/format';
+import { getTodayISO } from '@/utils/format';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -125,9 +125,6 @@ export function HomePage() {
       <header className="pt-5 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[11px] leading-[16px] text-text-secondary mb-0.5">
-              {formatFullDate(new Date())}
-            </p>
             <h1 className="text-[22px] font-bold text-text tracking-tight leading-tight">
               {getGreeting()}, Anessa
             </h1>
@@ -241,12 +238,10 @@ export function HomePage() {
 
         {upcomingReminders.length === 0 ? (
           <div className="premium-card p-4 text-center">
-            <div className="w-10 h-10 rounded-full bg-mint-soft flex items-center justify-center mx-auto mb-2.5">
-              <BriefcaseMedical
-                className="w-5 h-5 text-mint-deep"
-                strokeWidth={2}
-              />
-            </div>
+            <BriefcaseMedical
+              className="w-6 h-6 text-text-secondary mx-auto mb-2.5"
+              strokeWidth={2}
+            />
             <p className="text-sm text-text-secondary mb-3">
               No upcoming reminders today.
             </p>
