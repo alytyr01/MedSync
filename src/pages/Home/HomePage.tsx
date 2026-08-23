@@ -183,7 +183,7 @@ export function HomePage() {
             <div className="flex-1 min-w-0 pb-4">
               <div className="bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-[22px] rounded-tl-[8px] px-4 py-2.5 shadow-lg">
                 <p className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-teal-300 mb-1.5">
-                  Good Morning!
+                  Daily Reminder
                 </p>
                 {nextReminder ? (
                   <p className="text-[13px] font-semibold text-white leading-snug">
@@ -195,7 +195,7 @@ export function HomePage() {
                   </p>
                 ) : (
                   <p className="text-[13px] font-semibold text-white leading-snug">
-                    You're all caught up for now!
+                    No reminders scheduled for today. Add one to get started!
                   </p>
                 )}
                 <div className="mt-3 flex justify-end">
