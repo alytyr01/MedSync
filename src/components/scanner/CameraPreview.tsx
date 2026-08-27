@@ -31,60 +31,66 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
     streamRef.current = null;
   };
 
+  // Component-level cancellation flag so `start` is safe to call from the
+  // retry button and the effect alike.
+  const cancelledRef = useRef(false);
+
+  const start = async () => {
+    stopStream();
+    setStatus('starting');
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('unsupported');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: facing },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+        audio: false,
+      });
+      if (cancelledRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        try {
+          await videoRef.current.play();
+        } catch {
+          /* autoplay guard — muted + playsInline already set */
+        }
+      }
+      setStatus('ready');
+    } catch (err) {
+      if (cancelledRef.current) return;
+      const name = (err as DOMException)?.name;
+      if (name === 'NotAllowedError' || name === 'SecurityError') {
+        setErrorMsg('Allow camera access to scan prescriptions.');
+        setStatus('denied');
+      } else {
+        setErrorMsg('No usable camera was found on this device.');
+        setStatus('error');
+      }
+    }
+  };
+
   useEffect(() => {
     if (!open) {
       stopStream();
       return;
     }
 
-    let cancelled = false;
-
-    const start = async () => {
-      setStatus('starting');
-      try {
-        if (!navigator.mediaDevices?.getUserMedia) {
-          throw new Error('unsupported');
-        }
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: facing },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-          audio: false,
-        });
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          try {
-            await videoRef.current.play();
-          } catch {
-            /* autoplay guard — muted + playsInline already set */
-          }
-        }
-        setStatus('ready');
-      } catch (err) {
-        if (cancelled) return;
-        const name = (err as DOMException)?.name;
-        if (name === 'NotAllowedError' || name === 'SecurityError') {
-          setErrorMsg('Allow camera access to scan prescriptions.');
-          setStatus('denied');
-        } else {
-          setErrorMsg('No usable camera was found on this device.');
-          setStatus('error');
-        }
-      }
-    };
-
+    cancelledRef.current = false;
     void start();
+
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       stopStream();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- facing/start handled via ref
   }, [open, facing]);
 
   if (!open) return null;
