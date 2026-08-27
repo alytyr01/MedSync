@@ -3,6 +3,7 @@ import type { Medicine } from '@/types';
 import { supabase } from '@/services/supabase/client';
 import { useAuthStore } from '@/store/authStore';
 import { syncPushSubscription } from '@/services/push-subscriptions';
+import { useSettingsStore } from '@/store/settingsStore';
 import {
   scheduleNativeAlarm,
   cancelNativeAlarm,
@@ -79,7 +80,9 @@ export async function checkNotificationPermission(): Promise<boolean> {
 
 export async function scheduleMedicineReminder(
   medicine: Medicine,
-  time: string
+  time: string,
+  sound: boolean,
+  vibrate: boolean
 ): Promise<void> {
   try {
     const [hours, minutes] = time.split(':').map(Number);
@@ -94,7 +97,7 @@ export async function scheduleMedicineReminder(
 
     if (Capacitor.isNativePlatform()) {
       // Schedule a native full-screen alarm (alarm clock style)
-      await scheduleNativeAlarm(medicine, time);
+      await scheduleNativeAlarm(medicine, time, sound, vibrate);
     } else {
       // Web: create a server-side reminder row so the cron edge
       // function (send-reminder-push) fires even when the app is closed.
@@ -120,7 +123,9 @@ export async function scheduleMedicineReminder(
 }
 
 export async function scheduleAllMedicineReminders(
-  medicines: Medicine[]
+  medicines: Medicine[],
+  sound: boolean,
+  vibrate: boolean
 ): Promise<void> {
   // Cancel all existing alarms first
   await cancelAllReminders();
@@ -128,7 +133,7 @@ export async function scheduleAllMedicineReminders(
 
   for (const medicine of medicines) {
     for (const time of medicine.schedule_times) {
-      await scheduleMedicineReminder(medicine, time);
+      await scheduleMedicineReminder(medicine, time, sound, vibrate);
     }
   }
 }
@@ -171,10 +176,18 @@ export async function snoozeReminder(
     const scheduled = new Date(now);
     scheduled.setMinutes(scheduled.getMinutes() + minutes);
 
+    const { reminderSound, vibration } =
+      useSettingsStore.getState().settings;
+
     if (Capacitor.isNativePlatform()) {
-      // Schedule a snoozed native alarm
+      // Schedule a snoozed native alarm (keeps current sound/vibration prefs)
       const snoozeTime = `${String(scheduled.getHours()).padStart(2, '0')}:${String(scheduled.getMinutes()).padStart(2, '0')}`;
-      await scheduleNativeAlarm(medicine, snoozeTime);
+      await scheduleNativeAlarm(
+        medicine,
+        snoozeTime,
+        reminderSound,
+        vibration
+      );
     } else {
       // Web fallback - schedule snoozed alarm with setTimeout
       const delay = scheduled.getTime() - now.getTime();

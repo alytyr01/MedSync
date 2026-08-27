@@ -2,42 +2,25 @@
 import { AlertCircle, Inbox, RefreshCw } from 'lucide-react';
 import { Button } from './Button';
 
-// ===== Loading State (Skeleton) =====
+// ===== Loading State (circular spinner — the app's only allowed animation) =====
 
 interface LoadingStateProps {
   label?: string;
+  /** Kept for API compatibility; rendering is identical for all variants */
   variant?: 'default' | 'cards' | 'full';
 }
 
 export function LoadingState({
   label = 'Loading...',
-  variant = 'default',
 }: LoadingStateProps) {
-  if (variant === 'cards') {
-    return (
-      <div className="space-y-4 mt-2" aria-label={label}>
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="premium-card p-5">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 space-y-2.5">
-                <div className="skeleton h-4 w-2/5" />
-                <div className="skeleton h-3 w-3/5" />
-                <div className="skeleton h-3 w-1/3" />
-              </div>
-              <div className="skeleton h-10 w-10 rounded-full ml-4" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-4">
-      <div className="w-full max-w-xs space-y-3">
-        <div className="skeleton h-5 w-3/4 mx-auto" />
-        <div className="skeleton h-4 w-1/2 mx-auto" />
-      </div>
+    <div
+      className="flex flex-col items-center justify-center py-16 gap-4"
+      role="status"
+      aria-live="polite"
+      aria-label={label}
+    >
+      <span className="w-7 h-7 rounded-full border-2 border-primary/15 border-t-primary animate-spin" />
       <p className="text-[13px] text-secondary">{label}</p>
     </div>
   );

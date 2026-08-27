@@ -51,6 +51,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         final String instructions = intent.getStringExtra("instructions");
         final String time = intent.getStringExtra("time");
         final int requestCode = intent.getIntExtra("request_code", -1);
+        final boolean alarmSound = intent.getBooleanExtra("alarm_sound", true);
+        final boolean alarmVibrate = intent.getBooleanExtra("alarm_vibrate", true);
 
         Log.d(TAG, "Medication alarm fired! medicine=" + medicineName + " time=" + time);
 
@@ -95,7 +97,9 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .putExtra("dosage", dosage)
                 .putExtra("instructions", instructions)
                 .putExtra("time", time)
-                .putExtra("request_code", requestCode);
+                .putExtra("request_code", requestCode)
+                .putExtra("alarm_sound", alarmSound)
+                .putExtra("alarm_vibrate", alarmVibrate);
 
         PendingIntent fullScreenPi = PendingIntent.getActivity(
                 context,

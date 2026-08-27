@@ -15,6 +15,7 @@ export function Modal({ isOpen, onClose, title, children, centered = false }: Mo
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Dimmed backdrop */}
           <motion.div
             className="fixed inset-0 bg-black/35 z-50"
             initial={{ opacity: 0 }}
@@ -25,6 +26,7 @@ export function Modal({ isOpen, onClose, title, children, centered = false }: Mo
             style={{ backdropFilter: 'blur(3px)' }}
           />
           {centered ? (
+            /* Centered dialog */
             <motion.div
               className="fixed inset-0 z-50 flex items-center justify-center p-6"
               initial={{ opacity: 0 }}
@@ -57,6 +59,7 @@ export function Modal({ isOpen, onClose, title, children, centered = false }: Mo
               </motion.div>
             </motion.div>
           ) : (
+            /* Bottom sheet */
             <motion.div
               className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md"
               initial={{ y: '100%' }}

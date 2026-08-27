@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
@@ -6,6 +7,7 @@ import {
   CalendarDays,
   ScanLine,
   BriefcaseMedical,
+  LogOut,
 } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
 import {
@@ -13,7 +15,8 @@ import {
   useLogMedicationAction,
 } from '@/hooks/useMedicationLogs';
 import { snoozeReminder, cancelReminder } from '@/services/notifications';
-import { LoadingState, ErrorState, Button } from '@/components/common';
+import { useAuthStore } from '@/store/authStore';
+import { LoadingState, ErrorState, Button, Modal } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import { getTodayISO } from '@/utils/format';
 
@@ -29,6 +32,10 @@ export function HomePage() {
   const { data: medicines, isLoading, error, refetch } = useMedicines();
   const { data: todayLogs } = useTodayLogs();
   const logAction = useLogMedicationAction();
+  const { user, signOut } = useAuthStore();
+
+  // Account modal — opened from the header profile icon
+  const [showAccountModal, setShowAccountModal] = useState(false);
 
   const today = getTodayISO();
 
@@ -96,14 +103,16 @@ export function HomePage() {
     });
   };
 
+  const handleSignOut = async () => {
+    setShowAccountModal(false);
+    await signOut();
+    navigate('/');
+  };
+
   if (isLoading) {
     return (
-      <div className="px-3 pt-8 font-alarm">
-        <div className="space-y-2 mb-6">
-          <div className="skeleton h-3 w-32" />
-          <div className="skeleton h-8 w-48" />
-        </div>
-        <LoadingState variant="cards" label="Loading your dashboard..." />
+      <div className="px-3 pt-8">
+        <LoadingState label="Loading your dashboard..." />
       </div>
     );
   }
@@ -142,6 +151,7 @@ export function HomePage() {
             </button>
             <button
               type="button"
+              onClick={() => setShowAccountModal(true)}
               className="w-9 h-9 flex items-center justify-center text-text-secondary hover:text-text active:scale-95 transition-all bg-surface border border-border shadow-card rounded-xl"
               aria-label="Profile"
             >
@@ -150,6 +160,34 @@ export function HomePage() {
           </div>
         </div>
       </header>
+
+      {/* ===== Account modal — same sheet style as Add Medicine ===== */}
+      <Modal
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
+        title="Account"
+      >
+        {user && (
+          <div className="space-y-5">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shrink-0">
+                <span className="text-white font-semibold text-[17px]">
+                  {user.email?.charAt(0).toUpperCase() ?? 'U'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[15px] font-medium text-text truncate">
+                  {user.email}
+                </p>
+                <p className="text-[13px] text-secondary">Signed in</p>
+              </div>
+            </div>
+            <Button variant="outline" fullWidth onClick={handleSignOut}>
+              <LogOut className="w-4 h-4" strokeWidth={2} /> Sign Out
+            </Button>
+          </div>
+        )}
+      </Modal>
 
       {/* ===== Reminder Companion — premium hero design card ===== */}
       <div className="mb-3">

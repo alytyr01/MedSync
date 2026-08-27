@@ -3,13 +3,11 @@ import {
   ArrowLeft,
   Users,
   Info,
-  LogOut,
   Shield,
   ChevronRight,
 } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useAuthStore } from '@/store/authStore';
-import { Card, Toggle, Button } from '@/components/common';
+import { Card, Toggle } from '@/components/common';
 import { APP_NAME, APP_VERSION } from '@/constants';
 import { requestNotificationPermission } from '@/services/notifications';
 import { clearPushSubscription } from '@/services/push-subscriptions';
@@ -31,8 +29,7 @@ function SettingsSection({
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { settings, updateSettings, toggleDarkMode } = useSettingsStore();
-  const { user, signOut } = useAuthStore();
+  const { settings, updateSettings } = useSettingsStore();
 
   const handleNotificationsToggle = async (enabled: boolean) => {
     if (enabled) {
@@ -45,11 +42,6 @@ export function SettingsPage() {
       await clearPushSubscription();
     }
     updateSettings({ notificationsEnabled: enabled });
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
   };
 
   return (
@@ -67,7 +59,7 @@ export function SettingsPage() {
         </h1>
       </header>
 
-      <div className="space-y-8">
+      <div className="space-y-5">
         <SettingsSection title="Notifications">
           <Toggle
             checked={settings.notificationsEnabled}
@@ -94,15 +86,6 @@ export function SettingsPage() {
             onChange={(checked) => updateSettings({ lowStockAlerts: checked })}
             label="Low Stock Alerts"
             description="Notify when medicine stock is running low"
-          />
-        </SettingsSection>
-
-        <SettingsSection title="Appearance">
-          <Toggle
-            checked={settings.darkMode}
-            onChange={toggleDarkMode}
-            label="Dark Mode"
-            description="Use dark theme throughout the app"
           />
         </SettingsSection>
 
@@ -153,28 +136,7 @@ export function SettingsPage() {
           </div>
         </SettingsSection>
 
-        {user && (
-          <SettingsSection title="Account">
-            <div className="flex items-center gap-3.5 py-3.5">
-              <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-white font-semibold">
-                  {user.email?.charAt(0).toUpperCase() ?? 'U'}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-medium text-text truncate">
-                  {user.email}
-                </p>
-                <p className="text-[13px] text-secondary">Signed in</p>
-              </div>
-            </div>
-            <div className="pt-3 pb-2">
-              <Button variant="outline" fullWidth onClick={handleSignOut}>
-                <LogOut className="w-4 h-4" strokeWidth={2} /> Sign Out
-              </Button>
-            </div>
-          </SettingsSection>
-        )}
+
       </div>
     </div>
   );

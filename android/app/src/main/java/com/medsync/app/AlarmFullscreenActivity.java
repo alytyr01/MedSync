@@ -64,6 +64,8 @@ public class AlarmFullscreenActivity extends Activity {
     private String instructions;
     private String scheduledTime;
     private int requestCode;
+    private boolean alarmSound = true;
+    private boolean alarmVibrate = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +102,8 @@ public class AlarmFullscreenActivity extends Activity {
 
         acquireWakeLock();
         startClock();
-        playRingtone();
-        startVibrate();
+        if (alarmSound) playRingtone();
+        if (alarmVibrate) startVibrate();
     }
 
     @Override
@@ -135,6 +137,8 @@ public class AlarmFullscreenActivity extends Activity {
         instructions = intent.getStringExtra("instructions");
         scheduledTime = intent.getStringExtra("time");
         requestCode = intent.getIntExtra("request_code", -1);
+        alarmSound = intent.getBooleanExtra("alarm_sound", true);
+        alarmVibrate = intent.getBooleanExtra("alarm_vibrate", true);
 
         if (medicineName == null || medicineName.isEmpty()) medicineName = "Medication";
         if (dosage == null) dosage = "";
@@ -257,7 +261,7 @@ public class AlarmFullscreenActivity extends Activity {
     private void restoreAudioAfterError() {
         handler.postDelayed(() -> {
             if (!isFinishing() && !isDestroyed()) {
-                playRingtone();
+                if (alarmSound) playRingtone();
             }
         }, 1000);
     }
@@ -341,7 +345,9 @@ public class AlarmFullscreenActivity extends Activity {
                 instructions,
                 scheduledTime,
                 snoozeCode,
-                triggerAt
+                triggerAt,
+                alarmSound,
+                alarmVibrate
         );
 
         emitAction("snoozed:" + minutes);

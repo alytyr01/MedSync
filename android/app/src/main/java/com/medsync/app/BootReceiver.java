@@ -50,7 +50,9 @@ public class BootReceiver extends BroadcastReceiver {
                         a.optString("dosage", ""),
                         a.optString("instructions", ""),
                         a.getString("time"),
-                        a.getInt("request_code")
+                        a.getInt("request_code"),
+                        a.optBoolean("sound", true),
+                        a.optBoolean("vibrate", true)
                 );
                 count++;
             } catch (Exception e) {

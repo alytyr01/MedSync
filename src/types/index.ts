@@ -154,7 +154,6 @@ export interface AppSettings {
   reminderSound: boolean;
   vibration: boolean;
   lowStockAlerts: boolean;
-  darkMode: boolean;
 }
 
 // ===== API Response Types =====

@@ -132,7 +132,7 @@ export function ContactsPage() {
 
           {/* Status */}
           <div className="mt-5 flex items-center gap-2 bg-mint-soft rounded-[14px] px-4 py-3">
-            <div className="w-2 h-2 rounded-full bg-success animate-soft-pulse" />
+            <div className="w-2 h-2 rounded-full bg-success" />
             <span className="text-[13px] font-semibold text-mint-deep">
               Available
             </span>

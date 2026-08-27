@@ -11,6 +11,9 @@ export function useMedicationLogs(startDate?: string, endDate?: string) {
   return useQuery({
     queryKey: [QUERY_KEYS.logs, startDate, endDate],
     queryFn: () => getMedicationLogs(startDate, endDate),
+    // Keep the previous range's data visible while the next range loads,
+    // so switching 7D / 30D / 90D never flashes a loading state.
+    placeholderData: (previousData) => previousData,
   });
 }
 

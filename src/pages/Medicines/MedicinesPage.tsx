@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Pill, Plus, Search } from "lucide-react";
 import { useMedicines, useCreateMedicine } from "@/hooks/useMedicines";
 import { useInventory } from "@/hooks/useInventory";
-import { Input, Modal, ErrorState, EmptyState } from "@/components/common";
+import { Input, Modal, ErrorState, EmptyState, LoadingState } from "@/components/common";
 import { MedicineCard } from "@/components/medicine/MedicineCard";
 import { MedicineDetailSheet } from "@/components/medicine/MedicineDetailSheet";
 import { MedicineForm } from "@/components/forms/MedicineForm";
@@ -148,25 +148,7 @@ export function MedicinesPage() {
         ))}
       </div>
 
-      {isLoading && (
-        <div
-          className="premium-card overflow-hidden divide-y divide-border-subtle"
-          aria-label="Loading medicines..."
-        >
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-3">
-              <div className="w-9 h-9 shrink-0 rounded-[10px] overflow-hidden">
-                <div className="skeleton w-full h-full" />
-              </div>
-              <div className="flex-1 space-y-1.5 min-w-0">
-                <div className="skeleton h-3.5 w-1/3" />
-                <div className="skeleton h-3 w-1/2" />
-              </div>
-              <div className="skeleton h-3.5 w-10" />
-            </div>
-          ))}
-        </div>
-      )}
+      {isLoading && <LoadingState label="Loading medicines..." />}
 
       {error && (
         <ErrorState

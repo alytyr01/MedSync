@@ -1,8 +1,6 @@
-import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import type { HTMLMotionProps } from 'framer-motion';
+import type { HTMLAttributes, ReactNode } from 'react';
 
-interface CardProps extends HTMLMotionProps<'div'> {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   interactive?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
@@ -42,19 +40,15 @@ export function Card({
 
   if (interactive) {
     return (
-      <motion.div
-        whileTap={{ scale: 0.98 }}
-        className={baseClasses}
-        {...props}
-      >
+      <div className={baseClasses} {...props}>
         {children}
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div className={baseClasses} {...props}>
+    <div className={baseClasses} {...props}>
       {children}
-    </motion.div>
+    </div>
   );
 }

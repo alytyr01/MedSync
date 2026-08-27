@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { processPrescriptionImage } from '@/services/ocr';
 import { useCreateMedicine } from '@/hooks/useMedicines';
@@ -124,11 +123,7 @@ export function ScanPage() {
 
   return (
     <div className="px-5">
-      <motion.header
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 pt-7 pb-5"
-      >
+      <header className="flex items-center gap-3 pt-7 pb-5">
         <button
           onClick={() => navigate(-1)}
           className="w-9 h-9 -ml-2 rounded-full flex items-center justify-center text-secondary hover:bg-surface-muted transition-colors"
@@ -139,7 +134,7 @@ export function ScanPage() {
         <h1 className="text-[26px] font-bold text-text tracking-tight">
           Scan Prescription with AI
         </h1>
-      </motion.header>
+      </header>
       <p className="text-[13px] text-text-secondary -mt-3 mb-5 leading-relaxed">
         Take a photo of your prescription and our AI will automatically extract
         your medicines, dosage, and schedule.
@@ -165,11 +160,7 @@ export function ScanPage() {
 
       {/* Processing AI */}
       {scanning && !scanResult && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-6"
-        >
+        <div className="mt-6">
           <LoadingState label="Analyzing prescription with Gemini AI..." />
           {/* Pipeline progress indicator */}
           <div className="mt-5 premium-card p-5 space-y-3">
@@ -190,7 +181,7 @@ export function ScanPage() {
                       i < currentStageIndex
                         ? 'bg-success/10 text-success'
                         : i === currentStageIndex
-                          ? 'bg-primary-soft text-primary animate-soft-pulse'
+                          ? 'bg-primary-soft text-primary'
                           : 'bg-surface-muted text-text-tertiary'
                     }
                   `}
@@ -207,16 +198,12 @@ export function ScanPage() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Review & edit */}
       {scanResult && !scanning && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-4"
-        >
+        <div className="mt-4">
           <ScanResult
             medicines={scanResult.medicines}
             confidence={scanResult.confidence}
@@ -225,7 +212,7 @@ export function ScanPage() {
             onSaveAll={handleSaveAll}
             saving={saving}
           />
-        </motion.div>
+        </div>
       )}
 
       {/* Edit Medicine Modal */}

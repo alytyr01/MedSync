@@ -46,9 +46,18 @@ interface AlarmPlugin {
     dosage: string;
     instructions: string;
     time: string;
+    /** Play the alarm ringtone while the full-screen alarm is up */
+    sound: boolean;
+    /** Vibrate while the full-screen alarm is up */
+    vibrate: boolean;
   }): Promise<{ requestCode: number }>;
   cancelAlarm(options: { medicineId: string; time: string }): Promise<void>;
   cancelAllAlarms(): Promise<void>;
+  /** Local low-stock restock nudge (own Android notification channel) */
+  showLowStockNotification(options: {
+    medicineName: string;
+    remaining: number;
+  }): Promise<void>;
   checkPermissions(): Promise<AlarmPermissions>;
   requestPermissions(): Promise<AlarmPermissions>;
   addListener(
@@ -67,7 +76,9 @@ function getPlugin(): AlarmPlugin | null {
 
 export async function scheduleNativeAlarm(
   medicine: Medicine,
-  time: string
+  time: string,
+  sound: boolean,
+  vibrate: boolean
 ): Promise<void> {
   const plugin = getPlugin();
   if (!plugin) return;
@@ -78,9 +89,50 @@ export async function scheduleNativeAlarm(
       dosage: medicine.dosage,
       instructions: medicine.instructions ?? '',
       time,
+      sound,
+      vibrate,
     });
   } catch (error) {
     console.error('Failed to schedule native alarm:', error);
+  }
+}
+
+// ===== Low stock alerts =================================================
+
+/**
+ * Local "running low" nudge — native notification on Android, browser
+ * notification on web. Deduplication/threshold logic lives in
+ * useLowStockAlerts; this wrapper only handles delivery.
+ */
+export async function notifyLowStock(
+  medicineName: string,
+  remaining: number
+): Promise<void> {
+  const unit = remaining === 1 ? 'dose' : 'doses';
+  const title = `${medicineName} is running low`;
+  const body = `About ${remaining} ${unit} left — time to refill.`;
+
+  const plugin = getPlugin();
+  if (plugin) {
+    try {
+      await plugin.showLowStockNotification({
+        medicineName,
+        remaining,
+      });
+      return;
+    } catch (error) {
+      console.error('Failed to show low stock notification:', error);
+    }
+  }
+
+  // Web fallback
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, {
+      body,
+      tag: `medsync-low-stock-${medicineName}`,
+      icon: '/pwa-icons/pwa-192x192.png',
+      badge: '/pwa-icons/pwa-192x192.png',
+    });
   }
 }
 

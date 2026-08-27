@@ -6,7 +6,6 @@ import { STORAGE_KEYS } from '@/constants';
 interface SettingsState {
   settings: AppSettings;
   updateSettings: (partial: Partial<AppSettings>) => void;
-  toggleDarkMode: () => void;
   resetSettings: () => void;
 }
 
@@ -15,7 +14,6 @@ const defaultSettings: AppSettings = {
   reminderSound: true,
   vibration: true,
   lowStockAlerts: true,
-  darkMode: false,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -26,14 +24,6 @@ export const useSettingsStore = create<SettingsState>()(
       updateSettings: (partial) =>
         set((state) => ({
           settings: { ...state.settings, ...partial },
-        })),
-
-      toggleDarkMode: () =>
-        set((state) => ({
-          settings: {
-            ...state.settings,
-            darkMode: !state.settings.darkMode,
-          },
         })),
 
       resetSettings: () => set({ settings: defaultSettings }),

@@ -136,16 +136,9 @@ export function HistoryPage() {
     b.localeCompare(a)
   );
 
-  if (isLoading) return <LoadingState variant="cards" label="Loading schedule..." />;
-
-  if (error) {
-    return (
-      <ErrorState
-        message="Failed to load medication history"
-        onRetry={() => refetch()}
-      />
-    );
-  }
+  // Inline loading indicator for the very first load only. Range switches
+  // reuse the previous range's data (placeholder), so the page never wipes.
+  const initialLoading = isLoading && !logs;
 
   return (
     <div className="px-3">
@@ -212,7 +205,15 @@ export function HistoryPage() {
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {initialLoading ? (
+        /* First-load spinner lives in the content zone only */
+        <LoadingState label="Loading schedule..." />
+      ) : error ? (
+        <ErrorState
+          message="Failed to load medication history"
+          onRetry={() => refetch()}
+        />
+      ) : items.length === 0 ? (
         <EmptyState
           title="No medication history"
           description="Your medication logs will appear here as you take your medicines."

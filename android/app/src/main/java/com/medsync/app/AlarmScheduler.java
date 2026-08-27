@@ -50,12 +50,14 @@ public class AlarmScheduler {
             String dosage,
             String instructions,
             String time,
-            int requestCode
+            int requestCode,
+            boolean sound,
+            boolean vibrate
     ) {
         Calendar trigger = nextOccurrence(time);
         if (trigger == null) return;
         scheduleAlarmAt(context, medicineId, medicineName, dosage, instructions,
-                time, requestCode, trigger.getTimeInMillis());
+                time, requestCode, trigger.getTimeInMillis(), sound, vibrate);
     }
 
     /**
@@ -69,7 +71,9 @@ public class AlarmScheduler {
             String instructions,
             String originalTime,
             int requestCode,
-            long triggerAtMillis
+            long triggerAtMillis,
+            boolean sound,
+            boolean vibrate
     ) {
         if (medicineId == null) return;
 
@@ -83,6 +87,8 @@ public class AlarmScheduler {
                 .putExtra("dosage", dosage != null ? dosage : "")
                 .putExtra("instructions", instructions != null ? instructions : "")
                 .putExtra("time", originalTime != null ? originalTime : "")
+                .putExtra("alarm_sound", sound)
+                .putExtra("alarm_vibrate", vibrate)
                 .putExtra("request_code", requestCode);
 
         PendingIntent pi = PendingIntent.getBroadcast(
@@ -174,7 +180,9 @@ public class AlarmScheduler {
             String dosage,
             String instructions,
             String time,
-            int requestCode
+            int requestCode,
+            boolean sound,
+            boolean vibrate
     ) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         try {
@@ -195,6 +203,8 @@ public class AlarmScheduler {
             alarm.put("instructions", instructions != null ? instructions : "");
             alarm.put("time", time);
             alarm.put("request_code", requestCode);
+            alarm.put("sound", sound);
+            alarm.put("vibrate", vibrate);
             filtered.put(alarm);
 
             prefs.edit().putString(KEY_ALARMS, filtered.toString()).apply();

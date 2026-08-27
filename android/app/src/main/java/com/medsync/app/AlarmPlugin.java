@@ -2,6 +2,8 @@ package com.medsync.app;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -82,6 +85,68 @@ public class AlarmPlugin extends Plugin {
         }
     }
 
+    // ===== Low stock ======================================================
+
+    /**
+     * Posts a local "running low" nudge on its own notification channel so
+     * users can mute stock reminders independently of the alarm channel.
+     * Called from useLowStockAlerts when inventory crosses a threshold and
+     * the Low Stock Alerts setting is enabled.
+     */
+    @PluginMethod
+    public void showLowStockNotification(PluginCall call) {
+        Context context = getContext();
+        String medicineName = call.getString("medicineName");
+        Integer remaining = call.getInt("remaining");
+        if (medicineName == null || medicineName.isEmpty()) {
+            medicineName = "A medicine";
+        }
+        int left = remaining != null ? remaining : 0;
+
+        NotificationManager nm =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null) {
+            call.resolve();
+            return;
+        }
+
+        final String channelId = "medsync_low_stock";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "Low stock alerts",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("Reminders to refill medicines running low");
+            nm.createNotificationChannel(channel);
+        }
+
+        String title = medicineName + " is running low";
+        String text = "About " + left + " dose" + (left == 1 ? "" : "s")
+                + " left — time to refill.";
+
+        Notification.Builder builder =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                        ? new Notification.Builder(context, channelId)
+                        : new Notification.Builder(context);
+
+        Notification notification = builder
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(new Notification.BigTextStyle().bigText(text))
+                .setAutoCancel(true)
+                .build();
+
+        try {
+            nm.notify(("low-" + medicineName).hashCode(), notification);
+            call.resolve();
+        } catch (SecurityException e) {
+            // POST_NOTIFICATIONS not granted yet — silently skip.
+            Log.w("MedSyncAlarm", "Low stock alert skipped (no permission)", e);
+            call.resolve();
+        }
+    }
+
     // ===== Scheduling =====================================================
 
     @PluginMethod
@@ -92,6 +157,8 @@ public class AlarmPlugin extends Plugin {
         String dosage = call.getString("dosage");
         String instructions = call.getString("instructions");
         String time = call.getString("time");
+        boolean sound = call.getBoolean("sound", true);
+        boolean vibrate = call.getBoolean("vibrate", true);
 
         if (medicineId == null || time == null) {
             call.reject("medicineId and time are required");
@@ -107,7 +174,9 @@ public class AlarmPlugin extends Plugin {
                 dosage != null ? dosage : "",
                 instructions != null ? instructions : "",
                 time,
-                requestCode
+                requestCode,
+                sound,
+                vibrate
         );
 
         // Persist for rescheduling after reboot.
@@ -118,7 +187,9 @@ public class AlarmPlugin extends Plugin {
                 dosage,
                 instructions,
                 time,
-                requestCode
+                requestCode,
+                sound,
+                vibrate
         );
 
         JSObject result = new JSObject();

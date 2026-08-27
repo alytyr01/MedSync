@@ -2,6 +2,7 @@
 import { Home, Pill, ScanLine, Clock, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useReminderScheduler } from '@/hooks/useReminderScheduler';
+import { useLowStockAlerts } from '@/hooks/useLowStockAlerts';
 
 interface NavItem {
   path: string;
@@ -60,6 +61,8 @@ export function MobileLayout() {
 
   // Keep native notifications in sync with medicines
   useReminderScheduler();
+  // Fire low-stock refill nudges (respects the Low Stock Alerts setting)
+  useLowStockAlerts();
 
   // Hide bottom nav on auth (medicine details open as a bottom sheet now)
   const hideNav = location.pathname.startsWith('/auth');

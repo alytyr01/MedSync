@@ -31,6 +31,8 @@ export function useReminderScheduler() {
   const { data: medicines } = useMedicines();
   const { settings } = useSettingsStore();
   const notificationsEnabled = settings.notificationsEnabled;
+  const reminderSound = settings.reminderSound;
+  const vibration = settings.vibration;
   const isNative = Capacitor.isNativePlatform();
   const queryClient = useQueryClient();
 
@@ -61,7 +63,11 @@ export function useReminderScheduler() {
       }
 
       if (medicines && medicines.length > 0) {
-        await scheduleAllMedicineReminders(medicines);
+        await scheduleAllMedicineReminders(
+          medicines,
+          reminderSound,
+          vibration
+        );
       }
     };
 
@@ -72,7 +78,13 @@ export function useReminderScheduler() {
     return () => {
       cancelled = true;
     };
-  }, [medicines, notificationsEnabled, isNative]);
+  }, [
+    medicines,
+    notificationsEnabled,
+    reminderSound,
+    vibration,
+    isNative,
+  ]);
 
   // ===== Record Take / Snooze / Dismiss from the native alarm screen =====
   useEffect(() => {

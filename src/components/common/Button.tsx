@@ -1,12 +1,10 @@
 import { forwardRef } from 'react';
-import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import type { HTMLMotionProps } from 'framer-motion';
+import type { ReactNode, ButtonHTMLAttributes } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
-interface ButtonProps extends HTMLMotionProps<'button'> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
@@ -48,14 +46,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     return (
-      <motion.button
+      <button
         ref={ref}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.15 }}
         className={`
           inline-flex items-center justify-center gap-2
-          font-semibold transition-all duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30
+          font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30
           disabled:opacity-45 disabled:cursor-not-allowed
           ${variantClasses[variant]}
           ${sizeClasses[size]}
@@ -87,7 +82,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           </svg>
         )}
         {children}
-      </motion.button>
+      </button>
     );
   }
 );
