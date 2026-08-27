@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { X, SwitchCamera, Upload, ImageOff } from 'lucide-react';
+import { X, Upload, ImageOff, Zap, ZapOff } from 'lucide-react';
 
 interface CameraPreviewProps {
   open: boolean;
@@ -24,11 +24,13 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [status, setStatus] = useState<CamStatus>('starting');
   const [errorMsg, setErrorMsg] = useState('');
-  const [facing, setFacing] = useState<'environment' | 'user'>('environment');
+  // Best-effort flashlight via the `torch` constraint on the active track
+  const [flashOn, setFlashOn] = useState(false);
 
   const stopStream = () => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    setFlashOn(false);
   };
 
   // Component-level cancellation flag so `start` is safe to call from the
@@ -44,7 +46,7 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
       }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: { ideal: facing },
+          facingMode: { ideal: 'environment' },
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
@@ -90,13 +92,10 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
       cancelledRef.current = true;
       stopStream();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- facing/start handled via ref
-  }, [open, facing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- start handled via ref
+  }, [open]);
 
   if (!open) return null;
-
-  const flip = () =>
-    setFacing((f) => (f === 'environment' ? 'user' : 'environment'));
 
   const capture = () => {
     const video = videoRef.current;
@@ -127,6 +126,20 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
   };
 
   const openFilePicker = () => fileRef.current?.click();
+
+  const toggleFlash = async () => {
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (!track) return;
+    const target = !flashOn;
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: target } as MediaTrackConstraints],
+      });
+      setFlashOn(target);
+    } catch {
+      /* torch unsupported on this device/browser — silently ignore */
+    }
+  };
 
   const onFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -171,7 +184,26 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
         <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-white/85">
           Scan Prescription
         </span>
-        <span className="w-9 h-9" />
+        {status === 'ready' ? (
+          <button
+            type="button"
+            onClick={toggleFlash}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+              flashOn
+                ? 'bg-yellow-400 text-black'
+                : 'bg-white/10 text-white'
+            }`}
+            aria-label={flashOn ? 'Turn flashlight off' : 'Turn flashlight on'}
+          >
+            {flashOn ? (
+              <Zap className="w-4 h-4" strokeWidth={2} fill="currentColor" />
+            ) : (
+              <ZapOff className="w-4 h-4" strokeWidth={2} />
+            )}
+          </button>
+        ) : (
+          <span className="w-9 h-9" />
+        )}
       </div>
 
       {status === 'ready' && (
@@ -233,6 +265,7 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
       {/* Bottom controls */}
       {status === 'ready' && (
         <div className="relative z-10 mt-auto flex items-center justify-between px-10 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          {/* Upload fallback sits opposite the shutter */}
           <button
             type="button"
             onClick={openFilePicker}
@@ -251,14 +284,7 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
             <span className="w-[58px] h-[58px] rounded-full bg-white" />
           </button>
 
-          <button
-            type="button"
-            onClick={flip}
-            className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white"
-            aria-label="Switch camera"
-          >
-            <SwitchCamera className="w-5 h-5" strokeWidth={2} />
-          </button>
+          <span className="w-11 h-11" />
         </div>
       )}
 
