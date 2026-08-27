@@ -123,11 +123,14 @@ export function HomePage() {
     <div className="px-3 pb-2 font-alarm">
       {/* ===== Compact Header — Premium ===== */}
       <header className="pt-5 pb-4">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <h1 className="text-[22px] font-bold text-text tracking-tight leading-tight">
               {getGreeting()}, Anessa
             </h1>
+            <p className="text-[13px] text-text-secondary mt-1">
+              Stay on track with your meds today.
+            </p>
           </div>
           <div className="flex items-center gap-1 ml-auto shrink-0">
             <button
