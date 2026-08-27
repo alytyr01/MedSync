@@ -97,20 +97,9 @@ export function MedicinesPage() {
       {/* ===== Hero Header ===== */}
       <header className="pt-7 pb-5">
         <p className="eyebrow mb-1.5">Medicine Cabinet</p>
-        <div className="flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-[28px] font-bold text-text tracking-tight leading-tight">
-              My Medicines
-            </h1>
-          </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="w-11 h-11 rounded-[16px] bg-primary text-white flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200 shadow-button shrink-0"
-            aria-label="Add medicine"
-          >
-            <Plus className="w-5 h-5" strokeWidth={2} />
-          </button>
-        </div>
+        <h1 className="text-[28px] font-bold text-text tracking-tight leading-tight">
+          My Medicines
+        </h1>
       </header>
 
       {/* ===== Search ===== */}
@@ -216,6 +205,25 @@ export function MedicinesPage() {
           })}
         </div>
       )}
+
+      {/* Extra breathing room so content clears the floating Add + Scan stack */}
+      <div className="h-6" />
+
+      {/* ===== Floating Add button — stacked above the Scan nav item ===== */}
+      <div
+        className="fixed inset-x-0 z-30"
+        style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 84px)" }}
+      >
+        <div className="max-w-md mx-auto px-4 flex justify-end">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="w-16 h-16 bg-primary text-white rounded-[18px] shadow-float ring-1 ring-white/10 flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200"
+            aria-label="Add medicine"
+          >
+            <Plus className="w-7 h-7" strokeWidth={2} />
+          </button>
+        </div>
+      </div>
 
       <Modal
         isOpen={showAddModal}
