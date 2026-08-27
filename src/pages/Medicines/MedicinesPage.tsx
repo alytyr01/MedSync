@@ -112,7 +112,7 @@ export function MedicinesPage() {
       </header>
 
       {/* ===== Search ===== */}
-      <div className="mb-4 animate-fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="mb-4">
         <Input
           search
           placeholder="Search medicines..."
@@ -199,7 +199,7 @@ export function MedicinesPage() {
       )}
 
       {!isLoading && !error && filteredMedicines.length > 0 && (
-        <div className="premium-card overflow-hidden divide-y divide-border-subtle animate-fade-up">
+        <div className="premium-card overflow-hidden divide-y divide-border-subtle">
           {filteredMedicines.map((medicine) => {
             const inv = inventoryByMedicine.get(medicine.id);
             return (
