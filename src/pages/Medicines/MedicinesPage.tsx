@@ -105,10 +105,10 @@ export function MedicinesPage() {
     <div className="px-3">
       {/* ===== Hero Header ===== */}
       <header className="pt-7 pb-5">
-        <p className="eyebrow mb-1.5">Medicine Cabinet</p>
         <h1 className="text-[28px] font-bold text-text tracking-tight leading-tight">
           My Medicines
         </h1>
+        <p className="eyebrow mt-1.5">Medicine Cabinet</p>
       </header>
 
       {/* ===== Search ===== */}

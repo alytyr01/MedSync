@@ -8,8 +8,14 @@ import {
   ScanLine,
   BriefcaseMedical,
   LogOut,
+  AlertTriangle,
+  Package,
+  XCircle,
+  Clock,
+  CheckCircle2,
 } from 'lucide-react';
 import { useMedicines } from '@/hooks/useMedicines';
+import { useInventory } from '@/hooks/useInventory';
 import {
   useTodayLogs,
   useLogMedicationAction,
@@ -18,7 +24,7 @@ import { snoozeReminder, cancelReminder } from '@/services/notifications';
 import { useAuthStore } from '@/store/authStore';
 import { LoadingState, ErrorState, Button, Modal } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
-import { getTodayISO } from '@/utils/format';
+import { getTodayISO, formatTime } from '@/utils/format';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -27,15 +33,29 @@ function getGreeting(): string {
   return 'Good Evening';
 }
 
+/* Tone chips for the alert-center rows */
+const alertToneStyles: Record<
+  'danger' | 'warning' | 'missed' | 'upcoming',
+  { bg: string; color: string; icon: typeof AlertTriangle }
+> = {
+  danger: { bg: 'bg-rose-soft', color: 'text-rose-deep', icon: AlertTriangle },
+  warning: { bg: 'bg-yellow-soft', color: 'text-yellow-deep', icon: Package },
+  missed: { bg: 'bg-rose-soft', color: 'text-rose-deep', icon: XCircle },
+  upcoming: { bg: 'bg-blue-soft', color: 'text-blue-deep', icon: Clock },
+};
+
 export function HomePage() {
   const navigate = useNavigate();
   const { data: medicines, isLoading, error, refetch } = useMedicines();
   const { data: todayLogs } = useTodayLogs();
   const logAction = useLogMedicationAction();
   const { user, signOut } = useAuthStore();
+  const { data: inventory } = useInventory();
 
   // Account modal — opened from the header profile icon
   const [showAccountModal, setShowAccountModal] = useState(false);
+  // Notifications (alert status) — opened from the header bell icon
+  const [showNotifModal, setShowNotifModal] = useState(false);
 
   const today = getTodayISO();
 
@@ -66,6 +86,62 @@ export function HomePage() {
       !loggedKeys.has(`${r.medicine.id}-${r.time}`)
   );
   const nextReminder = upcomingReminders[0];
+
+  // ===== Alert center (bell icon) — derived live from inventory + logs =====
+  const medMap = new Map((medicines ?? []).map((m) => [m.id, m] as const));
+  const medName = (id: string) => medMap.get(id)?.name ?? 'A medicine';
+
+  type AlertTone = 'danger' | 'warning' | 'missed' | 'upcoming';
+  interface AlertItem {
+    key: string;
+    tone: AlertTone;
+    title: string;
+    sub: string;
+  }
+
+  const alerts: AlertItem[] = [
+    ...(inventory ?? [])
+      .filter((i) => i.remaining_quantity <= 0)
+      .map((i) => ({
+        key: `out-${i.medicine_id}`,
+        tone: 'danger' as AlertTone,
+        title: `${medName(i.medicine_id)} needs restock`,
+        sub: 'No doses left — refill as soon as possible',
+      })),
+    ...(inventory ?? [])
+      .filter(
+        (i) =>
+          i.remaining_quantity > 0 &&
+          i.remaining_quantity <= i.low_stock_threshold
+      )
+      .map((i) => ({
+        key: `low-${i.medicine_id}`,
+        tone: 'warning' as AlertTone,
+        title: `${medName(i.medicine_id)} is running low`,
+        sub: `About ${i.remaining_quantity} left — consider a refill`,
+      })),
+    ...(todayLogs ?? [])
+      .filter((l) => l.status === 'missed')
+      .map((l) => ({
+        key: `missed-${l.id}`,
+        tone: 'missed' as AlertTone,
+        title: `Missed dose — ${medName(l.medicine_id)}`,
+        sub: `Scheduled at ${formatTime(l.scheduled_time.slice(11, 16))}`,
+      })),
+    ...(nextReminder
+      ? [
+          {
+            key: `next-${nextReminder.medicine.id}-${nextReminder.time}`,
+            tone: 'upcoming' as AlertTone,
+            title: `Next dose — ${nextReminder.medicine.name}`,
+            sub: `Today at ${formatTime(nextReminder.time)}`,
+          },
+        ]
+      : []),
+  ];
+
+  const hasActiveAlerts =
+    alerts.filter((a) => a.tone !== 'upcoming').length > 0;
 
   const handleTaken = (medicineId: string, time: string) => {
     // Cancel the native notification for this reminder
@@ -144,10 +220,14 @@ export function HomePage() {
           <div className="flex items-center gap-1 ml-auto shrink-0 -mt-1">
             <button
               type="button"
-              className="w-9 h-9 flex items-center justify-center text-text-secondary hover:text-text active:scale-95 transition-all bg-surface border border-border shadow-card rounded-xl"
-              aria-label="Notifications"
+              onClick={() => setShowNotifModal(true)}
+              className="relative w-9 h-9 flex items-center justify-center text-text-secondary hover:text-text active:scale-95 transition-all bg-surface border border-border shadow-card rounded-xl"
+              aria-label={`Notifications${hasActiveAlerts ? ' — needs attention' : ''}`}
             >
               <Bell className="w-[18px] h-[18px]" strokeWidth={2} />
+              {hasActiveAlerts && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-danger ring-2 ring-background" />
+              )}
             </button>
             <button
               type="button"
@@ -185,6 +265,62 @@ export function HomePage() {
             <Button variant="outline" fullWidth onClick={handleSignOut}>
               <LogOut className="w-4 h-4" strokeWidth={2} /> Sign Out
             </Button>
+          </div>
+        )}
+      </Modal>
+
+      {/* ===== Notifications modal — live alert status ===== */}
+      <Modal
+        isOpen={showNotifModal}
+        onClose={() => setShowNotifModal(false)}
+        title="Notifications"
+      >
+        {alerts.length === 0 ? (
+          <div className="flex flex-col items-center text-center py-2 gap-3">
+            <div className="w-12 h-12 rounded-full bg-mint-soft flex items-center justify-center">
+              <CheckCircle2
+                className="w-6 h-6 text-mint-deep"
+                strokeWidth={2}
+              />
+            </div>
+            <div>
+              <p className="text-[15px] font-semibold text-text">
+                You're all caught up
+              </p>
+              <p className="text-[13px] text-text-secondary mt-1 leading-snug">
+                No low stock, missed doses, or upcoming reminders right now.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="divide-y divide-border-subtle">
+            {alerts.map((alert) => {
+              const tone = alertToneStyles[alert.tone];
+              const Icon = tone.icon;
+              return (
+                <div
+                  key={alert.key}
+                  className="flex items-start gap-3 py-3 first:pt-1 last:pb-1"
+                >
+                  <div
+                    className={`w-9 h-9 rounded-[10px] ${tone.bg} flex items-center justify-center shrink-0`}
+                  >
+                    <Icon
+                      className={`w-4 h-4 ${tone.color}`}
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[14px] font-semibold text-text leading-snug">
+                      {alert.title}
+                    </p>
+                    <p className="text-[12px] text-text-secondary mt-0.5 leading-snug">
+                      {alert.sub}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </Modal>

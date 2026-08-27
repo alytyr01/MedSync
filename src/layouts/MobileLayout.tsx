@@ -64,8 +64,9 @@ export function MobileLayout() {
   // Fire low-stock refill nudges (respects the Low Stock Alerts setting)
   useLowStockAlerts();
 
-  // Hide bottom nav on auth (medicine details open as a bottom sheet now)
-  const hideNav = location.pathname.startsWith('/auth');
+  // Hide bottom nav on auth; /scan goes fully immersive (its own back arrow)
+  const hideNav =
+    location.pathname.startsWith('/auth') || location.pathname === '/scan';
 
   return (
     <div className="min-h-screen bg-background">

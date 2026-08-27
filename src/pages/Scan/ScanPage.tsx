@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { processPrescriptionImage } from '@/services/ocr';
 import { useCreateMedicine } from '@/hooks/useMedicines';
 import { ImageCapture } from '@/components/scanner/ImageCapture';
+import { CameraPreview } from '@/components/scanner/CameraPreview';
 import { ScanResult } from '@/components/scanner/ScanResult';
 import { Modal, LoadingState, ErrorState } from '@/components/common';
 import { MedicineForm } from '@/components/forms/MedicineForm';
@@ -36,6 +37,8 @@ export function ScanPage() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [pipelineStage, setPipelineStage] = useState<PipelineStage>('capture');
+  // Live camera viewfinder opens immediately when entering the scanner
+  const [cameraOpen, setCameraOpen] = useState(true);
 
   const handleImageCaptured = async (data: string) => {
     setError(null);
@@ -54,6 +57,11 @@ export function ScanPage() {
     } finally {
       setScanning(false);
     }
+  };
+
+  const handleCameraCapture = (imageData: string) => {
+    setCameraOpen(false);
+    void handleImageCaptured(imageData);
   };
 
   const handleEditMedicine = (index: number) => {
@@ -123,6 +131,13 @@ export function ScanPage() {
 
   return (
     <div className="px-5">
+      {/* ===== Live camera viewfinder — opens full-screen on entry ===== */}
+      <CameraPreview
+        open={cameraOpen && !scanResult && !error}
+        onClose={() => setCameraOpen(false)}
+        onCaptured={handleCameraCapture}
+      />
+
       <header className="flex items-center gap-3 pt-7 pb-5">
         <button
           onClick={() => navigate(-1)}
@@ -150,10 +165,10 @@ export function ScanPage() {
         />
       )}
 
-      {/* Step 1: Capture image */}
-      {!scanResult && !error && (
+      {/* Step 1: Capture image — card fallback when the viewfinder is closed */}
+      {!scanResult && !error && !cameraOpen && (
         <ImageCapture
-          onImageCaptured={handleImageCaptured}
+          onImageCaptured={handleCameraCapture}
           loading={scanning}
         />
       )}

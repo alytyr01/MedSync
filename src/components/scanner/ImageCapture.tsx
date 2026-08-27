@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Upload, Camera as CameraIcon, ScanLine } from 'lucide-react';
+import { Upload, Camera as CameraIcon, ScanLine, Maximize2, X } from 'lucide-react';
 import { Button, Badge } from '@/components/common';
 import { preprocessImage, type ClientImageQuality } from '@/services/image/enhance';
 
@@ -15,6 +15,7 @@ export function ImageCapture({
   loading = false,
 }: ImageCaptureProps) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [quality, setQuality] = useState<ClientImageQuality | null>(null);
   const [enhanced, setEnhanced] = useState(false);
@@ -26,10 +27,12 @@ export function ImageCapture({
       setQuality(result.quality);
       setEnhanced(result.enhancedApplied);
       setPreview(result.enhanced);
+      setExpanded(true); // jump straight into the full-screen preview
       onImageCaptured(result.enhanced);
     } catch (error) {
       console.error('Failed to preprocess image:', error);
       setPreview(imageData);
+      setExpanded(true);
       onImageCaptured(imageData);
     } finally {
       setProcessing(false);
@@ -114,15 +117,30 @@ export function ImageCapture({
     <div className="space-y-5">
       {preview ? (
         <div className="relative rounded-[16px] overflow-hidden shadow-card">
-          <img
-            src={preview}
-            alt="Prescription preview"
-            className="w-full h-auto block"
-          />
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="block w-full cursor-pointer"
+            aria-label="Open full-screen preview"
+          >
+            <img
+              src={preview}
+              alt="Prescription preview"
+              className="w-full h-auto block"
+            />
+          </button>
           <div className="absolute top-3 left-3 flex gap-2">
             {getQualityBadge()}
             {enhanced && <Badge variant="info">Auto-enhanced</Badge>}
           </div>
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center text-white"
+            aria-label="Expand preview"
+          >
+            <Maximize2 className="w-4 h-4" strokeWidth={2} />
+          </button>
         </div>
       ) : (
         <div className="premium-card p-8 text-center">
@@ -153,6 +171,52 @@ export function ImageCapture({
           <p className="mt-6 text-[12px] text-secondary/70">
             Images are auto-enhanced for better recognition
           </p>
+        </div>
+      )}
+
+      {/* ===== Full-screen scan preview — auto-opens right after capture ===== */}
+      {preview && expanded && (
+        <div className="fixed inset-0 z-[60] bg-black flex flex-col">
+          {/* Top bar — quality badges + collapse */}
+          <div className="flex items-center justify-between gap-2 px-4 pt-[max(1rem,env(safe-area-inset-top))]">
+            <div className="flex gap-2">
+              {getQualityBadge()}
+              {enhanced && <Badge variant="info">Auto-enhanced</Badge>}
+            </div>
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white"
+              aria-label="Close full-screen preview"
+            >
+              <X className="w-5 h-5" strokeWidth={2} />
+            </button>
+          </div>
+
+          {/* The scan, edge-to-edge contained */}
+          <div className="flex-1 min-h-0 flex items-center justify-center p-3">
+            <img
+              src={preview}
+              alt="Prescription scan"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+
+          {/* Status strip */}
+          <div className="flex items-center justify-center gap-2.5 px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            {loading || processing ? (
+              <>
+                <span className="w-4 h-4 rounded-full border-2 border-white/25 border-t-white animate-spin" />
+                <span className="text-[13px] font-medium text-white/85">
+                  Analyzing prescription…
+                </span>
+              </>
+            ) : (
+              <span className="text-[13px] font-medium text-white/70">
+                Scan captured — close to continue
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>

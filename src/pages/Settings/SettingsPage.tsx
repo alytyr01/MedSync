@@ -1,10 +1,6 @@
-import { useNavigate } from 'react-router-dom';
 import {
-  ArrowLeft,
-  Users,
   Info,
   Shield,
-  ChevronRight,
 } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { Card, Toggle } from '@/components/common';
@@ -28,7 +24,6 @@ function SettingsSection({
 }
 
 export function SettingsPage() {
-  const navigate = useNavigate();
   const { settings, updateSettings } = useSettingsStore();
 
   const handleNotificationsToggle = async (enabled: boolean) => {
@@ -46,15 +41,8 @@ export function SettingsPage() {
 
   return (
     <div className="px-3">
-      <header className="flex items-center gap-3 pt-8 pb-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 -ml-2 rounded-full hover:bg-surface-muted transition-colors"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="w-5 h-5" strokeWidth={2} />
-        </button>
-        <h1 className="text-[26px] font-bold text-text tracking-tight">
+      <header className="px-1 pt-8 pb-6">
+        <h1 className="text-[32px] font-bold text-text tracking-tight leading-tight">
           Settings
         </h1>
       </header>
@@ -87,28 +75,6 @@ export function SettingsPage() {
             label="Low Stock Alerts"
             description="Notify when medicine stock is running low"
           />
-        </SettingsSection>
-
-        <SettingsSection title="Emergency">
-          <button
-            onClick={() => navigate('/contacts')}
-            className="w-full flex items-center justify-between py-3.5"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-[14px] bg-blue-soft flex items-center justify-center">
-                <Users className="w-[18px] h-[18px] text-blue-deep" strokeWidth={2} />
-              </div>
-              <div className="text-left">
-                <p className="text-[15px] font-medium text-text">
-                  Emergency Contacts
-                </p>
-                <p className="text-[13px] text-secondary">
-                  Manage your emergency contacts
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary" strokeWidth={2} />
-          </button>
         </SettingsSection>
 
         <SettingsSection title="About">
