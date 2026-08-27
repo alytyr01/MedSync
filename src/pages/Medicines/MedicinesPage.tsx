@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Plus, Search, AlertTriangle, Package } from 'lucide-react';
-import { useMedicines, useCreateMedicine } from '@/hooks/useMedicines';
-import { useInventory } from '@/hooks/useInventory';
-import { PageHeader, Input, Modal, LoadingState, ErrorState, EmptyState } from '@/components/common';
-import { MedicineCard } from '@/components/medicine/MedicineCard';
-import { MedicineForm } from '@/components/forms/MedicineForm';
-import type { MedicineFormData } from '@/utils/validation';
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Pill, Plus, Search } from "lucide-react";
+import { useMedicines, useCreateMedicine } from "@/hooks/useMedicines";
+import { useInventory } from "@/hooks/useInventory";
+import { Input, Modal, ErrorState, EmptyState } from "@/components/common";
+import { MedicineCard } from "@/components/medicine/MedicineCard";
+import { MedicineForm } from "@/components/forms/MedicineForm";
+import type { MedicineFormData } from "@/utils/validation";
 
-type FilterOption = 'all' | 'active' | 'ending';
+type FilterOption = "all" | "active" | "ending";
 
 interface InventoryWithMedicine {
   id: string;
@@ -27,67 +27,94 @@ export function MedicinesPage() {
   const createMedicine = useCreateMedicine();
 
   const [searchParams] = useSearchParams();
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<FilterOption>('all');
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<FilterOption>("all");
   // Auto-open the Add Medicine modal when arriving with ?add=1
   // (e.g. via the "Add Reminder" button on the home page)
   const [showAddModal, setShowAddModal] = useState(
-    () => searchParams.get('add') === '1'
+    () => searchParams.get("add") === "1",
   );
 
   const inventoryItems = (inventory ?? []) as InventoryWithMedicine[];
 
   const filteredMedicines = (medicines ?? []).filter((medicine) => {
-    const matchesSearch = medicine.name.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = medicine.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
     if (!matchesSearch) return false;
 
-    if (filter === 'all') return true;
-    if (filter === 'active') return !medicine.end_date || new Date(medicine.end_date) >= new Date();
-    if (filter === 'ending') {
+    if (filter === "all") return true;
+    if (filter === "active")
+      return !medicine.end_date || new Date(medicine.end_date) >= new Date();
+    if (filter === "ending") {
       if (!medicine.end_date) return false;
-      const daysLeft = (new Date(medicine.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      const daysLeft =
+        (new Date(medicine.end_date).getTime() - Date.now()) /
+        (1000 * 60 * 60 * 24);
       return daysLeft <= 30;
     }
     return true;
   });
 
-  const lowStockCount = inventoryItems.filter(
-    (item) => item.remaining_quantity <= item.low_stock_threshold
+  // Courses still running (no end date, or ending today or later)
+  const activeCourseCount = (medicines ?? []).filter(
+    (m) => !m.end_date || new Date(m.end_date) >= new Date(),
   ).length;
-  const healthyCount = inventoryItems.filter(
-    (item) => item.remaining_quantity > item.low_stock_threshold
-  ).length;
-  const refillCount = inventoryItems.filter(
-    (item) => item.remaining_quantity <= 5
-  ).length;
+
+  // Inventory lookup per medicine (for stock bars on cards)
+  const inventoryByMedicine = new Map(
+    inventoryItems.map((item) => [item.medicine_id, item]),
+  );
+
+  const filterTabs: { key: FilterOption; label: string; count: number }[] = [
+    { key: "all", label: "All", count: (medicines ?? []).length },
+    { key: "active", label: "Active", count: activeCourseCount },
+    {
+      key: "ending",
+      label: "Ending soon",
+      count: (medicines ?? []).filter((medicine) => {
+        if (!medicine.end_date) return false;
+        return (
+          (new Date(medicine.end_date).getTime() - Date.now()) /
+            (1000 * 60 * 60 * 24) <=
+          30
+        );
+      }).length,
+    },
+  ];
 
   const handleAddMedicine = async (data: MedicineFormData) => {
     try {
       await createMedicine.mutateAsync(data);
       setShowAddModal(false);
     } catch (err) {
-      console.error('Failed to add medicine:', err);
+      console.error("Failed to add medicine:", err);
     }
   };
 
   return (
     <div className="px-3">
-      <PageHeader
-        title="My Medicines"
-        subtitle={`${medicines?.length ?? 0} medicines`}
-        action={
+      {/* ===== Hero Header ===== */}
+      <header className="pt-7 pb-5">
+        <p className="eyebrow mb-1.5">Medicine Cabinet</p>
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-[28px] font-bold text-text tracking-tight leading-tight">
+              My Medicines
+            </h1>
+          </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200 shadow-button"
+            className="w-11 h-11 rounded-[16px] bg-primary text-white flex items-center justify-center hover:bg-primary-light active:scale-95 transition-all duration-200 shadow-button shrink-0"
             aria-label="Add medicine"
           >
             <Plus className="w-5 h-5" strokeWidth={2} />
           </button>
-        }
-      />
+        </div>
+      </header>
 
-      {/* Premium Search Bar */}
-      <div className="mb-5">
+      {/* ===== Search ===== */}
+      <div className="mb-4 animate-fade-up" style={{ animationDelay: "60ms" }}>
         <Input
           search
           placeholder="Search medicines..."
@@ -97,24 +124,51 @@ export function MedicinesPage() {
         />
       </div>
 
-      {/* Filter chips — pill-shaped */}
-      <div className="horizontal-scroll mb-6">
-        {(['all', 'active', 'ending'] as FilterOption[]).map((f) => (
+      {/* ===== Filter pills with live counts ===== */}
+      <div className="horizontal-scroll -mx-3 px-3 mb-7">
+        {filterTabs.map((tab) => (
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-5 py-2.5 rounded-pill text-[13px] font-semibold transition-all duration-200 shrink-0 ${
-              filter === f
-                ? 'bg-primary text-white shadow-button'
-                : 'bg-surface text-secondary border border-border hover:border-primary/30'
+            key={tab.key}
+            onClick={() => setFilter(tab.key)}
+            className={`flex items-center gap-2 shrink-0 px-4 py-2 rounded-pill text-[13px] font-semibold transition-all duration-200 active:scale-95 ${
+              filter === tab.key
+                ? "bg-primary text-white shadow-button"
+                : "bg-surface text-secondary border border-border shadow-card hover:border-primary/30"
             }`}
           >
-            {f === 'all' ? 'All' : f === 'active' ? 'Active' : 'Ending Soon'}
+            {tab.label}
+            <span
+              className={`min-w-5 text-center text-[11px] px-1.5 py-0.5 rounded-pill ${
+                filter === tab.key
+                  ? "bg-white/20 text-white"
+                  : "bg-surface-muted text-secondary"
+              }`}
+            >
+              {tab.count}
+            </span>
           </button>
         ))}
       </div>
 
-      {isLoading && <LoadingState variant="cards" label="Loading medicines..." />}
+      {isLoading && (
+        <div
+          className="premium-card overflow-hidden divide-y divide-border-subtle"
+          aria-label="Loading medicines..."
+        >
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <div className="w-9 h-9 shrink-0 rounded-[10px] overflow-hidden">
+                <div className="skeleton w-full h-full" />
+              </div>
+              <div className="flex-1 space-y-1.5 min-w-0">
+                <div className="skeleton h-3.5 w-1/3" />
+                <div className="skeleton h-3 w-1/2" />
+              </div>
+              <div className="skeleton h-3.5 w-10" />
+            </div>
+          ))}
+        </div>
+      )}
 
       {error && (
         <ErrorState
@@ -125,18 +179,20 @@ export function MedicinesPage() {
 
       {!isLoading && !error && filteredMedicines.length === 0 && (
         <EmptyState
-          title={search ? 'No results found' : 'No medicines yet'}
+          icon={<Pill className="w-7 h-7 text-primary" strokeWidth={2} />}
+          title={search ? "No results found" : "No medicines yet"}
           description={
             search
               ? `No medicines match "${search}"`
-              : 'Add your first medicine to start tracking your medication schedule.'
+              : "Add your first medicine to start tracking your medication schedule."
           }
           action={
             !search ? (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="text-sm text-primary font-medium"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-pill bg-primary text-white text-sm font-semibold shadow-button active:scale-95 transition-all duration-200"
               >
+                <Plus className="w-4 h-4" strokeWidth={2} />
                 Add Medicine
               </button>
             ) : undefined
@@ -145,78 +201,19 @@ export function MedicinesPage() {
       )}
 
       {!isLoading && !error && filteredMedicines.length > 0 && (
-        <div className="grid grid-cols-2 gap-4">
-          {filteredMedicines.map((medicine, index) => (
-            <MedicineCard
-              key={medicine.id}
-              medicine={medicine}
-              index={index}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* ===== Inventory Insights ===== */}
-      {!isLoading && !error && (
-        <div className="mt-8">
-          <h2 className="section-title mb-4">Inventory Insights</h2>
-          <div className="premium-card p-6">
-            <div className="space-y-5">
-              <div>
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-orange-deep" strokeWidth={2} />
-                    <span className="text-[14px] font-medium text-text">Low stock</span>
-                  </div>
-                  <span className="text-[14px] font-bold text-orange-deep">
-                    {lowStockCount}
-                  </span>
-                </div>
-                <div className="progress-track">
-                  <div
-                    className="progress-fill bg-warning"
-                    style={{ width: `${inventoryItems.length ? (lowStockCount / inventoryItems.length) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-blue-deep" strokeWidth={2} />
-                    <span className="text-[14px] font-medium text-text">Refill needed</span>
-                  </div>
-                  <span className="text-[14px] font-bold text-blue-deep">
-                    {refillCount}
-                  </span>
-                </div>
-                <div className="progress-track">
-                  <div
-                    className="progress-fill bg-primary-light"
-                    style={{ width: `${inventoryItems.length ? (refillCount / inventoryItems.length) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-mint-deep" strokeWidth={2} />
-                    <span className="text-[14px] font-medium text-text">In stock</span>
-                  </div>
-                  <span className="text-[14px] font-bold text-mint-deep">
-                    {healthyCount}
-                  </span>
-                </div>
-                <div className="progress-track">
-                  <div
-                    className="progress-fill bg-success"
-                    style={{ width: `${inventoryItems.length ? (healthyCount / inventoryItems.length) * 100 : 0}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="premium-card overflow-hidden divide-y divide-border-subtle animate-fade-up">
+          {filteredMedicines.map((medicine) => {
+            const inv = inventoryByMedicine.get(medicine.id);
+            return (
+              <MedicineCard
+                key={medicine.id}
+                medicine={medicine}
+                stockRemaining={inv?.remaining_quantity}
+                totalStock={inv?.total_quantity}
+                lowStockThreshold={inv?.low_stock_threshold}
+              />
+            );
+          })}
         </div>
       )}
 
