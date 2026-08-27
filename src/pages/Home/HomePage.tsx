@@ -123,7 +123,7 @@ export function HomePage() {
     <div className="px-3 pb-2 font-alarm">
       {/* ===== Compact Header — Premium ===== */}
       <header className="pt-5 pb-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h1 className="text-[22px] font-bold text-text tracking-tight leading-tight">
               {getGreeting()}, Anessa
@@ -132,7 +132,7 @@ export function HomePage() {
               Stay on track with your meds today.
             </p>
           </div>
-          <div className="flex items-center gap-1 ml-auto shrink-0">
+          <div className="flex items-center gap-1 ml-auto shrink-0 -mt-1">
             <button
               type="button"
               className="w-9 h-9 flex items-center justify-center text-text-secondary hover:text-text active:scale-95 transition-all bg-surface border border-border shadow-card rounded-xl"
