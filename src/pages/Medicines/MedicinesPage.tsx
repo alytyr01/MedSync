@@ -5,6 +5,7 @@ import { useMedicines, useCreateMedicine } from "@/hooks/useMedicines";
 import { useInventory } from "@/hooks/useInventory";
 import { Input, Modal, ErrorState, EmptyState } from "@/components/common";
 import { MedicineCard } from "@/components/medicine/MedicineCard";
+import { MedicineDetailSheet } from "@/components/medicine/MedicineDetailSheet";
 import { MedicineForm } from "@/components/forms/MedicineForm";
 import type { MedicineFormData } from "@/utils/validation";
 
@@ -34,8 +35,16 @@ export function MedicinesPage() {
   const [showAddModal, setShowAddModal] = useState(
     () => searchParams.get("add") === "1",
   );
+  // Selected card opens the bottom-sheet details (no navigation)
+  const [selectedMedicineId, setSelectedMedicineId] = useState<string | null>(
+    null,
+  );
 
   const inventoryItems = (inventory ?? []) as InventoryWithMedicine[];
+
+  // Derive from the live list so edits/deletes reflect instantly in the sheet
+  const selectedMedicine =
+    (medicines ?? []).find((m) => m.id === selectedMedicineId) ?? null;
 
   const filteredMedicines = (medicines ?? []).filter((medicine) => {
     const matchesSearch = medicine.name
@@ -200,6 +209,7 @@ export function MedicinesPage() {
                 stockRemaining={inv?.remaining_quantity}
                 totalStock={inv?.total_quantity}
                 lowStockThreshold={inv?.low_stock_threshold}
+                onOpen={() => setSelectedMedicineId(medicine.id)}
               />
             );
           })}
@@ -236,6 +246,12 @@ export function MedicinesPage() {
           loading={createMedicine.isPending}
         />
       </Modal>
+
+      {/* ===== Medicine details bottom sheet ===== */}
+      <MedicineDetailSheet
+        medicine={selectedMedicine}
+        onClose={() => setSelectedMedicineId(null)}
+      />
     </div>
   );
 }

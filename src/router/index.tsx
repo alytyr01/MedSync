@@ -5,7 +5,6 @@ import { AuthPage } from '@/pages/Auth/AuthPage';
 import { HomePage } from '@/pages/Home/HomePage';
 import { ScanPage } from '@/pages/Scan/ScanPage';
 import { MedicinesPage } from '@/pages/Medicines/MedicinesPage';
-import { MedicineDetailPage } from '@/pages/Medicines/MedicineDetailPage';
 import { InventoryPage } from '@/pages/Inventory/InventoryPage';
 import { HistoryPage } from '@/pages/History/HistoryPage';
 import { SettingsPage } from '@/pages/Settings/SettingsPage';
@@ -26,7 +25,6 @@ export const router = createBrowserRouter([
           { index: true, element: <HomePage /> },
           { path: 'scan', element: <ScanPage /> },
           { path: 'medicines', element: <MedicinesPage /> },
-          { path: 'medicines/:id', element: <MedicineDetailPage /> },
           { path: 'inventory', element: <InventoryPage /> },
           { path: 'history', element: <HistoryPage /> },
           { path: 'settings', element: <SettingsPage /> },

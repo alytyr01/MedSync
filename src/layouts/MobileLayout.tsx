@@ -61,10 +61,8 @@ export function MobileLayout() {
   // Keep native notifications in sync with medicines
   useReminderScheduler();
 
-  // Hide bottom nav on detail pages
-  const hideNav =
-    location.pathname.startsWith('/medicines/') ||
-    location.pathname.startsWith('/auth');
+  // Hide bottom nav on auth (medicine details open as a bottom sheet now)
+  const hideNav = location.pathname.startsWith('/auth');
 
   return (
     <div className="min-h-screen bg-background">

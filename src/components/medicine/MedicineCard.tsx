@@ -1,5 +1,4 @@
-﻿import { useNavigate } from "react-router-dom";
-import type { KeyboardEvent } from "react";
+﻿import type { KeyboardEvent } from "react";
 import { Pill } from "lucide-react";
 import type { Medicine } from "@/types";
 import { formatTime, formatQuantity, getDaysRemaining } from "@/utils/format";
@@ -10,6 +9,8 @@ interface MedicineCardProps {
   stockRemaining?: number;
   totalStock?: number;
   lowStockThreshold?: number;
+  /** Opens the details sheet (overrides the old route navigation) */
+  onOpen?: () => void;
 }
 
 export function MedicineCard({
@@ -17,8 +18,8 @@ export function MedicineCard({
   stockRemaining,
   totalStock,
   lowStockThreshold = 5,
+  onOpen,
 }: MedicineCardProps) {
-  const navigate = useNavigate();
   const daysRemaining = getDaysRemaining(medicine.end_date);
 
   const times = medicine.schedule_times ?? [];
@@ -45,7 +46,7 @@ export function MedicineCard({
     .filter(Boolean)
     .join(" · ");
 
-  const open = () => navigate(`/medicines/${medicine.id}`);
+  const open = () => onOpen?.();
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();

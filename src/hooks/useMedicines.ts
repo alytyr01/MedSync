@@ -6,7 +6,7 @@ import {
   updateMedicine,
   deleteMedicine,
 } from '@/services/supabase/database';
-import type { Medicine, MedicineFormValues } from '@/types';
+import type { MedicineFormValues } from '@/types';
 import { QUERY_KEYS } from '@/constants';
 
 export function useMedicines() {
@@ -62,9 +62,4 @@ export function useDeleteMedicine() {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.dashboard] });
     },
   });
-}
-
-export function useMedicineDetail(id: string | undefined): Medicine | null {
-  const { data } = useMedicine(id);
-  return data ?? null;
 }

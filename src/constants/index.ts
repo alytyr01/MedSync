@@ -53,7 +53,6 @@ export const ROUTES = {
   home: '/',
   scan: '/scan',
   medicines: '/medicines',
-  medicineDetail: '/medicines/:id',
   inventory: '/inventory',
   history: '/history',
   settings: '/settings',
