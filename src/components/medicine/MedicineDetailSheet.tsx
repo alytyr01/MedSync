@@ -41,7 +41,7 @@ function MetaCell({
   subClassName?: string;
 }) {
   return (
-    <div className="min-w-0 pr-3 first:pl-0 last:pr-0">
+    <div className="min-w-0 px-3 first:pl-0 last:pr-0">
       <Eyebrow>{label}</Eyebrow>
       <p className="mt-1 text-[15px] font-semibold tracking-tight text-text leading-tight break-words">
         {value}
