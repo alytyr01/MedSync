@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
@@ -137,9 +137,13 @@ export function ScanPage() {
           <ArrowLeft className="w-5 h-5" strokeWidth={2} />
         </button>
         <h1 className="text-[26px] font-bold text-text tracking-tight">
-          Scan Prescription
+          Scan Prescription with AI
         </h1>
       </motion.header>
+      <p className="text-[13px] text-text-secondary -mt-3 mb-5 leading-relaxed">
+        Take a photo of your prescription and our AI will automatically extract
+        your medicines, dosage, and schedule.
+      </p>
 
       {error && (
         <ErrorState
