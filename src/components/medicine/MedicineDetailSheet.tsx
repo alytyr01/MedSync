@@ -4,7 +4,7 @@ import { X, Pill, Edit2, RefreshCw } from "lucide-react";
 import type { Medicine } from "@/types";
 import { useUpdateMedicine, useDeleteMedicine } from "@/hooks/useMedicines";
 import { useInventory, useRefillInventory } from "@/hooks/useInventory";
-import { Modal, Button } from "@/components/common";
+import { Modal, Button, Input } from "@/components/common";
 import { MedicineForm } from "@/components/forms/MedicineForm";
 import {
   getDaysRemaining,
@@ -104,6 +104,8 @@ export function MedicineDetailSheet({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRefillModal, setShowRefillModal] = useState(false);
+  // User-editable refill amount — pre-filled with full stock when opening
+  const [refillQuantity, setRefillQuantity] = useState("");
 
   const inventory = medicine
     ? inventoryItems?.find((item) => item.medicine_id === medicine.id)
@@ -137,6 +139,14 @@ export function MedicineDetailSheet({
         ? "text-warning"
         : "";
 
+  // Refill form parsing / validation
+  const parsedRefill = parseInt(refillQuantity, 10);
+  const refillValid = !isNaN(parsedRefill) && parsedRefill > 0;
+  const refillError =
+    refillQuantity.trim() !== "" && !refillValid
+      ? "Enter a positive whole number"
+      : undefined;
+
   const handleUpdate = async (data: MedicineFormData) => {
     if (!medicine) return;
     try {
@@ -158,14 +168,26 @@ export function MedicineDetailSheet({
     }
   };
 
+  // Opens the refill modal pre-filled with the current full-stock amount
+  const openRefill = () => {
+    if (!inventory) return;
+    setRefillQuantity(String(inventory.total_quantity));
+    setShowRefillModal(true);
+  };
+
+  const closeRefill = () => {
+    setShowRefillModal(false);
+    setRefillQuantity("");
+  };
+
   const handleRefill = async () => {
-    if (!inventory || !medicine) return;
+    if (!inventory || !medicine || !refillValid) return;
     try {
       await refill.mutateAsync({
         id: inventory.id,
-        quantity: inventory.total_quantity,
+        quantity: parsedRefill,
       });
-      setShowRefillModal(false);
+      closeRefill();
     } catch (err) {
       console.error("Failed to refill:", err);
     }
@@ -319,7 +341,7 @@ export function MedicineDetailSheet({
                       <Button
                         size="sm"
                         fullWidth
-                        onClick={() => setShowRefillModal(true)}
+                        onClick={openRefill}
                         loading={refill.isPending}
                       >
                         <RefreshCw className="w-4 h-4" strokeWidth={2} />{" "}
@@ -327,13 +349,17 @@ export function MedicineDetailSheet({
                       </Button>
                     )}
                   </div>
-                  {/* Contained destructive action — soft danger surface */}
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="mt-2.5 w-full py-2 rounded-pill border border-danger/25 bg-danger/[0.04] text-[13px] font-semibold text-danger hover:bg-danger/10 active:scale-[0.98] transition-all duration-150"
-                  >
-                    Delete Medicine
-                  </button>
+                  {/* Destructive action — solid danger button per design system */}
+                  <div className="mt-2.5">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      fullWidth
+                      onClick={() => setShowDeleteModal(true)}
+                    >
+                      Delete Medicine
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -361,30 +387,48 @@ export function MedicineDetailSheet({
           {/* Refill */}
           <Modal
             isOpen={showRefillModal}
-            onClose={() => setShowRefillModal(false)}
+            onClose={closeRefill}
             title="Refill Medicine"
           >
-            <div className="space-y-5">
-              <div className="p-4 rounded-[12px] bg-surface-muted">
-                <p className="text-[15px] font-semibold text-text">
+            <div className="space-y-4">
+              {/* Live stock context */}
+              <div className="rounded-[16px] bg-surface-muted px-4 py-3">
+                <p className="text-[14.5px] font-semibold text-text tracking-tight truncate">
                   {medicine.name}
                 </p>
-                <p className="text-[13px] text-secondary mt-0.5">
-                  Stock will be restored to {inventory?.total_quantity} tablets
+                <p className="text-[12px] text-text-secondary mt-0.5 leading-snug">
+                  Currently {formatQuantity(inventory?.remaining_quantity ?? 0)}{" "}
+                  left of {formatQuantity(inventory?.total_quantity ?? 0)}
                 </p>
               </div>
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  fullWidth
-                  onClick={() => setShowRefillModal(false)}
-                >
+
+              {/* Editable refill amount */}
+              <Input
+                label="New quantity"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                step={1}
+                value={refillQuantity}
+                onChange={(e) => setRefillQuantity(e.target.value)}
+                placeholder={`e.g. ${inventory?.total_quantity ?? 60}`}
+                error={refillError}
+                hint={
+                  refillError
+                    ? undefined
+                    : "Sets your stock (on-hand and total) to this amount."
+                }
+              />
+
+              <div className="flex gap-3 pt-1">
+                <Button variant="outline" fullWidth onClick={closeRefill}>
                   Cancel
                 </Button>
                 <Button
                   fullWidth
                   onClick={handleRefill}
                   loading={refill.isPending}
+                  disabled={!refillValid}
                 >
                   <RefreshCw className="w-4 h-4" strokeWidth={2} /> Refill
                 </Button>
