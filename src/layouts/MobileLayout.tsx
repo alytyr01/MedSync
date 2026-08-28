@@ -1,8 +1,10 @@
-﻿import { Outlet, NavLink, useLocation } from 'react-router-dom';
+﻿import { useState } from 'react';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { Home, Pill, ScanLine, Clock, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useReminderScheduler } from '@/hooks/useReminderScheduler';
 import { useLowStockAlerts } from '@/hooks/useLowStockAlerts';
+import { ScannerSheet } from '@/components/scanner/ScannerSheet';
 
 interface NavItem {
   path: string;
@@ -18,8 +20,7 @@ const mainNavItems: NavItem[] = [
   { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
-const scanNavItem: NavItem = {
-  path: '/scan',
+const scanNavItem = {
   label: 'Scan',
   icon: ScanLine,
 };
@@ -56,8 +57,29 @@ function NavLinkButton({ item, className = '' }: { item: NavItem; className?: st
   );
 }
 
+function ScanNavButton({ onClick, className = '' }: { onClick: () => void; className?: string }) {
+  const Icon = scanNavItem.icon;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`
+        relative flex flex-col items-center justify-center gap-1
+        px-2 py-2.5 rounded-[16px] hover:bg-white/5 transition-all duration-200
+        ${className}
+      `}
+    >
+      <Icon className="w-[22px] h-[22px]" strokeWidth={1.8} color="#8A9099" />
+      <span className="text-[10px] leading-none font-medium text-[#8A9099]">
+        {scanNavItem.label}
+      </span>
+    </button>
+  );
+}
+
 export function MobileLayout() {
   const location = useLocation();
+  const [scanOpen, setScanOpen] = useState(false);
 
   // Keep native notifications in sync with medicines
   useReminderScheduler();
@@ -87,16 +109,19 @@ export function MobileLayout() {
                 </div>
               </div>
 
-              {/* ===== Scan — separate square container (moderate radius) ===== */}
+              {/* ===== Scan — opens the scanner bottom sheet ===== */}
               <div className="w-16 h-16 shrink-0 bg-ink/95 backdrop-blur-xl rounded-[18px] shadow-float ring-1 ring-white/10">
                 <div className="h-full w-full p-1.5">
-                  <NavLinkButton item={scanNavItem} className="w-full h-full" />
+                  <ScanNavButton onClick={() => setScanOpen(true)} className="w-full h-full" />
                 </div>
               </div>
             </div>
           </div>
         </nav>
       )}
+
+      {/* ===== Scan Prescription with AI — bottom sheet ===== */}
+      <ScannerSheet open={scanOpen} onClose={() => setScanOpen(false)} />
     </div>
   );
 }
