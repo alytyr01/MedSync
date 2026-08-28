@@ -30,6 +30,8 @@ interface ScannerSheetProps {
   /** Visible while the Scan bottom-nav button is pressed */
   open: boolean;
   onClose: () => void;
+  /** Open straight into the live camera viewfinder, skipping the source picker */
+  autoCamera?: boolean;
 }
 
 /**
@@ -38,12 +40,16 @@ interface ScannerSheetProps {
  * 1. Intro card (Camera / Upload)  2. live viewfinder → capture
  * 3. AI processing  4. ScanResult review & edit
  */
-export function ScannerSheet({ open, onClose }: ScannerSheetProps) {
+export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheetProps) {
   const navigate = useNavigate();
   const createMedicine = useCreateMedicine();
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const [cameraOpen, setCameraOpen] = useState(false);
+  // The Modal (source picker / processing / review) — in autoCamera mode it
+  // stays closed until an image is actually captured, so ✕ from the live
+  // viewfinder returns straight to where the user was.
+  const [modalOpen, setModalOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,18 +57,24 @@ export function ScannerSheet({ open, onClose }: ScannerSheetProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [pipelineStage, setPipelineStage] = useState<PipelineStage>('capture');
 
-  // Reset internal flow whenever the sheet is dismissed.
+  // Reset internal flow whenever the sheet is dismissed; when opening with
+  // autoCamera, jump straight into the live viewfinder with NO modal behind
+  // it — the modal only appears after a capture (processing/review).
   useEffect(() => {
     if (!open) {
       setCameraOpen(false);
+      setModalOpen(false);
       setScanning(false);
       setScanResult(null);
       setError(null);
       setSaving(false);
       setEditingIndex(null);
       setPipelineStage('capture');
+    } else {
+      setCameraOpen(autoCamera);
+      setModalOpen(!autoCamera);
     }
-  }, [open]);
+  }, [open, autoCamera]);
 
   const runScan = async (imageData: string) => {
     setError(null);
@@ -84,6 +96,7 @@ export function ScannerSheet({ open, onClose }: ScannerSheetProps) {
 
   const handleCameraCapture = (imageData: string) => {
     setCameraOpen(false);
+    setModalOpen(true); // surface the sheet for processing + review
     void runScan(imageData);
   };
 
@@ -93,7 +106,10 @@ export function ScannerSheet({ open, onClose }: ScannerSheetProps) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => void runScan(reader.result as string);
+    reader.onload = () => {
+      setModalOpen(true); // show processing/review in the sheet
+      void runScan(reader.result as string);
+    };
     reader.readAsDataURL(file);
     e.target.value = '';
   };
@@ -162,11 +178,16 @@ export function ScannerSheet({ open, onClose }: ScannerSheetProps) {
       {/* Live full-screen viewfinder — overlays the sheet while active */}
       <CameraPreview
         open={open && cameraOpen && !scanResult && !error}
-        onClose={() => setCameraOpen(false)}
+        onClose={() => {
+          // ✕ from the Home "Scan Prescription" entry closes the whole sheet
+          // (back to Home); ✕ from the nav entry returns to the source picker.
+          if (autoCamera) onClose();
+          else setCameraOpen(false);
+        }}
         onCaptured={handleCameraCapture}
       />
 
-      <Modal isOpen={open} onClose={onClose} title="Select Image Source">
+      <Modal isOpen={open && modalOpen} onClose={onClose} title="Select Image Source">
         {error && (
           <ErrorState
             message={error}

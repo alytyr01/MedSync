@@ -22,6 +22,7 @@ import {
 } from '@/hooks/useMedicationLogs';
 import { snoozeReminder, cancelReminder } from '@/services/notifications';
 import { useAuthStore } from '@/store/authStore';
+import { useScannerStore } from '@/store/scannerStore';
 import { LoadingState, ErrorState, Button, Modal } from '@/components/common';
 import { ReminderItem } from '@/components/medicine/ReminderItem';
 import { getTodayISO, formatTime } from '@/utils/format';
@@ -373,7 +374,7 @@ export function HomePage() {
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
-                    onClick={() => navigate('/scan')}
+                    onClick={() => useScannerStore.getState().openScanner(true)}
                     className="inline-flex items-center gap-1.5 bg-teal-500/80 text-white font-semibold rounded-full pl-3 pr-3.5 py-1.5 shadow-[0_2px_8px_rgba(94,234,212,0.15)] hover:bg-teal-500 active:scale-[0.97] transition-all"
                   >
                     <ScanLine className="w-3.5 h-3.5" strokeWidth={2.2} />

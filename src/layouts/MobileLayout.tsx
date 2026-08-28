@@ -1,10 +1,10 @@
-﻿import { useState } from 'react';
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
+﻿import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { Home, Pill, ScanLine, Clock, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useReminderScheduler } from '@/hooks/useReminderScheduler';
 import { useLowStockAlerts } from '@/hooks/useLowStockAlerts';
 import { ScannerSheet } from '@/components/scanner/ScannerSheet';
+import { useScannerStore } from '@/store/scannerStore';
 
 interface NavItem {
   path: string;
@@ -79,7 +79,9 @@ function ScanNavButton({ onClick, className = '' }: { onClick: () => void; class
 
 export function MobileLayout() {
   const location = useLocation();
-  const [scanOpen, setScanOpen] = useState(false);
+  const scanOpen = useScannerStore((s) => s.open);
+  const autoCamera = useScannerStore((s) => s.autoCamera);
+  const closeScanner = useScannerStore((s) => s.closeScanner);
 
   // Keep native notifications in sync with medicines
   useReminderScheduler();
@@ -112,7 +114,7 @@ export function MobileLayout() {
               {/* ===== Scan — opens the scanner bottom sheet ===== */}
               <div className="w-16 h-16 shrink-0 bg-ink/95 backdrop-blur-xl rounded-[18px] shadow-float ring-1 ring-white/10">
                 <div className="h-full w-full p-1.5">
-                  <ScanNavButton onClick={() => setScanOpen(true)} className="w-full h-full" />
+                  <ScanNavButton onClick={() => useScannerStore.getState().openScanner(false)} className="w-full h-full" />
                 </div>
               </div>
             </div>
@@ -120,8 +122,12 @@ export function MobileLayout() {
         </nav>
       )}
 
-      {/* ===== Scan Prescription with AI — bottom sheet ===== */}
-      <ScannerSheet open={scanOpen} onClose={() => setScanOpen(false)} />
+      {/* ===== Scan Prescription — bottom sheet ===== */}
+      <ScannerSheet
+        open={scanOpen}
+        autoCamera={autoCamera}
+        onClose={closeScanner}
+      />
     </div>
   );
 }
