@@ -32,6 +32,32 @@ const MEAL_OPTIONS: { value: MealRelation; label: string }[] = [
   { value: 'anytime', label: 'Anytime' },
 ];
 
+/* Singular unit label per medicine type (used to compose "3 capsules") */
+const DOSE_UNITS: Record<MedicineType, string> = {
+  tablet: 'tablet',
+  capsule: 'capsule',
+  syrup: 'dose',
+  injection: 'injection',
+};
+
+/* Recognizes a leading count like "3 capsules · 500mg" from past saves */
+const COUNT_PREFIX = /^(\d+)\s+(tablet|tablets|capsule|capsules|dose|doses|pill|pills|tab|tabs|sachet|sachets)\b[·\s-]*/i;
+
+/** Splits a stored dosage into (quantity, base dosage) for pre-filling edits. */
+function splitQuantity(dosage?: string): { qty: number; rest: string } {
+  if (!dosage) return { qty: 1, rest: '' };
+  const m = dosage.match(COUNT_PREFIX);
+  if (m) return { qty: Math.max(1, Number(m[1])), rest: dosage.slice(m[0].length).trim() };
+  return { qty: 1, rest: dosage };
+}
+
+/** Composes "3 capsules · 500mg"; plain dosage when quantity is 1. */
+function composeQuantity(qty: number, dosage: string, type: MedicineType): string {
+  if (qty <= 1 || !dosage) return dosage;
+  const unit = DOSE_UNITS[type] ?? 'dose';
+  return `${qty} ${qty === 1 ? unit : `${unit}s`} · ${dosage}`;
+}
+
 function format12Hour(time: string): string {
   const [h, m] = time.split(':').map(Number);
   const period = h >= 12 ? 'PM' : 'AM';
@@ -52,6 +78,9 @@ export function MedicineForm({
   loading = false,
 }: MedicineFormProps) {
   const [activeTimeIndex, setActiveTimeIndex] = useState<number | null>(null);
+  // Quantity per dose — pre-filled by parsing an existing formatted dosage
+  const initialSplit = splitQuantity(initialData?.dosage);
+  const [quantity, setQuantity] = useState(initialSplit.qty);
 
   // Derive a sensible end date from duration_days when editing
   const defaultEndDate = initialData?.duration_days
@@ -63,7 +92,7 @@ export function MedicineForm({
 
   const defaultValues: MedicineFormData = {
     name: initialData?.name ?? '',
-    dosage: initialData?.dosage ?? '',
+    dosage: initialSplit.rest,
     frequency: initialData?.frequency ?? 'daily',
     times_per_day: initialData?.times_per_day ?? 1,
     schedule_times:
@@ -129,7 +158,11 @@ export function MedicineForm({
         Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
       duration_days = Math.max(1, days);
     }
-    onSubmit({ ...values, duration_days });
+    onSubmit({
+      ...values,
+      duration_days,
+      dosage: composeQuantity(quantity, values.dosage, values.medicine_type ?? 'tablet'),
+    });
   });
 
   return (
@@ -152,22 +185,56 @@ export function MedicineForm({
         )}
       </div>
 
-      {/* Dosage */}
-      <div>
-        <input
-          type="text"
-          placeholder="Dosage (e.g. 500mg)"
-          {...register('dosage')}
-          className="
-            w-full h-[52px] px-4 rounded-lg text-[15px] shadow-card
-            bg-surface text-text border border-border placeholder:text-text-tertiary
-            focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
-            transition-all duration-200
-          "
-        />
-        {errors.dosage?.message && (
-          <p className="mt-1.5 text-sm text-danger">{errors.dosage.message}</p>
-        )}
+      {/* Dose size — quantity per dose + strength */}
+      <div className="grid grid-cols-[88px_1fr] gap-3">
+        {/* Quantity per dose */}
+        <div>
+          <label className="block text-sm font-medium text-text mb-1.5">
+            Qty / dose
+          </label>
+          <div className="flex items-center h-[52px] rounded-lg shadow-card bg-surface text-text border border-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              className="w-9 h-full text-[18px] font-semibold text-secondary hover:bg-surface-muted transition-colors shrink-0"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="flex-1 text-center text-[15px] font-semibold tabular-nums">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuantity(Math.min(9, quantity + 1))}
+              className="w-9 h-full text-[18px] font-semibold text-secondary hover:bg-surface-muted transition-colors shrink-0"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        {/* Dosage / strength */}
+        <div>
+          <label className="block text-sm font-medium text-text mb-1.5">
+            Dosage
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. 500mg"
+            {...register('dosage')}
+            className="
+              w-full h-[52px] px-4 rounded-lg text-[15px] shadow-card
+              bg-surface text-text border border-border placeholder:text-text-tertiary
+              focus:outline-none focus:ring-[3px] focus:ring-primary/10 focus:border-primary/50
+              transition-all duration-200
+            "
+          />
+          {errors.dosage?.message && (
+            <p className="mt-1.5 text-sm text-danger">{errors.dosage.message}</p>
+          )}
+        </div>
       </div>
 
       {/* Medicine Type */}
