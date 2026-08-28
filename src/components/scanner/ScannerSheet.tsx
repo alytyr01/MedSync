@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera as CameraIcon, Upload } from 'lucide-react';
+import { Camera as CameraIcon, Upload, X } from 'lucide-react';
 import { processPrescriptionImage } from '@/services/ocr';
 import { useCreateMedicine } from '@/hooks/useMedicines';
 import { CameraPreview } from '@/components/scanner/CameraPreview';
 import { ScanResult } from '@/components/scanner/ScanResult';
-import { Modal, LoadingState, ErrorState } from '@/components/common';
+import { Modal, ErrorState } from '@/components/common';
 import { MedicineForm } from '@/components/forms/MedicineForm';
 import type { ScannedMedicine, ScanResult as ScanResultType } from '@/types';
 import type { MedicineFormData } from '@/utils/validation';
@@ -56,12 +56,15 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
   const [saving, setSaving] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [pipelineStage, setPipelineStage] = useState<PipelineStage>('capture');
+  // Set when the user abandons the flow (✕) — discards late-arriving results
+  const flowCancelled = useRef(false);
 
   // Reset internal flow whenever the sheet is dismissed; when opening with
   // autoCamera, jump straight into the live viewfinder with NO modal behind
   // it — the modal only appears after a capture (processing/review).
   useEffect(() => {
     if (!open) {
+      flowCancelled.current = true;
       setCameraOpen(false);
       setModalOpen(false);
       setScanning(false);
@@ -71,32 +74,75 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
       setEditingIndex(null);
       setPipelineStage('capture');
     } else {
+      flowCancelled.current = false;
       setCameraOpen(autoCamera);
       setModalOpen(!autoCamera);
     }
   }, [open, autoCamera]);
 
   const runScan = async (imageData: string) => {
+    flowCancelled.current = false;
     setError(null);
     setScanning(true);
-    setPipelineStage('quality');
+
+    // Small pause helper so each pre-processing stage is visible rather
+    // than snapping through instantly.
+    const pause = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
     try {
+      // 1) Capturing image — the source frame is read into the pipeline
+      setPipelineStage('capture');
+      await pause(500);
+      if (flowCancelled.current) return;
+
+      // 2) Checking image quality
+      setPipelineStage('quality');
+      await pause(450);
+      if (flowCancelled.current) return;
+
+      // 3) Enhancing image (auto-contrast/sharpening if needed)
       setPipelineStage('enhance');
-      const result = await processPrescriptionImage({ imageData });
+      await pause(450);
+      if (flowCancelled.current) return;
+
+      // 4) AI extracting medicines — the ACTIVE stage for the full
+      //    duration of the real AI/OCR work (the slow, network-bound leg)
       setPipelineStage('ai');
-      setScanResult(result);
+      const result = await processPrescriptionImage({ imageData });
+      if (flowCancelled.current) return;
+
+      // 5) Ready for review — hold briefly before revealing the results
       setPipelineStage('review');
+      await pause(600);
+      if (flowCancelled.current) return;
+
+      setScanResult(result);
     } catch (err) {
+      if (flowCancelled.current) return;
       console.error('Scan failed:', err);
       setError('Failed to process the prescription image. Please try again.');
     } finally {
+      if (!flowCancelled.current) setScanning(false);
+    }
+  };
+
+  /** ✕ on the full-screen review — Home entry: close all; nav: back to picker */
+  const closeFlow = () => {
+    flowCancelled.current = true;
+    if (autoCamera) {
+      onClose();
+    } else {
+      setScanResult(null);
+      setError(null);
       setScanning(false);
+      setModalOpen(true);
     }
   };
 
   const handleCameraCapture = (imageData: string) => {
     setCameraOpen(false);
-    setModalOpen(true); // surface the sheet for processing + review
+    setModalOpen(false);
     void runScan(imageData);
   };
 
@@ -107,7 +153,7 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      setModalOpen(true); // show processing/review in the sheet
+      setModalOpen(false); // hand off to the full-screen processing/review
       void runScan(reader.result as string);
     };
     reader.readAsDataURL(file);
@@ -187,68 +233,125 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
         onCaptured={handleCameraCapture}
       />
 
-      <Modal isOpen={open && modalOpen} onClose={onClose} title="Select Image Source">
-        {error && (
-          <ErrorState
-            message={error}
-            onRetry={() => {
-              setError(null);
-              setScanResult(null);
-            }}
-          />
-        )}
-
-        {!error && scanning && !scanResult && (
-          <div>
-            <LoadingState label="Analyzing prescription with Gemini AI..." />
-            <div className="mt-4 premium-card p-5 space-y-3">
-              {PIPELINE_STAGES.map((stage, i) => (
-                <div
-                  key={stage.id}
-                  className={`flex items-center gap-3 text-sm ${
-                    i <= currentStageIndex
-                      ? 'text-text'
-                      : 'text-text-tertiary/50'
-                  }`}
+      {/* ===== Full-screen processing / review / error ===== */}
+      {open && (scanning || scanResult || error) && (
+        <div className="fixed inset-0 z-[45] bg-background overflow-y-auto overscroll-contain">
+          <div className="max-w-md mx-auto px-5 pb-10">
+            <header className="flex items-center gap-3 pt-[max(1.25rem,env(safe-area-inset-top))] pb-6">
+              {!scanning && (
+                <button
+                  type="button"
+                  onClick={closeFlow}
+                  className="w-9 h-9 -ml-1 rounded-full bg-surface-muted flex items-center justify-center text-secondary"
+                  aria-label="Close scanner"
                 >
+                  <X className="w-5 h-5" strokeWidth={2} />
+                </button>
+              )}
+              <h1 className="text-[20px] font-bold text-text tracking-tight">
+                Scan Prescription
+              </h1>
+            </header>
+
+            {error ? (
+              <ErrorState
+                message={error}
+                onRetry={() => {
+                  flowCancelled.current = false;
+                  setError(null);
+                  setScanResult(null);
+                  if (autoCamera) setCameraOpen(true);
+                  else setModalOpen(true);
+                }}
+              />
+            ) : scanning ? (
+              <div className="pt-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.09em] text-text-tertiary">
+                  AI analysis
+                </p>
+                <h2 className="mt-2 text-[24px] font-bold text-text tracking-tight leading-tight">
+                  Reading your prescription…
+                </h2>
+                <p className="mt-2 text-[13px] text-text-secondary">
+                  This usually only takes a few seconds.
+                </p>
+
+                <div className="relative mt-9">
+                  {/* Vertical rail connecting the stage dots */}
                   <div
-                    className={`
-                      w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0
-                      ${
-                        i < currentStageIndex
-                          ? 'bg-success/10 text-success'
-                          : i === currentStageIndex
-                            ? 'bg-primary-soft text-primary'
-                            : 'bg-surface-muted text-text-tertiary'
-                      }
-                    `}
-                  >
-                    {i < currentStageIndex ? (
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    ) : (
-                      i + 1
-                    )}
+                    className="absolute left-[11px] top-[11px] bottom-[11px] w-px bg-border-subtle"
+                    aria-hidden
+                  />
+                  <div className="space-y-7">
+                    {PIPELINE_STAGES.map((stage, i) => {
+                      const done = i < currentStageIndex;
+                      const active = i === currentStageIndex;
+                      return (
+                        <div
+                          key={stage.id}
+                          className="relative flex items-center gap-4"
+                        >
+                          <div
+                            className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 relative z-10 ${
+                              done
+                                ? 'bg-success/10 text-success'
+                                : active
+                                  ? 'bg-primary-soft text-primary'
+                                  : 'bg-surface-muted text-text-tertiary'
+                            }`}
+                          >
+                            {done ? (
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={3}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            ) : active ? (
+                              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary/25 border-t-primary animate-spin" />
+                            ) : (
+                              i + 1
+                            )}
+                          </div>
+                          <span
+                            className={`text-[14px] font-medium ${
+                              done || active
+                                ? 'text-text'
+                                : 'text-text-tertiary'
+                            }`}
+                          >
+                            {stage.label}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {stage.label}
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              scanResult && (
+                <ScanResult
+                  medicines={scanResult.medicines}
+                  confidence={scanResult.confidence}
+                  validation={scanResult.validation}
+                  onEdit={setEditingIndex}
+                  onSaveAll={handleSaveAll}
+                  saving={saving}
+                />
+              )
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-        {!error && scanResult && !scanning && (
-          <ScanResult
-            medicines={scanResult.medicines}
-            confidence={scanResult.confidence}
-            validation={scanResult.validation}
-            onEdit={setEditingIndex}
-            onSaveAll={handleSaveAll}
-            saving={saving}
-          />
-        )}
-
+      <Modal isOpen={open && modalOpen} onClose={onClose} title="Select Image Source">
         {!error && !scanning && !scanResult && (
           <div className="py-1">
             <p className="text-[13px] text-text-secondary mb-4">
