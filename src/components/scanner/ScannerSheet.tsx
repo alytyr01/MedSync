@@ -251,7 +251,7 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
       {/* ===== Full-screen processing / review / error ===== */}
       {open && (scanning || scanResult || error) && (
         <div className="fixed inset-0 z-[45] bg-background overflow-y-auto overscroll-contain">
-          <div className="max-w-md mx-auto px-5 pb-10">
+          <div className="max-w-md mx-auto px-3 pb-10">
             <header className="flex items-center gap-3 pt-[max(1.25rem,env(safe-area-inset-top))] pb-6">
               {!scanning && (
                 <button
