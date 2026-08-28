@@ -26,11 +26,14 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
   const [errorMsg, setErrorMsg] = useState('');
   // Best-effort flashlight via the `torch` constraint on the active track
   const [flashOn, setFlashOn] = useState(false);
+  // A mostly-bright, paper-like region fills the frame → "detected"
+  const [detected, setDetected] = useState(false);
 
   const stopStream = () => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
     setFlashOn(false);
+    setDetected(false);
   };
 
   // Component-level cancellation flag so `start` is safe to call from the
@@ -86,6 +89,7 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
     }
 
     cancelledRef.current = false;
+    setDetected(false);
     void start();
 
     return () => {
@@ -94,6 +98,50 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- start handled via ref
   }, [open]);
+
+  // ===== Prescription detection =====
+  // Every ~350ms we sample a downscaled frame (center region ≈ the framing
+  // guide) and estimate how much of it is bright "paper". When a bright
+  // object consistently fills the frame, hide the positioning hint.
+  useEffect(() => {
+    if (!open || status !== 'ready' || detected) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 96;
+    canvas.height = 72;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    let strong = 0;
+
+    const tick = () => {
+      const video = videoRef.current;
+      if (!video || !video.videoWidth) return;
+      try {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Sample only the center frame area (≈86% × 62%)
+        const fx = Math.round(canvas.width * 0.07);
+        const fy = Math.round(canvas.height * 0.19);
+        const fw = Math.round(canvas.width * 0.86);
+        const fh = Math.round(canvas.height * 0.62);
+        const data = ctx.getImageData(fx, fy, fw, fh).data;
+        let bright = 0;
+        const total = fw * fh;
+        for (let i = 0; i < data.length; i += 4) {
+          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          if (lum > 180) bright++;
+        }
+        const ratio = bright / total;
+        strong = ratio > 0.5 ? strong + 1 : 0;
+        if (strong >= 3) setDetected(true);
+      } catch {
+        /* sampling hiccup — try again next tick */
+      }
+    };
+
+    const id = setInterval(tick, 350);
+    return () => clearInterval(id);
+  }, [open, status, detected]);
 
   if (!open) return null;
 
@@ -167,7 +215,14 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
       {/* Framing guide — dims everything outside the frame */}
       {status === 'ready' && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="w-[86%] h-[62%] rounded-[20px] border-2 border-dashed border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+          <div className="relative w-[86%] h-[62%] rounded-[20px] border-2 border-dashed border-white/50 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)] flex items-center justify-center">
+            {/* Positioning hint — hides once a bright prescription fills the frame */}
+            {!detected && (
+              <span className="px-4 py-2 rounded-full bg-black/50 text-white text-[13px] font-medium text-center leading-snug">
+                Position the prescription inside the frame
+              </span>
+            )}
+          </div>
         </div>
       )}
 
@@ -205,12 +260,6 @@ export function CameraPreview({ open, onClose, onCaptured }: CameraPreviewProps)
           <span className="w-9 h-9" />
         )}
       </div>
-
-      {status === 'ready' && (
-        <p className="relative z-10 text-center text-[12px] text-white/80 mt-4">
-          Position the prescription inside the frame
-        </p>
-      )}
 
       {/* Starting spinner */}
       {status === 'starting' && (
