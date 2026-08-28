@@ -8,6 +8,8 @@ interface ScanResultProps {
   medicines: ScannedMedicine[];
   confidence: number;
   validation?: ValidationReport;
+  /** Data URL of the scanned prescription — shown as a preview thumbnail */
+  previewImage?: string | null;
   onEdit: (index: number) => void;
   onSaveAll: () => void;
   saving?: boolean;
@@ -29,6 +31,7 @@ export function ScanResult({
   medicines,
   confidence,
   validation,
+  previewImage,
   onEdit,
   onSaveAll,
   saving = false,
@@ -37,6 +40,21 @@ export function ScanResult({
 
   return (
     <div className="space-y-5">
+      {/* Scanned prescription preview */}
+      {previewImage && (
+        <div className="relative rounded-[18px] overflow-hidden shadow-float ring-1 ring-border">
+          <img
+            src={previewImage}
+            alt="Scanned prescription"
+            className="w-full h-44 object-cover"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
+          <span className="absolute bottom-2.5 left-3 text-[11px] font-semibold text-white/90 tracking-wide">
+            Prescription
+          </span>
+        </div>
+      )}
+
       {/* Summary hero — overall AI confidence as the focal point */}
       <div className="px-1">
         <div className="flex items-center justify-between gap-3">

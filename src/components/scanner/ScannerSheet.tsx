@@ -52,6 +52,8 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
   const [modalOpen, setModalOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null);
+  // The raw captured image, shown as a preview at the top of the results
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -69,6 +71,7 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
       setModalOpen(false);
       setScanning(false);
       setScanResult(null);
+      setPreviewImage(null);
       setError(null);
       setSaving(false);
       setEditingIndex(null);
@@ -83,6 +86,7 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
   const runScan = async (imageData: string) => {
     flowCancelled.current = false;
     setError(null);
+    setPreviewImage(imageData); // remember the scan for the results preview
     setScanning(true);
 
     // Small pause helper so each pre-processing stage is visible rather
@@ -121,7 +125,11 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
     } catch (err) {
       if (flowCancelled.current) return;
       console.error('Scan failed:', err);
-      setError('Failed to process the prescription image. Please try again.');
+      const detail =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Please try again.';
+      setError(`Failed to process the prescription image. ${detail}`);
     } finally {
       if (!flowCancelled.current) setScanning(false);
     }
@@ -265,74 +273,115 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
                 }}
               />
             ) : scanning ? (
-              <div className="pt-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.09em] text-text-tertiary">
-                  AI analysis
-                </p>
-                <h2 className="mt-2 text-[24px] font-bold text-text tracking-tight leading-tight">
-                  Reading your prescription…
-                </h2>
-                <p className="mt-2 text-[13px] text-text-secondary">
-                  This usually only takes a few seconds.
-                </p>
+              <div className="pt-1">
+                {/* Hero — reassuring headline + animated pulse chips */}
+                <div className="rounded-[22px] bg-ink shadow-float ring-1 ring-white/10 px-5 pt-6 pb-5 overflow-hidden relative">
+                  {/* soft glow accents */}
+                  <div className="pointer-events-none absolute -top-16 -right-10 w-48 h-48 rounded-full bg-teal-400/20 blur-3xl" />
+                  <div className="pointer-events-none absolute -bottom-16 -left-10 w-40 h-40 rounded-full bg-primary/30 blur-3xl" />
+                  <p className="relative text-[10px] font-semibold uppercase tracking-[0.12em] text-white/60">
+                    AI analysis
+                  </p>
+                  <h2 className="relative mt-1.5 text-[22px] font-bold text-white tracking-tight leading-tight">
+                    Reading your prescription
+                  </h2>
+                  <p className="relative mt-1.5 text-[12.5px] text-white/70 leading-snug">
+                    Extracting each medicine, dose, and schedule…
+                  </p>
+                  {/* reassuring loading dots (static — only the circular spinner moves) */}
+                  <div className="relative mt-5 flex items-center gap-1.5">
+                    {[0, 1, 2].map((d) => (
+                      <span
+                        key={d}
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          d === 0 ? 'bg-teal-300' : 'bg-teal-300/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
 
-                <div className="relative mt-9">
-                  {/* Vertical rail connecting the stage dots */}
-                  <div
-                    className="absolute left-[11px] top-[11px] bottom-[11px] w-px bg-border-subtle"
-                    aria-hidden
-                  />
-                  <div className="space-y-7">
-                    {PIPELINE_STAGES.map((stage, i) => {
-                      const done = i < currentStageIndex;
-                      const active = i === currentStageIndex;
-                      return (
+                {/* Stage progress — premium card with active emphasis */}
+                <div className="mt-5 premium-card overflow-hidden">
+                  {PIPELINE_STAGES.map((stage, i) => {
+                    const done = i < currentStageIndex;
+                    const active = i === currentStageIndex;
+                    return (
+                      <div
+                        key={stage.id}
+                        className={`
+                          relative px-4 py-3.5 flex items-center gap-3.5
+                          ${i !== 0 ? 'border-t border-border-subtle' : ''}
+                          ${active ? 'bg-primary-soft' : ''}
+                        `}
+                      >
+                        {/* Status indicator */}
                         <div
-                          key={stage.id}
-                          className="relative flex items-center gap-4"
+                          className={`w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0 transition-all ${
+                            done
+                              ? 'bg-success/10 text-success'
+                              : active
+                                ? 'bg-primary text-white shadow-button'
+                                : 'bg-surface-muted text-text-tertiary'
+                          }`}
                         >
-                          <div
-                            className={`w-[22px] h-[22px] rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 relative z-10 ${
-                              done
-                                ? 'bg-success/10 text-success'
-                                : active
-                                  ? 'bg-primary-soft text-primary'
-                                  : 'bg-surface-muted text-text-tertiary'
-                            }`}
-                          >
-                            {done ? (
-                              <svg
-                                className="w-3 h-3"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            ) : active ? (
-                              <span className="w-3.5 h-3.5 rounded-full border-2 border-primary/25 border-t-primary animate-spin" />
-                            ) : (
-                              i + 1
-                            )}
-                          </div>
-                          <span
-                            className={`text-[14px] font-medium ${
-                              done || active
-                                ? 'text-text'
-                                : 'text-text-tertiary'
+                          {done ? (
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={3}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          ) : active ? (
+                            <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                          ) : (
+                            <span className="text-[13px] font-semibold">
+                              {i + 1}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`text-[14px] font-semibold tracking-tight ${
+                              active
+                                ? 'text-primary'
+                                : done
+                                  ? 'text-text'
+                                  : 'text-text-tertiary'
                             }`}
                           >
                             {stage.label}
-                          </span>
+                          </p>
+                          <p className="text-[11.5px] text-text-secondary/80 mt-0.5 leading-snug">
+                            {stage.id === 'ai'
+                              ? 'Google AI is scanning the details'
+                              : stage.id === 'capture'
+                                ? 'Reading the source image'
+                                : stage.id === 'quality'
+                                  ? 'Ensuring the image is clear'
+                                  : stage.id === 'enhance'
+                                    ? 'Improving contrast and detail'
+                                    : 'Almost done — getting everything ready'}
+                          </p>
                         </div>
-                      );
-                    })}
-                  </div>
+
+                        {/* Progress % for the active stage */}
+                        {active && (
+                          <span className="shrink-0 text-[12px] font-bold text-text tabular-nums">
+                            {Math.min(100, Math.round(((i + 1) / PIPELINE_STAGES.length) * 100))}%
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
@@ -341,6 +390,7 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
                   medicines={scanResult.medicines}
                   confidence={scanResult.confidence}
                   validation={scanResult.validation}
+                  previewImage={previewImage}
                   onEdit={setEditingIndex}
                   onSaveAll={handleSaveAll}
                   saving={saving}
