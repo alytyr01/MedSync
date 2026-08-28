@@ -31,26 +31,37 @@ export function LoadingState({
 interface ErrorStateProps {
   message?: string;
   onRetry?: () => void;
+  variant?: 'default' | 'quota';
 }
 
 export function ErrorState({
   message = 'Something went wrong. Please try again.',
   onRetry,
+  variant = 'default',
 }: ErrorStateProps) {
+  const isQuota = variant === 'quota';
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6 text-center gap-4">
-      <div className="w-14 h-14 rounded-full bg-rose-soft flex items-center justify-center">
-        <AlertCircle className="w-6 h-6 text-danger" strokeWidth={2} />
+      <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isQuota ? 'bg-amber-soft' : 'bg-rose-soft'}`}>
+        {isQuota ? (
+          <AlertCircle className="w-6 h-6 text-amber-600" strokeWidth={2} />
+        ) : (
+          <AlertCircle className="w-6 h-6 text-danger" strokeWidth={2} />
+        )}
       </div>
-      <p className="text-text font-medium text-[15px]">{message}</p>
-      {onRetry && (
+      <p className={`text-text font-medium text-[15px] ${isQuota ? 'max-w-sm' : ''}`}>
+        {isQuota
+          ? 'AI quota limit reached — the free scan budget is temporarily exhausted.'
+          : message}
+      </p>
+      {!isQuota && onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>
           <RefreshCw className="w-4 h-4" strokeWidth={2} />
           Retry
         </Button>
       )}
     </div>
-  );
+    );
 }
 
 // ===== Empty State =====

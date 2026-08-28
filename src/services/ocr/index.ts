@@ -2,7 +2,7 @@ import { supabase } from '@/services/supabase/client';
 import type { ScanResult } from '@/types';
 
 /**
- * OCR Service - Gemini 2.5 Flash/Pro Vision via Edge Function
+ * OCR Service - Gemini Flash Vision via Edge Function
  *
  * Pipeline:
  * React App → Camera (Capacitor) → Convert Image → Base64
@@ -53,14 +53,32 @@ async function callEdgeFunction(imageData: string): Promise<ScanResult> {
     body: {
       imageData,
     },
-  });
+    });
 
   if (error) {
-    throw new Error(`Edge function error: ${error.message}`);
+    let detail = '';
+    try {
+      detail = await (error as any).context?.text?.();
+    } catch {}
+    const reason = detail || (error as any).message || 'Edge Function returned a non-2xx status code';
+    throw new Error(`Edge function error: ${reason}`);
   }
 
   if (!data || !data.medicines) {
     throw new Error('Invalid response from edge function');
+  }
+
+  // Normalize quota exhaustion — the UI surfaces a recoverable state
+  // when the AI scan budget is hit.
+  const quotaHit =
+    data.error === 'quota_exhausted' ||
+    /429/i.test(data.message ?? '') ||
+    /quota/i.test(data.message ?? '');
+  if (quotaHit) {
+    const err: any = new Error('AI quota exhausted - retrying won\'t help right now');
+    err.code = 'quota_exhausted';
+    err.recoverable = true;
+    throw err;
   }
 
   return {

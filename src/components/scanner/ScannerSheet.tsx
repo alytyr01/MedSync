@@ -54,7 +54,8 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null);
   // The raw captured image, shown as a preview at the top of the results
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+  const [errorTier, setErrorTier] = useState<'retry' | 'quota'>('retry');
   const [saving, setSaving] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [pipelineStage, setPipelineStage] = useState<PipelineStage>('capture');
@@ -122,9 +123,15 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
       if (flowCancelled.current) return;
 
       setScanResult(result);
-    } catch (err) {
+     } catch (err) {
       if (flowCancelled.current) return;
       console.error('Scan failed:', err);
+      const tier =
+        (err as any)?.code === 'quota_exhausted' ||
+        /AI quota exhausted/i.test((err as any)?.message ?? '')
+          ? 'quota'
+          : 'retry';
+      setErrorTier(tier);
       const detail =
         err instanceof Error && err.message
           ? err.message
@@ -264,13 +271,18 @@ export function ScannerSheet({ open, onClose, autoCamera = false }: ScannerSheet
             {error ? (
               <ErrorState
                 message={error}
-                onRetry={() => {
-                  flowCancelled.current = false;
-                  setError(null);
-                  setScanResult(null);
-                  if (autoCamera) setCameraOpen(true);
-                  else setModalOpen(true);
-                }}
+                variant={errorTier === 'quota' ? 'quota' : 'default'}
+                onRetry={
+                  errorTier === 'quota'
+                    ? undefined
+                    : () => {
+                        flowCancelled.current = false;
+                        setError(null);
+                        setScanResult(null);
+                        if (autoCamera) setCameraOpen(true);
+                        else setModalOpen(true);
+                      }
+                }
               />
             ) : scanning ? (
               <div className="pt-1">

@@ -4,7 +4,7 @@ import type { ScannedMedicine, ScanResult } from '@/types';
  * AI Service - Client-side fallback
  *
  * The primary AI extraction happens in the Supabase Edge Function
- * (scan-prescription) which uses Gemini 2.5 Flash/Pro Vision.
+ * (scan-prescription) which uses Gemini Flash Vision.
  *
  * This service provides a rule-based fallback if the edge function fails.
  */

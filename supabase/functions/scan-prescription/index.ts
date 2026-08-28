@@ -1,6 +1,6 @@
 // Supabase Edge Function: scan-prescription
 //
-// Flow: React App → Base64 Image → Edge Function → Gemini 2.5 Flash Vision → JSON
+// Flow: React App → Base64 Image → Edge Function → Gemini Flash Vision → JSON
 //
 // Securely calls the Gemini API with the user's prescription image
 // and returns structured medicine data.
@@ -16,7 +16,7 @@ const CORS_HEADERS = {
 };
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-flash';
+const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.6-flash';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
@@ -78,11 +78,14 @@ serve(async (req) => {
       base64 = imageData;
     }
 
-    // Call Gemini 2.5 Flash Vision
+    // Call Gemini Flash Vision
     const result = await callGemini(base64, mimeType);
 
+        if (result.error?.includes('429')) {
+      return json({ error: 'quota_exhausted', message: result.error }, 429);
+    }
     if (!result.success) {
-      return json({ error: result.error }, 422);
+      return json({ error: 'gemini_failure', message: result.error, details: result.medicines }, 422);
     }
 
     return json(
